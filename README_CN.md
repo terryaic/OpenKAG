@@ -1,3 +1,5 @@
+[English](README.md) ｜ 中文
+
 # OpenKAG (Open Knowledge Augmented Generation)
 ## 一、简介
 ### OpenKAG，是基于大模型技术开发的企业智能知识中台，具备开源、可私有化部署、支持多模态等特点，支持对图片以及PDF等文档进行预处理与分析，同时是国内首个融合知识图谱与大模型RAG落地应用的企业知识助手。

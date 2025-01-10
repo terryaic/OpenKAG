@@ -1,3 +1,5 @@
+[中文](README_CN.md) ｜ English
+
 # OpenKAG (Open Knowledge Augmented Generation)
 
 ## 1. Introduction
