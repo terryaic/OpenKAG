@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Interface</title>
+    <link href="css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <script src="libs/adapter.min.js" ></script>
+    <script src="js/webrtcstreamer.js" ></script>
+    <script>        
+        var domain = window.location.host;
+        var server = domain.split(":")[0];
+        var webRtcServer      = null;
+        window.onload         = function() { 
+            webRtcServer      = new WebRtcStreamer("video",location.protocol+"//"+server+":8443/webrtc-streamer");
+            webRtcServer.connect("window://gst-launch-1.0");
+        }
+        window.onbeforeunload = function() { webRtcServer.disconnect(); }
+    </script>
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('message-input');
+            input.value = text;
+            document.getElementById('send-button').click()
+        }
+    </script>
+    
+    <div>
+        <!-- 内容主体区域 -->
+        <video preload='auto' id='video' webkit-playsinline='true' playsinline='true'x-webkit-airplay='true' x5-video-player-type='h5' x5-video-player-fullscreen='true'x5-video-ignore-metadata='true'  width='100%' height='100%'><p> 不支持video</p> </video>
+    </div>
+    <!--<div class="dropdown">
+        <button class="dropbtn">场景</button>
+        <div class="dropdown-content">
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom/classroom1.usd')">教室1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom-B/classroom-b.usd')">教室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/live-broadcast/LIVE.usd')">直播室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/living-room/living-room.usd')">客厅1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Living-room-B/B.usd')">客厅2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office/office1.usd')">办公室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office-B/office-b.usd')">办公室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Exhibition-hall/Exhibition-hall-1.usd')">展馆</a>
+        </div>
+    </div>
+    <div class="dropdown2">
+        <button class="dropbtn2">模式</button>
+        <div class="dropdown2-content">
+            <pre onclick="set_mode('chat')">闲聊</pre>
+            <pre onclick="set_mode('faq')">问答</pre>
+            <pre onclick="set_mode('code')">代码助手</pre>
+            <pre onclick="set_mode('agent')">Agent</pre>
+        </div>
+    </div>-->
+
+    <div id="chat-box"></div>
+    <div class="form-container">
+        <div class="layui-btn-container">
+          <button class="layui-btn demo-dropdown-base">
+            <span>模式</span>
+            <i class="layui-icon layui-icon-down layui-font-12"></i>
+          </button>
+          <!--  <nav class="top-nav">
+                <ul>
+                    <li><a href="avatar.html">Avatar Chat</a></li>
+                    <li><a href="chatbox.html">Text Chat</a></li>
+                    <li><a href="knowledge_base.html">Knowledge</a></li>
+                </ul>
+            </nav>-->
+        </div>
+          
+        <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+        <script src="js/layui.js"></script> 
+        <script>
+        layui.use(function(){
+          var dropdown = layui.dropdown;
+          // 渲染
+          dropdown.render({
+            elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+            data: [{
+              title: '闲聊',
+              id: 100
+            },{
+              title: '问答',
+              id: 101
+            }],
+            click: function(obj){
+                if (obj.id == 100)
+                   set_mode("chat");
+                else if (obj.id == 101)
+                   set_mode("faq");
+            }
+          });
+        });
+        </script>
+            <input type="text" id="message-input" name="message" placeholder="Type your message here">
+            <!--<textarea id="message-input" name="message" class="text-input" placeholder="Type your message here..."></textarea>-->
+            <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+        <button id="recordButton" class="record-button"><i class="fas fa-microphone"></i></button>
+        <button id="scriptButton" style="visibility: hidden;">执行当前代码</button>
+        <button id="stopButton" class="normalButton" style="visibility: hidden;">STOP</button>
+    </div>
+    <script src="js/webs.js"></script>
+    <script src="js/moscripts.js"></script>
+    <script src="js/simple.js"></script>
+    <script >setup("ws");set_mode('faq');setup_record_cb(fill_text);</script>
+</body>
+</html>

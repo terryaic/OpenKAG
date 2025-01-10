@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Chat</title>
+    <link href="css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <!--<link rel="stylesheet" href="css/all.min.css">-->
+    <script src="js/layui.js"></script> 
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color:white;
+        }
+        #cookieButton {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #3c453c;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 10px; /* 增加一些空间给文字 */
+        }
+        #cookieButton:active {
+            background-color: #b85f12;
+        }
+        #loadingAnimation {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ffcc00;
+            border-top: 4px solid #ffaa00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        #instructionText {
+            font-size: 16px;
+            color: #555;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .normalButton{
+    font-size: 20px;
+    color: red;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    #border-radius: 10%;
+    #border: 5px solid red;
+        }
+        .normalButton:hover{
+            background-color: #0056b3;
+        }
+.stop-icon {
+    font-size: 20px;
+    color: red;
+    font-family: Arial, sans-serif;
+}
+
+.stop-button {
+    background-color: #3c453c;
+    #border: 2px solid red;
+    border-radius: 10%;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: red;
+    font-family: Arial, sans-serif;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+}
+
+.stop-button:hover {
+    background-color: red;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+    <button id="cookieButton">
+        <div id="loadingAnimation"></div>
+    </button>
+    <div id="instructionText">按住录音</div>
+    <script src="js/audiochat.js"></script>
+    <script>init_audio_socket();permission_req();</script>
+    <div class="form-container">
+<select id="languageDropdown">
+  <option value="mandarin" selected>普通话</option>
+  <option value="cantonese">广东话</option>
+</select>
+<script>
+// Function to get the selected language
+function getSelectedLanguage() {
+  var languageDropdown = document.getElementById('languageDropdown');
+  var selectedLanguage = languageDropdown.value;
+  console.log('Selected language:', selectedLanguage);
+  // Add your logic here to handle the language switch in your voice chat system
+  if (selectedLanguage === 'mandarin') {
+    // Set language to Mandarin
+    setLanguage('mandarin');
+  } else if (selectedLanguage === 'cantonese') {
+    // Set language to Cantonese
+    setLanguage('cantonese');
+  }
+}
+
+// Attach an event listener to the dropdown to listen for changes
+document.getElementById('languageDropdown').addEventListener('change', getSelectedLanguage);
+
+</script>
+        <div class="layui-btn-container">
+          <button class="layui-btn demo-dropdown-base">
+            <span>模式</span>
+            <i class="layui-icon layui-icon-down layui-font-12"></i>
+          </button>
+          <!--  <nav class="top-nav">
+                <ul>
+                    <li><a href="avatar.html">Avatar Chat</a></li>
+                    <li><a href="chatbox.html">Text Chat</a></li>
+                    <li><a href="knowledge_base.html">Knowledge</a></li>
+                </ul>
+            </nav>-->
+          <!--<button class="layui-btn" onclick="location.href='knowledge_base.html'">
+                <span>知识库</span>
+	        </button>-->
+            <!--<button id="stopButton" class="normalButton" style="visibility: hidden" onclick="stopVoice();"></button>-->
+            <button class="stop-button" id="stopButton" style="visibility: hidden" onclick="stopVoice();"></button>
+        </div>
+          
+        <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+        <script>
+            layui.use(function(){
+              var dropdown = layui.dropdown;
+              var currentMode = get_mode(); // 假设这是当前模式，你可以通过其他方式动态设置
+            
+              // 渲染
+              dropdown.render({
+                elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+                data: [{
+                  title: '闲聊',
+                  id: 100,
+                  checked: currentMode === 'chat' // 判断当前模式是否为'chat'
+                },{
+                  title: '问答',
+                  id: 101,
+                  checked: currentMode === 'faq' // 判断当前模式是否为'faq'
+                },{
+                  title: '图检索',
+                  id: 102,
+                  checked: currentMode === 'graphrag' // 判断当前模式是否为'graphrag'
+                }],
+                click: function(obj){
+                    if (obj.id == 100) {
+                       set_mode("chat");
+                    }
+                    else if (obj.id == 101) {
+                       set_mode("faq");
+                    }
+                    else if (obj.id == 102) {
+                       set_mode("graphrag");
+                    }
+                    updateDropdownChecked(obj.id); // 更新checked状态
+                },
+                templet: function(item){
+                // 为选中的项目添加自定义样式
+                return item.checked 
+                    ? '<span style="font-weight: bold; color: #1E9FFF;">' + item.title + '</span>' 
+                    : item.title;
+                }
+              });
+            
+              // 更新dropdown的checked状态
+              function updateDropdownChecked(selectedId) {
+                dropdown.render({
+                  elem: '.demo-dropdown-base',
+                  data: [{
+                    title: '闲聊',
+                    id: 100,
+                    checked: selectedId === 100
+                  },{
+                    title: '问答',
+                    id: 101,
+                    checked: selectedId === 101
+                  },{
+                    title: '图检索',
+                    id: 102,
+                    checked: selectedId === 102
+                  }],
+                  click: function(obj){
+                      if (obj.id == 100) {
+                         set_mode("chat");
+                      }
+                      else if (obj.id == 101) {
+                         set_mode("faq");
+                      }
+                      else if (obj.id == 102) {
+                         set_mode("graphrag");
+                      }
+                      updateDropdownChecked(obj.id); // 更新checked状态
+                  },
+                    templet: function(item){
+                        // 为选中的项目添加自定义样式
+                        return item.checked 
+                        ? '<span style="font-weight: bold; color: #1E9FFF;">' + item.title + '</span>' 
+                        : item.title;
+                    }
+                });
+              }
+            });
+            </script>
+    </div>
+</body>
+</html>

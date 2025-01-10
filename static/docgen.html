@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件上传和删除</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <style>
+        #drop_area {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+
+        .upload-area {
+            margin-bottom: 20px;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .file-list li {
+            margin-bottom: 10px;
+        }
+
+        .file-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+        }
+
+        .delete-btn, .upload-btn {
+            cursor: pointer;
+            color: red;
+            border: none;
+            background: none;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .upload-btn {
+            color: blue;
+        }
+
+        .alert {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="avatar.html">数字人</a></li>
+            <li><a href="chatbox.html">文字聊天</a></li>
+            <li><a href="audiochat.html">语音聊天</a></li>
+            <li><a href="knowledge_base.html">知识库</a></li>
+            <li><a href="docgen.html">文档助手</a></li>
+        </ul>
+    </nav>
+    <form id="upload_form" method="post" enctype="multipart/form-data" action="/docgen">
+        <div class="upload-area">
+            模板文件:
+            <div id="drop_area">将文件拖到这里或点击上传</div>
+            <input type="file" id="file_input" name="template_file" multiple style="display:none;">
+            <ul class="file-list"></ul> <!-- 文件列表 -->
+        </div>
+
+        <div class="upload-area">
+            信息文件：
+            <div id="drop_area">将文件拖到这里或点击上传</div>
+            <input type="file" id="file_input" name="context_file" multiple style="display:none;">
+            <ul class="file-list"></ul> <!-- 文件列表 -->
+        </div>
+
+        <button type="submit" id="submit_btn" class="upload-btn">上传文件</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropAreas = document.querySelectorAll('#drop_area');
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            const uploadForm = document.getElementById('upload_form');
+
+            dropAreas.forEach((dropArea, index) => {
+                dropArea.addEventListener('click', () => {
+                    fileInputs[index].click();
+                });
+
+                dropArea.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dropArea.style.backgroundColor = '#e9e9e9';
+                });
+
+                dropArea.addEventListener('dragleave', () => {
+                    dropArea.style.backgroundColor = '#fff';
+                });
+
+                dropArea.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dropArea.style.backgroundColor = '#fff';
+                    const files = event.dataTransfer.files;
+                    handleFiles(files, fileInputs[index]);
+                });
+            });
+
+            fileInputs.forEach((fileInput) => {
+                fileInput.addEventListener('change', () => {
+                    const files = fileInput.files;
+                    handleFiles(files, fileInput);
+                });
+            });
+
+            function handleFiles(files, fileInput) {
+                const fileList = fileInput.closest('.upload-area').querySelector('.file-list');
+                if (!fileList) return;
+
+                for (const file of files) {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('file-item');
+                    listItem.textContent = file.name;
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.classList.add('delete-btn');
+                    deleteBtn.addEventListener('click', () => {
+                        listItem.remove();
+                    });
+
+                    listItem.appendChild(deleteBtn);
+                    fileList.appendChild(listItem);
+                }
+            }
+
+            uploadForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+        // 显示上传状态
+        const statusMessage = document.createElement('p');
+        statusMessage.textContent = '上传中...';
+        statusMessage.classList.add('upload-status');
+
+                const formData = new FormData(uploadForm);
+                fileInputs.forEach((input, index) => {
+                    const files = input.files;
+                    if (files.length > 0) {
+                        formData.append(input.name, files[0]);
+                    }
+                });
+
+                fetch(uploadForm.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.result) {
+                        //alert('文件上传成功！');
+                statusMessage.textContent = '上传成功！';
+                var download_url = "/download?filepath="+data.filepath;
+                const downloadLink = document.createElement('a');
+                downloadLink.href = download_url;
+                downloadLink.textContent = '下载文件';
+                downloadLink.classList.add('upload-btn');
+                downloadLink.style.display = 'block';
+                uploadForm.appendChild(downloadLink);
+                    } else {
+                        alert('文件上传失败，请重试。');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('文件上传失败，请重试。');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

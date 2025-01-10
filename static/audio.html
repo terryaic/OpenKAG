@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Audio Stream</title>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/adapter-latest.js"></script>
+    <script src="js/janus.js"></script>
+</head>
+<body>
+    <h1>WebRTC Audio Stream</h1>
+    <audio id="audio" controls autoplay></audio>
+
+    <script>
+        var server = "https://avatar.haifeng.ai:8089/janus";
+        var janus = null;
+        var streaming = null;
+        var opaqueId = "streamingtest-" + Janus.randomString(12);
+        var streamId = 1;
+
+        $(document).ready(function() {
+            Janus.init({
+                debug: "all",
+                callback: function() {
+                    janus = new Janus({
+                        server: server,
+                        success: function() {
+                            janus.attach({
+                                plugin: "janus.plugin.streaming",
+                                opaqueId: opaqueId,
+                                success: function(pluginHandle) {
+                                    streaming = pluginHandle;
+                                    var body = { "request": "watch", id: streamId };
+                                    streaming.send({"message": body});
+                                },
+                                onmessage: function(msg, jsep) {
+                                    if(jsep !== undefined && jsep !== null) {
+                                        streaming.createAnswer({
+                                            jsep: jsep,
+                                            media: { audioSend: false, videoSend: false },
+                                            success: function(jsep) {
+                                                var body = { "request": "start" };
+                                                streaming.send({"message": body, "jsep": jsep});
+                                            },
+                                            error: function(error) {
+                                                console.error("WebRTC error:", error);
+                                            }
+                                        });
+                                    }
+                                },
+                                onremotestream: function(stream) {
+                                    var audioElement = document.getElementById("audio");
+                                    Janus.attachMediaStream(audioElement, stream);
+                                }
+                            });
+                        },
+                        error: function(error) {
+                            console.error(error);
+                        },
+                        destroyed: function() {
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

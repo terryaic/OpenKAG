@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Interface</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('message-input');
+            input.value = text;
+            document.getElementById('send-button').click()
+        }
+    </script>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="simple.html">Hey Chat</a></li>
+            <li><a href="chatbox.html">Texting</a></li>
+            <li><a href="knowledge_base.html">Knowledge</a></li>
+        </ul>
+    </nav>
+    
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <iframe name="iframe" src="http://office.appincloud.cn:10011/streaming/client/" width="1920px;" height="1080px;"
+                frameborder="no" border="0" scrolling="auto"></iframe>
+    </div>
+    <div class="dropdown">
+        <button class="dropbtn">场景</button>
+        <div class="dropdown-content">
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom/classroom1.usd')">教室1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom-B/classroom-b.usd')">教室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/live-broadcast/LIVE.usd')">直播室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/living-room/living-room.usd')">客厅1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Living-room-B/B.usd')">客厅2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office/office1.usd')">办公室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office-B/office-b.usd')">办公室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Exhibition-hall/Exhibition-hall-1.usd')">展馆</a>
+        </div>
+    </div>
+    <div class="dropdown2">
+        <button class="dropbtn2">模式</button>
+        <div class="dropdown2-content">
+            <pre onclick="set_mode('faq')">问答</pre>
+            <pre onclick="set_mode('code')">代码助手</pre>
+            <pre onclick="set_mode('agent')">Agent</pre>
+        </div>
+    </div>
+
+    <div id="chat-box"></div>
+    <div class="form-container">
+        <form id="message-form">
+            <input type="text" id="message-input" name="message" placeholder="Type your message here" required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">按住录音</button>
+        <button id="scriptButton">执行当前代码</button>
+    </div>
+    <script src="js/webs.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/simple.js"></script>
+</body>
+</html>

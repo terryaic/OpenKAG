@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Interface</title>
+    <link href="css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <script src="js/papaparse.min.js"></script>
+    <script src="js/marked.min.js"></script>
+
+    <style>
+        .graph-container {
+            display: flex; /* 控制整个容器的显示 */
+            margin-top: 20px;
+            position: relative; /* 允许绝对定位的子元素 */
+            flex-direction: column; /* 垂直方向排列 */
+            margin: 0;
+        }
+        .show_graph {
+            width: 99%; /* 主图表区域宽度 */
+            height: 800px; /* 主图表区域高度 */
+            position: relative; /* 设置为相对定位以便放置绝对定位的元素 */
+            border: 1px solid #ddd; /* 给容器添加边框，以便更容易看到 */
+        }
+        .controls {
+            display: none; /* 初始时隐藏控件 */
+            align-items: center; /* 垂直居中对齐 */
+            margin: 10px 0; /* 添加上下间距 */
+            justify-content: center; /* 水平居中对齐 */
+            width: 100%; /* 确保控件占据父元素的宽度 */
+        }
+
+        .controls label {
+            margin-right: 10px; /* 添加标签与滑块的间距 */
+        }
+        .infoBox {
+            display: none; /* 初始化时隐藏信息框 */
+            position: absolute; /* 设置为相对定位 */
+            top: 30px; /* 距离上边距 */
+            width: 20%; /* 确保信息框宽度占满父元素 */
+            right: 30px; /* 距离右边距 */
+            height: auto; /* 自适应高度 */
+            padding: 20px; /* 添加内边距 */
+            background-color: rgba(249, 249, 249, 0.9); /* 设置透明度 */
+            border: 1px solid #ddd; /* 边框 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            overflow-y: auto; /* 允许垂直滚动 */
+            z-index: 10; /* 确保信息框在上层 */
+        }
+        .close-btn {
+            cursor: pointer; /* 鼠标悬停时显示为手形 */
+            color: red; /* 关闭按钮的颜色 */
+            font-weight: bold; /* 关闭按钮加粗 */
+            float: right; /* 右对齐 */
+            margin-bottom: 10px; /* 与标题的间距 */
+        }
+
+        .graph-show-btn {
+            color: blue;
+        }
+            /* 禁用按钮样式 */
+        .disabled-button {
+            background-color: #ccc; /* 灰色背景 */
+            color: #666;            /* 浅灰色文本 */
+            cursor: not-allowed;    /* 鼠标样式为不可用 */
+        }
+        .button-container {
+            display: flex;
+            align-items: center; /* 垂直居中对齐 */
+            margin-bottom: 10px; /* 每个按钮间的间距 */
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3; /* Light grey */
+            border-top: 3px solid #3498db; /* Blue */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none; /* 初始隐藏 */
+            margin-left: 10px; /* 与按钮间隔 */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+</head>
+
+<body>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('message-input');
+            input.value = text;
+            document.getElementById('send-button').click()
+        }
+    </script>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="avatar.html">数字人</a></li>
+            <li><a href="chatbox.html">文字聊天</a></li>
+            <li><a href="audiochat.html">语音聊天</a></li>
+            <li><a href="knowledge_base.html">知识库</a></li>
+            <li><a href="docgen.html">文档助手</a></li>
+        </ul>
+    </nav>
+    <div id="chat-box"></div>
+    <script>
+        function convertToHTML(inputText) {
+            let outputHTML = '';
+
+            const format = detectFormat(inputText);
+            if (format === 'csv') {
+                outputHTML = convertCSVToTable(inputText);
+            } else if (format === 'markdown') {
+                outputHTML = convertMarkdownToHTML(inputText);
+            } else {
+                outputHTML = `<pre class="code-block">${inputText}</pre>`;
+            }
+
+            //document.getElementById('outputHTML').innerHTML = outputHTML;
+            return outputHTML;
+        }
+
+        function detectFormat(text) {
+            // Simple checks for CSV
+            const csvPattern = /(?:[^,]*,){2,}/; // At least 2 commas in a line
+            const lines = text.split('\n');
+
+            if (lines.every(line => csvPattern.test(line.trim()) || line.trim() === '')) {
+                return 'csv';
+            }
+
+            // Simple checks for Markdown
+            const mdPattern = /(^# .+|^## .+|^### .+|^[-*] .+|^\|.+\|$)/m;
+            if (mdPattern.test(text)) {
+                return 'markdown';
+            }
+
+            return 'unknown';
+        }
+
+        function convertCSVToHTML(csvText) {
+            const parsedData = Papa.parse(csvText, { delimiter:',', header: true });
+            const data = parsedData.data;
+            /*var data = []
+            const rows = cvsText.split("\n")
+            Object.values(rows).forEach(row => {
+                data.push(row.split(","))
+            });*/
+            let html = '<table><thead><tr>';
+
+            // Add table headers
+            if (data.length > 0) {
+                Object.keys(data[0]).forEach(header => {
+                    html += `<th>${header}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                // Add table rows
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                });
+            }
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function convertMarkdownToHTML(mdText) {
+            return marked.parse(mdText);
+        }
+        function convertCSVToTable(csvInput) {
+            // 清空之前的表格内容
+            innerHTML = '<table>';
+
+            // 分割CSV行
+            const rows = csvInput.split('\n');
+
+            // 处理CSV行
+            rows.forEach((row, index) => {
+                innerHTML += '<tr>';
+                const columns = row.split(',');
+
+                columns.forEach(column => {
+                    index === 0 ? innerHTML +='<th>' : innerHTML += '<td>';
+                    innerHTML += column.trim();
+                    index === 0 ? innerHTML +='</th>' : innerHTML += '</td>';
+                });
+                innerHTML += '</tr>';
+            });
+
+            // 将表格添加到容器中
+            innerHTML +='</table>'
+            return innerHTML
+        }
+
+    </script>
+    <div class="form-container">
+        <div class="layui-btn-container">
+          <button class="layui-btn demo-dropdown-base">
+            <span>模式</span>
+            <i class="layui-icon layui-icon-down layui-font-12"></i>
+          </button>
+          <!--  <nav class="top-nav">
+                <ul>
+                    <li><a href="avatar.html">Avatar Chat</a></li>
+                    <li><a href="chatbox.html">Text Chat</a></li>
+                    <li><a href="knowledge_base.html">Knowledge</a></li>
+                </ul>
+            </nav>-->
+        </div>
+
+        <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+        <script src="js/layui.js"></script>
+        <script>
+            layui.use(function(){
+              var dropdown = layui.dropdown;
+              var currentMode = "faq"; // 假设这是当前模式，你可以通过其他方式动态设置
+
+              // 渲染
+              dropdown.render({
+                elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+                data: [{
+                  title: '闲聊',
+                  id: 100,
+                  checked: currentMode === 'chat' // 判断当前模式是否为'chat'
+                },{
+                  title: '问答',
+                  id: 101,
+                  checked: currentMode === 'faq' // 判断当前模式是否为'faq'
+                },{
+                  title: '图检索',
+                  id: 102,
+                  checked: currentMode === 'graphrag' // 判断当前模式是否为'graphrag'
+                },{
+                title: '智能体',
+                  id: 103,  // 新模式的唯一ID
+                  checked: currentMode === 'autogen'  // 判断当前模式是否为'autogen'
+                }],
+                click: function(obj){
+                    if (obj.id == 100) {
+                       set_mode("chat");
+                    }
+                    else if (obj.id == 101) {
+                       set_mode("faq");
+                    }
+                    else if (obj.id == 102) {
+                       set_mode("graphrag");
+                    }
+                    else if (obj.id == 103) {
+                       set_mode("autogen");
+                    }
+                    updateDropdownChecked(obj.id); // 更新checked状态
+                },
+                templet: function(item){
+                // 为选中的项目添加自定义样式
+                return item.checked
+                    ? '<span style="font-weight: bold; color: #1E9FFF;">' + item.title + '</span>'
+                    : item.title;
+                }
+              });
+
+              // 更新dropdown的checked状态
+              function updateDropdownChecked(selectedId) {
+                dropdown.render({
+                  elem: '.demo-dropdown-base',
+                  data: [{
+                    title: '闲聊',
+                    id: 100,
+                    checked: selectedId === 100
+                  },{
+                    title: '问答',
+                    id: 101,
+                    checked: selectedId === 101
+                  },{
+                    title: '图检索',
+                    id: 102,
+                    checked: selectedId === 102
+                  },{
+                      title: '智能体',
+                        id: 103,
+                        checked: selectedId === 103
+
+                  }],
+                  click: function(obj){
+                      if (obj.id == 100) {
+                         set_mode("chat");
+                      }
+                      else if (obj.id == 101) {
+                         set_mode("faq");
+                      }
+                      else if (obj.id == 102) {
+                         set_mode("graphrag");
+                      }
+                      else if (obj.id == 103) {
+                         set_mode("autogen");
+                      }
+                      updateDropdownChecked(obj.id); // 更新checked状态
+                  },
+                    templet: function(item){
+                        // 为选中的项目添加自定义样式
+                        return item.checked
+                        ? '<span style="font-weight: bold; color: #1E9FFF;">' + item.title + '</span>'
+                        : item.title;
+                    }
+                });
+              }
+            });
+            </script>
+
+        <form id="message-form">
+            <input type="text" id="message-input" name="message" placeholder="Type your message here" required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">按住录音</button>
+        <button id="scriptButton" style="visibility: hidden;">执行当前代码</button>
+    </div>
+
+    <script src="js/webs.js"></script>
+    <script src="js/scripts.js"></script>
+
+    <script src="js/sgrath.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/echarts.js"></script>
+    <script>setup("ws");set_mode("faq");setup_tts(false);setCodeBlockCB(convertToHTML);</script>
+</body>
+</html>

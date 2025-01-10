@@ -1,0 +1,10 @@
+{
+  "title": "Login to HaiFeng",
+  "email": "Email",
+  "password": "Password",
+  "email_": "Please enter your email",
+  "password_": "Please enter your password",
+  "login": "Login",
+  "register": "Register",
+  "reset_password": "Forgot password?"
+}

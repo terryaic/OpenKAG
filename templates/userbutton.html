@@ -1,0 +1,237 @@
+<style>
+.user-button {
+    background-color: #f0f0f0;
+    border: 2px solid lightgray;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+.user-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* 下拉框样式 */
+.dropdown-menu-user {
+    display: none; /* 默认隐藏 */
+    position: absolute;
+    top: 70px; /* 位于按钮下方 */
+    right: 20px; /* 与按钮右对齐 */
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1001;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu-user a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    display: block;
+    padding: 5px 10px;
+}
+
+.dropdown-menu-user a:hover {
+    background-color: #f0f0f0;
+}
+
+.language-menu {
+    background-color: #ffffff;
+    padding: 10px;
+    position: absolute;
+    bottom: 0;  /* 使菜单显示在changeLanguage按钮的底部 */
+    right: 100%;  /* 让菜单显示在changeLanguage的左边 */
+    margin-right: 10px;  /* 稍微给菜单添加间距 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: none;  /* 默认隐藏菜单 */
+    min-width: 120px;  /* 设置一个最小宽度，确保菜单不会太小 */
+    white-space: nowrap;  /* 防止文本换行 */
+}
+
+.language-menu a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap;  /* 确保菜单项不换行 */
+}
+
+.language-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+
+</style>
+<button id="userButton" class="user-button">
+     <span id="username">{{resources['unKnown']}}</span> <!-- 初始加载文本 -->
+</button>
+<div class="dropdown-menu-user" id="dropdownMenuUser" style="display: none;"> <!-- 确保一开始是隐藏的 -->    
+    <a href="#" id="logoutButton">{{resources['logout']}}</a>
+    <a href="#" id="enterAdmin">{{resources['admin']}} </a>
+    <a href="#" id="changeLanguage">{{resources['language']}} </a>
+
+     <!-- 语言选择菜单 -->
+     <div id="languageMenu" class="language-menu" style="display: none;">
+        <a href="#" id="languageChinese">{{resources['cn']}}</a>
+        <a href="#" id="languageEnglish">{{resources['en']}}</a>
+    </div>
+</div>
+
+
+<script>
+const userButton = document.getElementById("userButton");
+const dropdownMenuUser = document.getElementById("dropdownMenuUser");
+const logoutButton = document.getElementById("logoutButton");
+
+
+
+// 页面加载时获取用户信息
+async function fetchUserInfo() {
+    const url = `${window.location.protocol}//${window.location.host}/get_user`;
+    try {
+        const response = await fetch(url, {
+            method: "POST", // 使用 POST 方法
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}) // 如果需要，可以传递空的请求体
+        });
+
+        if (response.ok) {
+            const userData = await response.json(); // 假设返回的是 JSON 格式
+            document.getElementById("username").innerText = userData || "未知错误"; // 更新用户名
+        } else {
+            document.getElementById("username").innerText = "{{resources['NoUser']}}"; // 处理获取失败
+        }
+    } catch (error) {
+        console.error("获取用户信息时发生错误:", error);
+        document.getElementById("username").innerText = "{{resources['NoUser']}}"; // 处理网络错误
+    }
+}
+
+// 调用函数以获取用户信息
+fetchUserInfo();
+
+// 切换下拉框的显示状态
+userButton.addEventListener("click", (event) => {
+    event.stopPropagation(); // 阻止点击事件冒泡
+    dropdownMenuUser.style.display = dropdownMenuUser.style.display === "none" ? "block" : "none";
+});
+
+// 点击退出链接触发登出请求
+logoutButton.addEventListener("click", async (event) => {
+    event.preventDefault(); // 阻止默认链接跳转
+    try {
+        const response = await fetch("/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (response.ok) {
+            window.location.href = "/login"; // 重定向到登录页面
+        } else {
+            alert("{{resources['LogoutFail']}}");
+        }
+    } catch (error) {
+        console.error("{{resources['LogoutFail']}}:", error);
+        alert("{{resources['error']}}");
+    }
+});
+enterAdmin.addEventListener("click", async (event) => {
+    event.preventDefault(); // 阻止默认链接跳转
+    try {
+        const response = await fetch("/enterAdmin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (response.ok) {
+            window.location.href = "/admin"; // 重定向到登录页面
+        } else {
+            alert("{{resources['NoPermission']}}");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("{{resources['error']}}");
+    }
+});
+
+// 点击页面其他地方时隐藏下拉框
+document.addEventListener("click", (event) => {
+    if (!userButton.contains(event.target) && !dropdownMenuUser.contains(event.target)) {
+        dropdownMenuUser.style.display = "none";
+    }
+});
+</script>
+
+<script>
+// 获取元素
+const changeLanguageButton = document.getElementById('changeLanguage');
+const languageMenu = document.getElementById('languageMenu');
+
+// 点击 'changeLanguage' 显示/隐藏语言菜单
+changeLanguageButton.addEventListener('click', function(event) {
+    event.preventDefault();  // 防止默认行为（跳转）
+    
+    // 切换语言菜单的显示与隐藏
+    if (languageMenu.style.display === 'none') {
+        languageMenu.style.display = 'block';
+    } else {
+        languageMenu.style.display = 'none';
+    }
+});
+
+
+// 向后端发送请求改变语言
+function changeLanguage(language) {
+    fetch(`/change_language`, {
+        method: 'POST',
+        credentials: 'include', // 发送 cookie
+        headers: {
+            'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+        },
+        body: JSON.stringify({ language: language })
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log("成功切换语言到:", result.language);
+        languageMenu.style.display = 'none';  // 隐藏语言菜单
+        location.reload();
+    })
+}
+
+// 点击选择语言时，执行相应操作
+document.getElementById('languageChinese').addEventListener('click', function(event) {
+    event.preventDefault();
+    // 在此处理切换到中文的操作
+    console.log('切换到中文');
+    changeLanguage("zh-CN");
+});
+
+document.getElementById('languageEnglish').addEventListener('click', function(event) {
+    event.preventDefault();
+    // 在此处理切换到英文的操作
+    console.log('Switch to English');
+    changeLanguage("en-US");
+});
+
+
+</script>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources['title']}}</title>
+    <link rel="stylesheet" href="/static/css/show_card.css">
+
+</head>
+<body>
+    <div>
+        <button type="button" id="back_origin">
+            <img id="icon" class="icon" alt="icon" src="/static/images/back.png">
+            {{resources['return']}}
+        </button>
+    </div>
+    <div style="display: flex; align-items: center; margin-left: 30px;">
+        <h1> {{resources['personal_prompt_list_show']}}</h1>
+        
+    </div>
+
+    <div class="container" id="card-container">
+        <!-- 卡片容器（动态生成的卡片会插入这里） -->
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-left: 30px;">
+        <h1>{{resources['share_prompt_list_show']}}</h1>
+    </div>
+
+    <div class="container" id="share-card-container">
+        <!-- 分享的卡片容器（动态生成的卡片会插入这里） -->
+    </div>
+
+    <!-- 自定义确认弹窗 -->
+    <div id="customConfirm" class="custom-confirm" style="display: none;">
+        <div class="custom-confirm-content">
+            <p id="customConfirmMessage"></p>
+            <div class="custom-confirm-buttons">
+                <button id="confirmYes" class="confirm-btn">{{resources['yes']}}</button>
+                <button id="confirmNo" class="cancel-btn">{{resources['no']}}</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let notebooks = []; // 初始化笔记本数组
+
+        // 发送 POST 请求
+        fetch(`${window.location.protocol}//${window.location.host}/prompt/get_user_prompt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // 指定请求体格式为 JSON
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误，状态码: ' + response.status);
+            }
+            return response.json(); // 解析 JSON 数据
+        })
+        .then(data => {            
+            // 获取 notebooks 数据
+            if (data && data.user_info) {
+                const container = document.getElementById('card-container');
+
+                // 新建笔记本的卡片
+                const newNotebookCard = document.createElement('div');
+                newNotebookCard.className = 'card new-notebook';
+                newNotebookCard.innerHTML = `
+                    <h2>+</h2>
+                    <p>{{resources['create_prompt']}}</p>
+                `;
+                newNotebookCard.onclick = toCreateKdb;
+                container.appendChild(newNotebookCard);
+                // 动态生成已有笔记本的卡片
+                // 检查 user_info 是否有 info 属性且为数组
+
+                if (Array.isArray(data.user_info)) {
+                    notebooks = data.user_info; // 获取 info 数组
+
+                    // 检查 notebooks 数组是否不为空
+                    if (notebooks.length > 0) {
+                        // 调用函数生成卡片
+                        generateCards(false);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); // 处理错误
+        });
+
+
+        let share_notebooks = []; // 初始化笔记本数组
+
+        // 发送 POST 请求
+        fetch(`${window.location.protocol}//${window.location.host}/prompt/get_share_prompt`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // 指定请求体格式为 JSON
+            }
+        })
+        .then(response => {
+            return response.json(); // 解析 JSON 数据
+        })
+        .then(data => {            
+            // 获取 notebooks 数据
+            if (data && data.share_info) {
+
+                const container = document.getElementById('share-card-container');
+
+                // 动态生成已有笔记本的卡片
+                if (Array.isArray(data.share_info)) {
+                    share_notebooks = data.share_info; // 获取 info 数组
+
+                    // 检查 notebooks 数组是否不为空
+                    if (share_notebooks.length > 0) {
+                        // 调用函数生成卡片
+                        generateCards(true);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); // 处理错误
+        });
+
+
+        // 生成卡片的函数
+        function generateCards(if_share) {
+            if(if_share){
+                if (share_notebooks.length > 0) { // 检查 notebooks 数组是否为空
+                share_notebooks.forEach(notebook => {
+                    if (notebook.user_id && notebook.title && notebook.date!== undefined && notebook.share !== undefined) {
+                        createShareCard(notebook.user_id, notebook.title, notebook.date, notebook.share); // 这里用 notebook.source
+                    }
+                });
+                }
+            }else{
+                if (notebooks.length > 0) { // 检查 notebooks 数组是否为空
+                notebooks.forEach(notebook => {
+                    if (notebook.title && notebook.date!== undefined && notebook.share !== undefined) {
+                        createCard(notebook.title, notebook.date, notebook.share); // 这里用 notebook.source
+                    }
+                });
+                }
+            }
+
+        }
+
+        // 打开创建提示词页面
+        function toCreateKdb() {
+            // 新增prompt
+            // 进行重定向
+            const url = `${window.location.protocol}//${window.location.host}/prompt/toCreateNewPrompt`;
+            window.location.href = url;
+        }
+
+        // 显示自定义确认弹窗
+        function customConfirm(message, callback) {
+            const confirmBox = document.getElementById("customConfirm");
+            const confirmMessage = document.getElementById("customConfirmMessage");
+            const confirmYes = document.getElementById("confirmYes");
+            const confirmNo = document.getElementById("confirmNo");
+
+            confirmMessage.textContent = message;
+            confirmBox.style.display = "flex";
+
+            // 确认按钮
+            confirmYes.onclick = () => {
+                callback(true); // 用户点击 "Yes"
+                confirmBox.style.display = "none"; // 隐藏弹窗
+            };
+
+            // 取消按钮
+            confirmNo.onclick = () => {
+                callback(false); // 用户点击 "No"
+                confirmBox.style.display = "none"; // 隐藏弹窗
+            };
+        }
+
+        function createCard(title, date, share) {
+            const container = document.getElementById('card-container');
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Create the delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '×'; // Cross symbol for the button
+            deleteButton.className = 'delete-btn';
+            deleteButton.style.position = 'absolute';
+            deleteButton.style.top = '10px';
+            deleteButton.style.right = '10px';
+            deleteButton.onclick = function(event) {
+                event.stopPropagation(); // Prevents the card click event from triggering
+                customConfirm("{{resources['delete_prompt']}}", (confirmed) => {
+                    if (confirmed) {
+                        deleteKnowledgebase(title);  // 执行删除操作
+                    } 
+                });
+            };
+
+            let text = ""
+            if(share){
+                text = "{{resources['share_prompt']}}"
+            }else{
+                text = "{{resources['unshare_prompt']}}"
+            }
+            // Add content to the card
+            card.innerHTML = `
+                <h2>${title}</h2>
+                <p>${date}</p>
+                <p>${text}</p>
+            `;
+            
+            // Append delete button to the card
+            card.style.position = 'relative'; // Needed to position delete button inside the card
+            card.appendChild(deleteButton);
+            
+            // Handle card click
+            card.onclick = function() {
+                toPrompt(false, title, share);
+            };
+            
+            container.appendChild(card);
+        }
+
+
+        // 动态创建卡片函数
+        function createShareCard(user_id, title, date, share) {
+            const container = document.getElementById('share-card-container');
+            const card = document.createElement('div');
+            card.className = 'card';
+            let text = ""
+            if(share){
+                text = "{{resources['share_prompt']}}"
+            }else{
+                text = "{{resources['unshare_prompt']}}"
+            }
+            card.innerHTML = `
+                <h2>${title}</h2>
+                <p>{{resources['from_user']}}： ${user_id}</p>
+                <p>${date}</p>
+                <p>${text}</p>
+            `;
+            card.onclick = function() {
+                toPrompt(true, title, share);
+            };
+            container.appendChild(card);
+        }
+
+
+        function deleteKnowledgebase(title) {
+             // 修改share的值
+            fetch(`${window.location.protocol}//${window.location.host}/prompt/delete_prompt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                },
+                body: JSON.stringify({ title: title})
+            })
+            .then(response => {
+            console.log('Response status:', response.status); // 输出响应状态码
+            if (!response.ok) {
+                throw new Error('网络响应错误，状态码: ' + response.status);
+            }
+            return response.json(); // 解析 JSON 数据
+            })
+            .then(data => {
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error); // 处理错误
+            });
+        }
+
+        // 打开已有笔记本的展示界面
+        function toPrompt(if_from_share, prompt_title, share) {
+            let url = ""
+            if(if_from_share){
+                 url = `${window.location.protocol}//${window.location.host}/prompt/toPrompt?title=${encodeURIComponent(prompt_title)}&share_type=${encodeURIComponent(share)}&is_from_share=${encodeURIComponent(if_from_share)}`;
+            }else{
+                // 记录信息
+                url = `${window.location.protocol}//${window.location.host}/prompt/toPrompt?title=${encodeURIComponent(prompt_title)}&share_type=${encodeURIComponent(share)}&is_from_share=${encodeURIComponent(if_from_share)}`;
+            }
+            console.log(url);
+            window.location.href = url;
+        }
+
+        const backButtons = document.getElementById("back_origin")
+
+        backButtons.addEventListener("click", function(){
+            // 进行重定向
+            const url = `${window.location.protocol}//${window.location.host}/`;
+            window.location.href = url;
+        });
+    </script>
+
+</body>
+</html>

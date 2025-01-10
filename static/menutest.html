@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layui Dropdown with Checkmark</title>
+    <link rel="stylesheet" href="css/layui.css">
+    <style>
+        .layui-dropdown-menu {
+            display: none;
+        }
+        .layui-menu-item {
+            padding-left: 20px;
+            position: relative;
+        }
+        .layui-menu-item i {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .checked i {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 触发按钮 -->
+<button class="layui-btn layui-btn-primary" id="dropdown-btn">Dropdown Menu</button>
+
+<!-- Dropdown菜单内容 -->
+<ul id="dropdown-menu" class="layui-dropdown-menu">
+    <li class="layui-menu-item checked"><i class="layui-icon layui-icon-ok"></i> Menu Item 1</li>
+    <li class="layui-menu-item"><i class="layui-icon"></i> Menu Item 2</li>
+    <li class="layui-menu-item checked"><i class="layui-icon layui-icon-ok"></i> Menu Item 3</li>
+</ul>
+
+<script src="js/layui.js"></script>
+<script>
+    layui.use(['dropdown'], function(){
+        var dropdown = layui.dropdown;
+        var btn = document.getElementById('dropdown-btn');
+        var menu = document.getElementById('dropdown-menu');
+
+        btn.addEventListener('click', function(){
+            if(menu.style.display === 'block'){
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', function(e){
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

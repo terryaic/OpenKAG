@@ -1,0 +1,37 @@
+请从以下给定的文本中提取 Entities、Relationships 和 Sources 中的所有数字，并将其存储为 JSON 对象。每一部分都可能会包含多个数字，请确保准确提取并将它们分类保存，请记住重复出现的只保存一个就可以了，仅返回json数据就可以了。
+
+每条数据可能会包含以下结构：
+    Entities (数字)：提取 Entities 后面的数字。
+    Entities (数字), (数字), ....：提取 Entities 后面的所有数字。
+    Relationships (数字)：提取 Relationships 后面的数字。
+    Sources (数字)：提取 Sources 后面的数字。
+    Entities (数字, 数字, 数字, ....); Relationships (数字, 数字, 数字, ....); Sources (数字, 数字, ....) ：提取 Entities, Relationships, Sources 后面的所有数字。
+
+请以如下格式输出数据：
+    {
+    "entity":[{"id": 提取的实体数字}, {"id": 提取的实体数字}, ....], 
+    "relationship": [{id": 提取的实体数字}, {"id": 提取的实体数字}, ....], 
+    "sources": [{"id": 提取的实体数字}, {"id": 提取的实体数字}, ....]
+    }
+
+输入示例：
+    [Data: Entities (0)]
+    [Data: Entities (0)]
+    [Data: Entities (28), (35)]
+    [Data: Sources (2)]
+    [Data: Entities (0), Relationships (6)]
+    [Data: Entities (19, 20, 21, 22, 23, 24, 28, 30); Relationships (31, 38, 40, 41, 42); Sources (2, 3)]
+
+输出示例：
+    {
+    "entity":[{"id": 0}, {"id": 28}, {"id": 35}, {"id": 19}, {"id": 20}, {"id": 21}, {"id": 22}, {"id": 23}, {"id": 24}, {"id": 28}, {"id": 30}], 
+    "relationship": [{id": 31}, {"id": 38}, {"id": 40}, {"id": 41}, {"id": 42}] 
+    "sources": [{"id": 2}, {"id": 3}]
+    }
+
+#########
+真实数据
+#########
+输入：
+{text}
+输出：

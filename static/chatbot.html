@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Interface</title>
+    <link rel="stylesheet" media="screen and (max-width: 600px)" href="css/styles-small.css">
+    <link rel="stylesheet" media="screen and (min-width: 601px) and (max-width: 1024px)" href="css/styles-medium.css">
+    <link rel="stylesheet" media="screen and (min-width: 1025px)" href="css/styles-large.css">
+</head>
+<body>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('message-input');
+            input.value = text;
+            document.getElementById('send-button').click()
+        }
+    </script>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="chatbot.html">Chatbot</a></li>
+        </ul>
+    </nav>
+    <div id="chat-box"></div>
+    <div class="form-container">
+        <form id="message-form">
+            <input type="text" id="message-input" name="message" placeholder="Type your message here" required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <!--<button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">按住录音</button>-->
+    </div>
+    <script src="js/webs.js"></script>
+</body>
+</html>

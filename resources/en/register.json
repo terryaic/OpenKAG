@@ -1,0 +1,12 @@
+{
+    "email":"email",
+    "password":"password",
+    "confirm_password":"confirm password",
+    "email_":"Enter your email here",
+    "password_":"Enter your password",
+    "confirm_password_":"Confirm your password",
+    "title":"Register for HaiFeng",
+    "registerButton":"Register",
+    "error_unexpected": "An unexpected error occurred. Please try again.",
+    "return":"Already have an account?Log in"
+}

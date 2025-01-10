@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Interface</title>
+    <link href="css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <script src="libs/adapter.min.js" ></script>
+    <script src="js/webrtcstreamer.js" ></script>
+    <script>        
+        var domain = window.location.host;
+        var server = domain.split(":")[0];
+        var webRtcServer      = null;
+        window.onload         = function() { 
+            webRtcServer      = new WebRtcStreamer("video",location.protocol+"//"+server+":8443/webrtc-streamer");
+            webRtcServer.connect("window://gst-launch-1.0");
+            //webRtcServer.connect("audiocap://1");
+        }
+        window.onbeforeunload = function() { webRtcServer.disconnect(); }
+    </script>
+</head>
+<body>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('message-input');
+            input.value = text;
+            document.getElementById('send-button').click()
+        }
+    </script>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="avatar.html">数字人</a></li>
+            <li><a href="chatbox.html">文字聊天</a></li>
+            <li><a href="audiochat.html">语音聊天</a></li>
+            <li><a href="knowledge_base.html">知识库</a></li>
+            <li><a href="docgen.html">文档助手</a></li>
+        </ul>
+    </nav>
+    
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <video id='video'  width='720px' height='960px'/>
+    </div>
+    <!--<div class="dropdown">
+        <button class="dropbtn">场景</button>
+        <div class="dropdown-content">
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom/classroom1.usd')">教室1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/classroom-B/classroom-b.usd')">教室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/live-broadcast/LIVE.usd')">直播室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/living-room/living-room.usd')">客厅1</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Living-room-B/B.usd')">客厅2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office/office1.usd')">办公室</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/office-B/office-b.usd')">办公室2</a>
+            <a href=""onclick="sendRequest('/Users/admin/OV/place/Exhibition-hall/Exhibition-hall-1.usd')">展馆</a>
+        </div>
+    </div>
+    <div class="dropdown2">
+        <button class="dropbtn2">模式</button>
+        <div class="dropdown2-content">
+            <pre onclick="set_mode('chat')">闲聊</pre>
+            <pre onclick="set_mode('faq')">问答</pre>
+            <pre onclick="set_mode('code')">代码助手</pre>
+            <pre onclick="set_mode('agent')">Agent</pre>
+        </div>
+    </div>-->
+
+    <div id="chat-box"></div>
+    <div class="form-container">
+        <div class="layui-btn-container">
+          <button class="layui-btn demo-dropdown-base">
+            <span>模式</span>
+            <i class="layui-icon layui-icon-down layui-font-12"></i>
+          </button>
+          <!--  <nav class="top-nav">
+                <ul>
+                    <li><a href="avatar.html">Avatar Chat</a></li>
+                    <li><a href="chatbox.html">Text Chat</a></li>
+                    <li><a href="knowledge_base.html">Knowledge</a></li>
+                </ul>
+            </nav>-->
+        </div>
+          
+        <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+        <script src="js/layui.js"></script> 
+        <script>
+        layui.use(function(){
+          var dropdown = layui.dropdown;
+          // 渲染
+          dropdown.render({
+            elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+            data: [{
+              title: '闲聊',
+              id: 100
+            },{
+              title: '问答',
+              id: 101
+            }],
+            click: function(obj){
+                if (obj.id == 100)
+                   set_mode("chat");
+                else if (obj.id == 101)
+                   set_mode("faq");
+            }
+          });
+        });
+        </script>
+        <form id="message-form">
+            <input type="text" id="message-input" name="message" placeholder="Type your message here" required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">按住录音</button>
+        <button id="stopButton" class="normalButton">中断</button>
+        <button id="scriptButton" style="visibility: hidden;">执行当前代码</button>
+    </div>
+    <script src="js/webs.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/simple.js"></script>
+    <script >setup("ws");set_mode('faq');</script>
+</body>
+</html>

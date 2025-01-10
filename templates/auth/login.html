@@ -1,0 +1,65 @@
+{% extends "shared/base.html" %}
+
+{% block title %}
+  <title>Login</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <h5 class="display-5" style="text-align: center;">{{resources['title']}}</h5>
+      <div class="text-danger font-weight-bold">
+          {% for error in errors %}
+            <li>{{error}}</li>
+          {% endfor %}
+      </div>
+
+      <div class="text-success font-weight-bold">
+        {% if msg %}
+        <div class="badge bg-success text-wrap font-weight-bold" style="font-size: large;">
+          {{msg}}
+        </div>
+        {% endif %}
+        {% if error_message %}
+          <div  id="error-message" class="alert alert-danger">
+            {{ error_message }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+
+    <div class="row my-5">
+      <form method="POST" class="layui-form layui-form-pane">
+        <div class="mb-3">
+          <label>{{resources['email']}}</label>
+          <input type="text" required placeholder="{{resources['email_']}}" name="email" value="{{email}}" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label>{{resources['password']}}</label>
+          <input type="password" required placeholder="{{resources['password_']}}" value="{{password}}" name="password" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">{{resources['login']}}</button>
+
+        <button id="register-button" onclick="clearInputAndRedirect()"  class="btn btn-secondary">{{resources['register']}}</button>
+        <a href="/reset_password" class="text-primary small">{{resources['reset_password']}}？</a>
+      </form>
+    </div>
+  </div>
+<script>
+
+    function clearInputAndRedirect() {
+      document.querySelector('input[name="email"]').value = '';
+      document.querySelector('input[name="password"]').value = '';
+      window.location.href = '/register';
+    }
+  {% if error_message %}
+      setTimeout(function() {
+        var errorMessage = document.getElementById("error-message");
+        if (errorMessage) {
+          errorMessage.style.display = "none";  // 隐藏错误消息
+        }
+      }, 5000);  // 5秒后隐藏错误消息
+    {% endif %}
+</script>
+  {% endblock %}

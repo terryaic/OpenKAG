@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传和删除</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <style>
+
+        #drop_area {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+
+        .upload-area {
+            margin-bottom: 20px;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .file-list li {
+            margin-bottom: 10px;
+        }
+
+        .file-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+        }
+
+        .delete-btn, .upload-btn {
+            cursor: pointer;
+            color: red;
+            border: none;
+            background: none;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .upload-btn {
+            color: blue;
+        }
+
+        .alert {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        /* 进度条样式 */
+        #progressBarContainer {
+            margin-left: 20px; /* 进度条与按钮之间的间距 */
+            width: 100%;
+            max-width: 400px;
+            height: 30px;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+            display: none; /* 初始隐藏 */
+            align-self: center; /* 确保进度条与按钮在同一水平线上 */
+        }
+
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .flex-container {
+            display: flex;
+            align-items: center; /* 垂直居中 */
+        }
+
+
+        #stop_btn {
+            display: none; /* 初始隐藏 */
+            margin-left: 10px;
+            color: red;
+            border: none;
+            background: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 样式部分 */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);  /* 外圈颜色 */
+            border-top: 3px solid #3498db;         /* 上方颜色 */
+            border-radius: 50%;                    /* 圆形 */
+            width: 15px;                           /* 更小的宽度 */
+            height: 15px;                          /* 更小的高度 */
+            animation: spin 1s linear infinite;     /* 旋转动画 */
+            display: none;                         /* 初始隐藏 */
+            margin-left: 10px;                     /* 与按钮之间的间距 */
+            display: none; /* 默认隐藏 */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 使用 flex 布局保证按钮和加载圈在同一行 */
+        .button-container {
+            display: inline-flex;
+            align-items: center; /* 垂直居中对齐 */
+        }
+
+        /* 禁用按钮样式 */
+        .disabled-button {
+            background-color: #ccc; /* 灰色背景 */
+            color: #666;            /* 浅灰色文本 */
+            cursor: not-allowed;    /* 鼠标样式为不可用 */
+        }
+
+        #confirmationModal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }      
+        .modal-content button {
+            margin: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        
+        .graph-container {
+            display: none; /* 控制整个容器的显示 */
+            margin-top: 20px;
+            position: relative; /* 允许绝对定位的子元素 */
+            flex-direction: column; /* 垂直方向排列 */
+            margin: 0;
+        }
+        #show_graph {
+            width: 100%; /* 主图表区域宽度 */
+            height: 800px; /* 主图表区域高度 */
+            position: relative; /* 设置为相对定位以便放置绝对定位的元素 */
+            border: 1px solid #ddd; /* 给容器添加边框，以便更容易看到 */
+        }
+        .controls {
+            display: none; /* 初始时隐藏控件 */
+            align-items: center; /* 垂直居中对齐 */
+            margin: 10px 0; /* 添加上下间距 */
+            justify-content: center; /* 水平居中对齐 */
+            width: 100%; /* 确保控件占据父元素的宽度 */
+        }
+
+        .controls label {
+            margin-right: 10px; /* 添加标签与滑块的间距 */
+        }
+        #infoBox {
+            display: none; /* 初始化时隐藏信息框 */
+            position: absolute; /* 设置为相对定位 */
+            top: 30px; /* 距离上边距 */
+            width: 20%; /* 确保信息框宽度占满父元素 */
+            right: 20px; /* 距离右边距 */
+            height: 60%; /* 自适应高度 */
+            padding: 20px; /* 添加内边距 */
+            background-color: rgba(249, 249, 249, 0.9); /* 设置透明度 */
+            border: 1px solid #ddd; /* 边框 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            overflow-y: auto; /* 允许垂直滚动 */
+            z-index: 10; /* 确保信息框在上层 */
+        }
+        .close-btn {
+            cursor: pointer; /* 鼠标悬停时显示为手形 */
+            color: red; /* 关闭按钮的颜色 */
+            font-weight: bold; /* 关闭按钮加粗 */
+            float: right; /* 右对齐 */
+            margin-bottom: 10px; /* 与标题的间距 */
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="avatar.html">数字人</a></li>
+            <li><a href="chatbox.html">文字聊天</a></li>
+            <li><a href="audiochat.html">语音聊天</a></li>
+            <li><a href="knowledge_base.html">知识库</a></li>
+            <li><a href="docgen.html">文档助手</a></li>
+        </ul>
+    </nav>
+    <form id="upload_form" action="http://localhost:8000/upload" method="post" enctype="multipart/form-data">
+    <div class="upload-area">
+        <div id="drop_area">将文件拖到这里或点击上传</div>
+        <!--<label for="file_input">files:</label>-->
+        <input type="file" id="file_input" name="files" multiple style="display:none;">
+        <button type="button" id="upload_btn" class="upload-btn" style="display:none;">选择文件</button>
+    </div>
+
+    <div class="container" id="uploading_files_container">
+        <h2>待上传的文件</h2>
+        <ul id="uploading_files" class="file-list"></ul>
+        <button type="submit" id="submit_btn" class="upload-btn">上传文件</button>
+        <div id="upload_status"></div>
+    </div>
+
+    <div class="container" id="existing_files_container">
+        <h2>云端已有文件</h2>
+        <ul id="existing_files" class="file-list"></ul>
+        <div class="button-container">
+            <button type="button" id="rebuild_btn" class="upload-btn" >重建知识库</button>
+            <div id="spinner" class="spinner"></div>
+        </div>
+        <div class="flex-container">
+            <button type="button" id="rebuild_graph_btn" class="upload-btn">重建图谱</button>
+            <!-- <div id="start_status"></div> -->
+            <div id="progressBarContainer">
+                <div id="progressBar">0%</div>
+            </div>
+            <div id="graph_spinner" class="spinner"></div>
+            <button type="button" id="stop_btn">停止</button>
+            <div id="confirmationModal">
+                <div class="modal-content">
+                    <p>没有新增的文件是否需要重新生成图谱？</p>
+                    <button id="graphrag_yes">是</button>
+                    <button id="graphrag_no">否</button>
+                </div>
+            </div>
+        </div>
+        <button type="button" id="show_graph_btn" class="upload-btn" >展示图谱</button>
+    </div>
+    <div class="graph-container" id="graphContainer">
+        <!-- 容器 -->
+        <div id="show_graph"></div>
+    
+        <!-- 自定义的滑块控件 -->
+        <div class="controls" id="sliderControls">
+            <label for="thresholdRange">节点值阈值: </label>
+            <input type="range" id="thresholdRange" min="0" max="100" value="1" step="2" style="width: 200px;">
+            <span id="thresholdValue">1</span>
+        </div>
+
+        <!-- 显示信息的区域 -->
+        <div id="infoBox">
+            <span class="close-btn" onclick="hideInfo()">✖ 关闭</span> <!-- 关闭按钮 -->
+            <div id="infoContent"></div> <!-- 内容区域 -->
+        </div>
+    </div>
+ 
+    </form>
+    <script src="js/kdb.js"></script>
+    <script src="js/sgrath.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/echarts.js"></script>
+</body>
+</html>

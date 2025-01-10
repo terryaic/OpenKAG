@@ -1,0 +1,17 @@
+{
+    "return":"返回",
+    "prompt_name":"提示词的名字",
+    "share_prompt":"是否分享这个提示词",
+    "yes":"是",
+    "no":"否",
+    "prompt_content":"提示词的内容",
+    "write_prompt":"请输入的你提示词",
+    "save":"保存",
+    "clean":"清除",
+    "save_prompt_mes":"还没有保存提示词,请按确认保存，否则按清除",
+    "change_prompt_name_mes":"请先修改提示词名字",
+    "save_prompt_use_mes":"请输入有效的提示词",
+    "change_prompt_save_mes":"请修改提示词",
+    "save_prompt_suf":"成功保存提示词内容",
+    "title":"提示词"
+}

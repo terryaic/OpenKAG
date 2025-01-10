@@ -1,0 +1,59 @@
+.input-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: white;
+    width: 500px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-box input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+.input-box img {
+    margin-right: 10px;
+}
+
+
+.input-box button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: gray;
+}
+
+#send-button {
+    background-color: rgb(160, 153, 153); /* 默认底色为灰色 */
+    cursor: not-allowed; /* 默认不可点击 */
+    width: 25px; /* 按钮宽度 */
+    height: 25px; /* 按钮高度 */
+    border-radius: 50%; /* 圆形按钮 */
+    border: none; /* 移除边框 */
+    display: flex; /* 使用 flexbox 对齐图标 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    padding: 0; /* 移除内边距 */
+}
+
+
+/* 激活状态 */
+#send-button:enabled {
+    background-color: black; /* 激活时底色为黑色 */
+    cursor: pointer; /* 改变鼠标样式 */
+}
+
+/* SVG 图标样式 */
+#send-button svg {
+    width: 20px; /* 图标宽度 */
+    height: 20px; /* 图标高度 */
+    display: block; /* 保证 SVG 自身占据空间 */
+    margin-left: 0px; /* 移除任何默认外边距 */
+}

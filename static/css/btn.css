@@ -1,0 +1,94 @@
+/* 按钮的总体样式 */
+.rounded-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid lightgray;  /* 使用较浅的灰色边框 */
+  border-radius: 20px;        /* 圆角边框 */
+  background-color: white;    /* 背景色 */
+  cursor: pointer;
+  font-weight: bold;
+  color: black;
+  transition: background-color 0.3s, color 0.3s;
+  padding: 5px 20px;           /* 内边距，自动调整宽度和高度 */
+}
+
+/* 当图标旋转 180 度时 */
+.rotated {
+  transform: rotate(180deg);
+}
+
+/* 调整按钮中文本的样式和大小 */
+.button-text {
+  font-size: 15px;  /* 设置文字大小 */
+  font-weight: normal;   /* 设置文字粗细，normal 或 400 */
+}
+
+/* 调整按钮中文本的样式和大小 */
+.button-text-delete {
+  font-size: 10px;  /* 设置文字大小 */
+  font-weight: normal;   /* 设置文字粗细，normal 或 400 */
+}
+
+/* 调整按钮中文本的样式和大小 */
+.button-text[data-short-text] {
+  font-size: 15px;  /* 设置文字大小 */
+  font-weight: normal;   /* 设置文字粗细，normal 或 400 */
+}
+
+/* 调整按钮中的图片大小 */
+.button-icon {
+  width: 30px;    /* 图片宽度 */
+  height: 30px;   /* 图片高度 */
+  margin-right: 20px; /* 图片和文字之间的间距 */
+}
+
+/* 调整按钮中的图片大小 */
+.button-icon-delete {
+  width: 10px;    /* 图片宽度 */
+  height: 10px;   /* 图片高度 */
+  margin-right: 20px; /* 图片和文字之间的间距 */
+}
+
+
+/* 调整按钮中的图片大小 */
+.button-icon[data-short-text] {
+  width: 20px;    /* 图片宽度 */
+  height: 20px;   /* 图片高度 */
+  margin-right: 10px; /* 图片和文字之间的间距 */
+}
+
+/* 只修改有 data-long-text 属性的按钮的宽度 */
+.button-icon[data-small-img] {
+  width: 15px;    /* 图片宽度 */
+  height: 15px;   /* 图片高度 */
+  margin-right: 15px; /* 图片和文字之间的间距 */
+}
+
+/* 只修改有 data-long-text 属性的按钮的宽度 */
+.button-icon-only-img {
+  width: 20px;    /* 图片宽度 */
+  height: 20px;   /* 图片高度 */
+}
+
+
+
+/* 当按钮被悬停时的样式 */
+.rounded-button:hover {
+  background-color: #ccd1cd;  /* 背景变色 */
+}
+
+/* 禁用状态的样式 */
+.rounded-button.disabled {
+  background-color: #e0e0e0;  /* 禁用状态的背景色 */
+  color: #a0a0a0;             /* 禁用状态的文字颜色 */
+  border-color: #a0a0a0;      /* 禁用状态的边框颜色 */
+  cursor: not-allowed;        /* 改变鼠标图标 */
+}
+
+
+/* 禁用状态下图标颜色 */
+.rounded-button.disabled .button-icon {
+  fill: #a0a0a0;
+}
+

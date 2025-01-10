@@ -1,0 +1,167 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+}
+h1 {
+    font-size: 24px;
+}
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.card {
+    background-color: #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.card p {
+    font-size: 14px;
+    color: #666;
+}
+.new-notebook {
+    background-color: #fff;
+    color: #333;
+    font-size: 30px;
+}
+.modal {
+    display: none; /* 隐藏弹窗 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+    text-align: center;
+    border-radius: 10px;
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close:hover, .close:focus {
+    color: #000;
+}
+
+#back_origin {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: none;       /* 去除按钮的边框 */
+    cursor: pointer;
+    padding: 8px;
+    font-size: 16px;
+    outline: none;       /* 去除按钮的点击时的边框 */
+}
+
+#back_origin img {
+    margin-right: 8px;  /* 控制图标与文字之间的间距 */
+    width: 20px;        /* 设置图标大小 */
+    height: 20px;
+}
+.icon {
+    width: 20px; /* 设置图标宽度 */
+    height: 20px; /* 设置图标高度 */
+    margin-left: 10px; /* 图标与按钮的间距 */
+    vertical-align: middle; /* 垂直对齐 */
+}
+
+.delete-btn {
+    cursor: pointer;
+    color: red;
+    border: none;
+    background: none;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.custom-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.custom-confirm-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.custom-confirm-buttons {
+    margin-top: 20px;
+}
+
+.confirm-btn, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+
+.confirm-btn {
+    background: #f44336;
+    color: white; /* 字体颜色 */
+    font-size: 16px; /* 设置字体大小，可以根据需求调整 */
+    padding: 10px 20px; /* 设置按钮的内边距（上下和左右） */
+    border: none; /* 去除按钮的边框 */
+    border-radius: 12px; /* 设置圆角效果 */
+    cursor: pointer; /* 鼠标悬停时显示为手形 */
+    transition: background-color 0.3s; /* 添加一个过渡效果，鼠标悬停时背景颜色平滑变化 */
+}
+
+.confirm-btn:hover {
+    background-color: #db0f0f; /* 设置鼠标悬停时的背景颜色 */
+}
+
+
+.cancel-btn {
+    background: #f0e9e9; /* 背景颜色 */
+    color: rgb(7, 7, 7); /* 字体颜色 */
+    font-size: 16px; /* 设置字体大小，可以根据需求调整 */
+    padding: 10px 20px; /* 设置按钮的内边距（上下和左右） */
+    border: none; /* 去除按钮的边框 */
+    border-radius: 12px; /* 设置圆角效果 */
+    cursor: pointer; /* 鼠标悬停时显示为手形 */
+    transition: background-color 0.3s; /* 添加一个过渡效果，鼠标悬停时背景颜色平滑变化 */
+}
+
+.cancel-btn:hover {
+    background-color: #a89e9e; /* 设置鼠标悬停时的背景颜色 */
+}

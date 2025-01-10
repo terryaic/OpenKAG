@@ -1,0 +1,118 @@
+.graph-container {
+    display: flex; /* 控制整个容器的显示 */
+    margin-top: 20px;
+    position: relative; /* 允许绝对定位的子元素 */
+    flex-direction: column; /* 垂直方向排列 */
+    margin-top: 10px;
+}
+.show_graph {
+    width: calc(100% - 15px); /* 主图表区域宽度 */
+    height: 800px; /* 主图表区域高度 */
+    position: relative; /* 设置为相对定位以便放置绝对定位的元素 */
+    border: 1px solid #ddd; /* 给容器添加边框，以便更容易看到 */
+}
+.controls {
+    display: none; /* 初始时隐藏控件 */
+    align-items: center; /* 垂直居中对齐 */
+    margin: 10px 0; /* 添加上下间距 */
+    justify-content: center; /* 水平居中对齐 */
+    width: 100%; /* 确保控件占据父元素的宽度 */
+}
+.controls label {
+    margin-right: 10px; /* 添加标签与滑块的间距 */
+}
+.infoBox {
+    display: none; /* 初始化时隐藏信息框 */
+    position: absolute; /* 设置为相对定位 */
+    top: 30px; /* 距离上边距 */
+    width: 35%; /* 确保信息框宽度占满父元素 */
+    right: 40px; /* 距离右边距 */
+    height: 85%; /* 自适应高度 */
+    padding: 20px; /* 添加内边距 */
+    background-color: #f0f0f0;
+    border: 1px solid #ddd; /* 边框 */
+    overflow-y: auto; /* 允许垂直滚动 */
+    z-index: 10; /* 确保信息框在上层 */
+}
+
+.close-btn {
+    position: absolute; /* 让关闭按钮绝对定位 */
+    top: 5%; /* 距离信息框顶部 10px */
+    right: 5%; /* 距离信息框右侧 10px */
+    cursor: pointer; /* 鼠标悬停时显示为手形 */
+    color: rgb(196, 17, 17); /* 关闭按钮的颜色 */
+    font-weight: bold; /* 关闭按钮加粗 */
+    font-size: 20px; /* 调整关闭按钮大小 */
+}
+
+.graph-close-btn {
+    color: blue;
+}
+.disabled-button {
+    background-color: #ccc; /* 灰色背景 */
+    color: #666;            /* 浅灰色文本 */
+    cursor: not-allowed;    /* 鼠标样式为不可用 */
+}
+.button-container {
+    display: flex; /* Enable flexbox */
+    align-items: center; /* Center items vertically */
+    gap: 10px; /* Optional: space between button and spinner */
+}
+.spinner {
+    width: 25px;
+    height: 25px;
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #3498db; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none; /* 初始隐藏 */
+    margin-left: 10px; /* 与按钮间隔 */
+}
+.spinner-answer {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #3498db; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: "inline-block"; /* 初始隐藏 */
+    margin-left: 10px; /* 与按钮间隔 */
+    margin-top: 22px; /* 与按钮间隔 */
+}
+.span-answer {
+    margin-left: 10px; /* 与按钮间隔 */
+    margin-top: 22px; /* 与按钮间隔 */
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.clickable-number {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+/* 悬浮框的样式 */
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+.data_show_infoBox {
+    display: none; /* 初始化时隐藏信息框 */
+    position: fixed; /* 固定定位 */
+    top: 50%; /* 垂直居中 */
+    left: 50%; /* 水平居中 */
+    transform: translate(-50%, -50%); /* 居中 */
+    height: auto; /* 自适应高度 */
+    padding: 20px; /* 添加内边距 */
+    border: 1px solid #ddd; /* 边框 */
+    overflow-y: auto; /* 允许垂直滚动 */
+    z-index: 10; /* 确保信息框在上层 */
+    background-color: #f0f0f0;
+}
+

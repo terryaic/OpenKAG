@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV and Markdown to HTML Converter</title>
+    <script src="js/papaparse.min.js"></script>
+    <script src="js/marked.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .input-area { margin-bottom: 20px; }
+        textarea { width: 100%; height: 200px; }
+        .output-area { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>CSV and Markdown to HTML Converter</h1>
+    <div class="input-area">
+        <h2>Input Text</h2>
+        <textarea id="inputText"></textarea><br>
+        <button onclick="convertToHTML()">Convert to HTML</button>
+    </div>
+    <div class="output-area">
+        <h2>Output HTML</h2>
+        <div id="outputHTML"></div>
+    </div>
+
+    <script>
+        function convertToHTML() {
+            const inputText = document.getElementById('inputText').value;
+            let outputHTML = '';
+
+            const format = detectFormat(inputText);
+            if (format === 'csv') {
+                outputHTML = convertCSVToHTML(inputText);
+            } else if (format === 'markdown') {
+                outputHTML = convertMarkdownToHTML(inputText);
+            } else {
+                outputHTML = '<p>Unsupported format</p>';
+            }
+
+            document.getElementById('outputHTML').innerHTML = outputHTML;
+        }
+
+        function detectFormat(text) {
+            // Simple checks for CSV
+            const csvPattern = /(?:[^,]*,){2,}/; // At least 2 commas in a line
+            const lines = text.split('\n');
+
+            if (lines.every(line => csvPattern.test(line.trim()) || line.trim() === '')) {
+                return 'csv';
+            }
+
+            // Simple checks for Markdown
+            const mdPattern = /(^# .+|^## .+|^### .+|^[-*] .+|^\|.+\|$)/m;
+            if (mdPattern.test(text)) {
+                return 'markdown';
+            }
+
+            return 'unknown';
+        }
+
+        function convertCSVToHTML(csvText) {
+            const parsedData = Papa.parse(csvText, { header: true });
+            const data = parsedData.data;
+            let html = '<table><thead><tr>';
+
+            // Add table headers
+            if (data.length > 0) {
+                Object.keys(data[0]).forEach(header => {
+                    html += `<th>${header}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                // Add table rows
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                });
+            }
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function convertMarkdownToHTML(mdText) {
+            return marked(mdText);
+        }
+    </script>
+</body>
+</html>

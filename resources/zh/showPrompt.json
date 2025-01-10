@@ -1,0 +1,14 @@
+{
+    "return":"返回",
+    "personal_prompt_list_show":"个人的提示词列表展示",
+    "create_prompt":"新建提示词",
+    "source":"个来源",
+    "share_prompt":"分享提示词",
+    "unshare_prompt":"不分享该提示词",
+    "share_prompt_list_show":"共享的提示词列表展示",
+    "from_user":"来自用户",
+    "delete_prompt":"你确定要删除这个提示词吗",
+    "yes":"是",
+    "no":"否",
+    "title":"提示词展示"
+}

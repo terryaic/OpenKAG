@@ -1,0 +1,235 @@
+#chat-box {
+    flex-grow: 1;
+    overflow-y: scroll;
+    /* 允许垂直滚动 */
+    position: fixed;
+    border: none;
+    padding: 5px 20px;
+    margin: 10px auto; /* 居中对话框 */
+    width: calc(100% - 250px);
+    height: calc(100% - 200px);
+    bottom: 100px;
+}
+
+.form-container {
+    display: flex; /* 使用flex布局 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    background-color: white;
+    padding: 20px;
+    width: 100%;
+}
+
+.code-block {
+    background-color: #333; /* 代码块的背景色 */
+    color: #f8f8f2; /* 代码的文本颜色 */
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre-wrap; /* 保持空白符并支持自动换行 */
+    word-wrap: break-word; /* 长单词或URL可以被断开换行 */
+    font-family: 'Courier New', Courier, monospace; /* 代码字体 */
+    margin: 10px 0; /* 上下的间距 */
+}
+
+/* 基础样式 */
+#recordButton {
+    background-color: rgb(160, 153, 153); /* 默认底色为灰色 */
+    width: 25px; /* 按钮宽度 */
+    height: 25px; /* 按钮高度 */
+    border-radius: 50%; /* 圆形按钮 */
+    border: none; /* 移除边框 */
+    display: flex; /* 使用 flexbox 对齐图标 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    padding: 0; /* 移除内边距 */
+    margin-left: 5px;
+  }
+
+  /* SVG 图标样式 */
+#recordButton svg {
+    width: 20px; /* 图标宽度 */
+    height: 20px; /* 图标高度 */
+    display: block; /* 保证 SVG 自身占据空间 */
+    margin-left: 0px; /* 移除任何默认外边距 */
+}
+  
+/* 录音时的样式 */
+#recordButton.recording {
+    background-color: #e11160; /* Red */
+    color: black;
+}
+
+
+#scriptButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#scriptButton:hover {
+    background-color: #0056b3;
+}
+/*2024.10.10*/
+.link-container {
+    border: 2px solid #D1D5DB; /* 设置边框颜色 */
+    border-radius: 0.5rem; /* 圆角 */
+    margin-bottom: -2px; /* 负值确保上下相接 */
+    overflow: hidden; /* 确保内容不溢出 */
+    max-width: 600px; /* 设置最大宽度，适应最长的链接 */
+    margin: 10px 0 0 20px; /* 顶部和底部间距，左侧距离网页边框 */
+    transition: background-color 0.3s; /* 背景颜色过渡 */
+}
+
+.link-container:last-child {
+    margin-bottom: 0; /* 最后一个链接不需要负边距 */
+}
+
+.link-anchor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* 标题和 URL 之间的间隔 */
+    padding: 0.75rem 1rem; /* 上下左右内边距 */
+    text-decoration: none; /* 移除链接下划线 */
+    color: #4B5563; /* 链接文本颜色 */
+    background: white; /* 背景色 */
+}
+
+.link-anchor:hover {
+    background-color: #F3F4F6; /* 悬停时的背景色 */
+}
+
+#searching {
+    /* 样式可以根据需要调整 */
+    padding: 10px;
+    background-color: #f0f0f0; /* 背景色可调整 */
+    border: none; /* 无边框 */
+    border-radius: 5px; /* 圆角可选 */
+    text-align: center;
+}
+
+.hide-button-container {
+    margin: 10px 0; /* 上下间距 */
+    display: flex; /* 使用 flexbox 布局 */
+    justify-content: flex-start; /* 水平左对齐 */
+}
+
+.hide_button {
+    cursor: pointer;
+    padding: 10px;
+    color: #4B5563; /* 默认字体颜色 */
+    text-align: center;
+    margin: 10px 0; /* 上下间距可调整 */
+    transition: color 0.3s; /* 字体颜色过渡 */
+    margin-left: 20px; /* 左侧间距，距离网页边框 */
+}
+
+.hide_button:hover {
+    color: #1D4ED8; /* 悬停时字体变色 */
+}
+
+.userMessage {
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 20px 40px; /* 左右内边距保持为 40px，垂直内边距为 20px */
+    border-radius: 26px;
+    margin: 20px 0; /* 使消息框在水平方向上靠左 */
+    width: fit-content; /* 设置宽度为 70% */
+    word-wrap: break-word; /* 确保长单词换行 */
+    font-size: 1.2rem; /* 设置字体大小 */
+}
+
+.avatar {
+    width: 30px; /* 设置头像宽度 */
+    height: 30px; /* 设置头像高度 */
+    border-radius: 50%; /* 设置为圆形头像 */
+    margin: 19.2px 0; /* 上下间距 */
+    margin-right:20px;  
+}
+.graphrag-chat-message {
+    display: inline-block;
+    font-size: 1.2rem;
+    margin: 0;  /* 移除所有的外边距（包括顶部和底部） */
+    border-radius: 5px;
+    word-wrap: break-word;
+}
+.chat-message {
+    display:inline-block;
+    font-size: 1.2rem;
+    margin: 0;  /* 移除所有的外边距（包括顶部和底部） */
+    border-radius: 5px;
+    word-wrap: break-word;
+}
+.message-container {
+    display: flex;
+    flex-direction: column;
+    width: 80%; /* 占据父容器的宽度 */
+    justify-content: flex-start; /* 左对齐消息 */
+
+}
+.message-wrapper {
+    display: flex; /* 使用 flexbox 布局 */
+    align-items: flex-start; /* 垂直对齐到顶部 */
+    justify-content: flex-start; /* 水平左对齐 */
+    gap: 10px; /* 设置子元素之间的间距 */
+}
+
+
+.graph-loading-message-container {
+    display: inline-block; /* 让容器与头像在同一行 */
+    /* 或者使用 flex 如果你有其他需要调整的布局 */
+    /* display: flex; */
+}
+
+.chat-image {
+    max-width: 300px;  /* 设置最大宽度 */
+    max-height: 200px; /* 设置最大高度 */
+    width: auto;       /* 自动调整宽度 */
+    height: auto;
+    padding-left:50px;
+    padding-bottom:8px;/* 自动调整高度 */
+    padding-top:8px;
+}
+
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.modal-content {
+    max-width: 80%;
+    max-height: 80%;
+    margin: auto;
+    display: block;
+}
+
+.close {
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    cursor: pointer;
+}
+
+.text-center-custom {
+  text-align: center;
+}

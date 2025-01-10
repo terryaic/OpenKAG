@@ -1,0 +1,10 @@
+{
+  "title": "登录海风助手",
+  "email": "邮箱",
+  "password": "密码",
+  "email_": "请输入电子邮箱",
+  "password_": "请输入您的密码",
+  "login": "登录",
+  "register": "注册",
+  "reset_password": "忘记密码？"
+}

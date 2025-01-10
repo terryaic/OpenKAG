@@ -1,0 +1,26 @@
+check the following resources to see any file match the request:
+
+the tree model: http://omniverse.cn/tree.usd
+
+and then write the complete python script for the question, according to the following example.(do not download any files, suppose you can access from the url directly):
+"""
+# Add asset to stage
+from pxr import UsdGeom, Sdf, Usd
+def add_payload(prim: Usd.Prim, payload_asset_path: str, payload_target_path: Sdf.Path) -> None:
+    payloads: Usd.Payloads = prim.GetPayloads()
+    payloads.AddPayload(
+        assetPath=payload_asset_path,
+        primPath=payload_target_path # OPTIONAL: Payload a specific target prim. Otherwise, uses the payloadd layer's defaultPrim.
+    )
+
+import omni.usd
+stage = omni.usd.get_context().get_stage()
+
+defaultPrimPath = str(stage.GetDefaultPrim().GetPath())
+
+# Create an xform which should hold all payloads in this sample
+payload_prim: Usd.Prim = UsdGeom.Xform.Define(stage, Sdf.Path(f"{defaultPrimPath}/payload_prim")).GetPrim()
+
+# Add an external payload
+add_payload(payload_prim, "C:/path/to/file.usd", Sdf.Path("/World/some/target"))
+"""

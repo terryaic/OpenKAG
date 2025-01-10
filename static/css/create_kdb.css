@@ -1,0 +1,701 @@
+/* Reset some styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+}
+/* Sidebar */
+.sidebar {
+    width: 20%;
+    padding: 10px;
+}
+
+.sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar li input {
+    margin-right: 8px;
+}
+
+/* Main Content */
+.main-content {
+    width: 80%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-content-middle {
+    width: 100%;
+    padding: 20px;
+    display: flex; /* 使用 flexbox 布局 */
+    justify-content: center; /* 使子元素在中心对齐 */
+    align-items: center; /* 垂直居中对齐 */
+    background-color: #ffffff; /* 设置底色为白色 */
+    border: 1px solid #ddd; /* 可选：边框颜色 */
+    border-radius: 5px; /* 可选：边角圆滑 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 可选：阴影效果 */
+}
+
+.info-content-middle > div, .info-content-middle > button {
+    margin: 0 15px; /* 每个元素之间的左右边距为 15px，使每两个元素之间的间隔为 30px */
+    padding: 10px 20px; /* 按钮和 div 的内边距 */
+}
+
+.info-content {
+    width: 100%;
+    padding: 20px;
+    display: flex; /* 使用 flexbox 布局 */
+    justify-content: space-between; /* 均匀分布按钮 */
+    align-items: center; /* 垂直居中对齐 */
+    background-color: #ffffff; /* 设置底色为白色 */
+    border: 1px solid #ddd; /* 可选：边框颜色 */
+    border-radius: 5px; /* 可选：边角圆滑 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 可选：阴影效果 */
+}
+
+
+.main-header {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.note-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    height: 100%;
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    height: 20vh; /* Footer 高度为视口高度的20% */
+    width: 100%; /* 宽度为 100% */
+}
+
+.footer .options {
+    display: flex;
+    gap: 10px;
+}
+
+.footer .options button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #0073e6;
+    color: #fff;
+    cursor: pointer;
+}
+
+.footer .options button:hover {
+    background-color: #005bb5;
+}
+
+
+
+
+#drop_area {
+    border: 3px dashed #ccc;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.container {
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
+
+.sp-container {
+    display: flex; /* 启用 Flexbox */
+    justify-content: flex-start; /* 靠左对齐 */
+    align-items: center; /* 垂直居中 */
+    gap: 20px; /* 子元素之间的间距 */
+    width: 80%; /* 控制容器宽度 */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
+
+.upload-area {
+    margin-bottom: 20px;
+}
+
+.file-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.file-list li {
+    margin-bottom: 10px;
+}
+
+.file-item {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.delete-btn{
+    color: rgb(7, 7, 7);
+    background: none; /* 背景设置为透明 */
+    border: 2px solid lightgray;  /* 使用较浅的灰色边框 */
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 5px; /* 可选：添加圆角边框 */
+    padding: 5px 5px;           /* 内边距，自动调整宽度和高度 */
+}
+
+/* 可选：鼠标悬停时的样式 */
+.delete-btn:hover {
+    background-color: #ccd1cd;  /* 背景变色 */
+}
+
+/* 禁用状态的样式 */
+.delete-btn.disabled {
+    background-color: #e0e0e0;  /* 禁用状态的背景色 */
+    color: #a0a0a0;             /* 禁用状态的文字颜色 */
+    border-color: #a0a0a0;      /* 禁用状态的边框颜色 */
+    cursor: not-allowed;        /* 改变鼠标图标 */
+    fill: #a0a0a0;
+  }
+  
+
+.file-delete-btn{
+    color: rgb(7, 7, 7);
+    background: none; /* 背景设置为透明 */
+    border: 2px solid lightgray;  /* 使用较浅的灰色边框 */
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 5px;
+    padding: 5px 5px;           /* 内边距，自动调整宽度和高度 */
+    border-radius: 5px;        /* 圆角边框 */
+}
+
+/* 可选：鼠标悬停时的样式 */
+.file-delete-btn:hover {
+    background-color: #ccd1cd;  /* 背景变色 */
+}
+
+/* 禁用状态的样式 */
+.file-delete-btn.disabled {
+    background-color: #e0e0e0;  /* 禁用状态的背景色 */
+    color: #a0a0a0;             /* 禁用状态的文字颜色 */
+    border-color: #a0a0a0;      /* 禁用状态的边框颜色 */
+    cursor: not-allowed;        /* 改变鼠标图标 */
+  }
+
+.upload-btn{
+    color: rgb(7, 7, 7);
+    border: 2px solid rgb(7, 7, 7); /* 添加红色边框 */
+    background: none; /* 背景设置为透明 */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px; /* 可选：添加圆角边框 */
+    margin-left: 30px;
+}
+
+.upload-btn {
+    color: blue;
+}
+
+.alert {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+/* Footer */
+.progressBarfooter {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #eee;
+    border-top: 1px solid #ddd;
+    height: 10vh; /* Footer 高度为视口高度的20% */
+    width: 100%; /* 宽度为 100% */
+}
+
+/* 进度条样式 */
+#progressBarContainer {
+    margin-left: 20px; /* 进度条与按钮之间的间距 */
+    width: 100%;
+    max-width: 80%;
+    height: 30px;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    overflow: hidden;
+    display: none; /* 初始隐藏 */
+    align-self: center; /* 确保进度条与按钮在同一水平线上 */
+}
+.progressBarText {
+    color: rgb(15, 14, 14);
+    display: none; /* 初始隐藏 */
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background-color: #4caf50;
+    text-align: center;
+    line-height: 30px;
+    color: white;
+    border-radius: 5px;
+}
+
+.flex-container {
+    display: flex;
+    align-items: center; /* 垂直居中 */
+}
+
+.stop-btn {
+    display: none; /* 初始隐藏 */
+    margin-left: 10px;
+    width: 40px;
+    height: 40px;
+    color: rgb(7, 7, 7);
+    border: 2px solid rgb(7, 7, 7); /* 添加红色边框 */
+    background: none; /* 背景设置为透明 */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px; /* 可选：添加圆角边框 */
+}
+/* 禁用状态的样式 */
+.stop-btn.disabled {
+    background-color: #e0e0e0;  /* 禁用状态的背景色 */
+    color: #a0a0a0;             /* 禁用状态的文字颜色 */
+    border-color: #a0a0a0;      /* 禁用状态的边框颜色 */
+    cursor: not-allowed;        /* 改变鼠标图标 */
+  }
+
+/* 样式部分 */
+.spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);  /* 外圈颜色 */
+    border-top: 3px solid #3498db;         /* 上方颜色 */
+    border-radius: 50%;                    /* 圆形 */
+    width: 30px;                           /* 更小的宽度 */
+    height: 30px;                          /* 更小的高度 */
+    animation: spin 1s linear infinite;     /* 旋转动画 */
+    display: none;                         /* 初始隐藏 */
+    margin-left: 10px;                     /* 与按钮之间的间距 */
+    display: none; /* 默认隐藏 */
+    flex-shrink: 0;  /* 禁止 flexbox 自动缩放 */
+}
+
+/* 样式部分 */
+.spinner[upload_small] {
+    width: 22px;                           /* 更小的宽度 */
+    height: 22px;                          /* 更小的高度 */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 使用 flex 布局保证按钮和加载圈在同一行 */
+.button-container {
+    display: inline-flex;
+    align-items: center; /* 垂直居中对齐 */
+}
+
+/* 禁用按钮样式 */
+.disabled-button {
+    background-color: #ccc; /* 灰色背景 */
+    color: #666;            /* 浅灰色文本 */
+    cursor: not-allowed;    /* 鼠标样式为不可用 */
+}
+
+
+.graph-container {
+    display: none; /* 控制整个容器的显示 */
+    margin-top: 20px;
+    position: relative; /* 允许绝对定位的子元素 */
+    flex-direction: column; /* 垂直方向排列 */
+    margin: 0;
+}
+#show_graph {
+    width: 100%; /* 主图表区域宽度 */
+    height: 645px; /* 主图表区域高度 */
+    position: relative; /* 设置为相对定位以便放置绝对定位的元素 */
+    border: 1px solid #ddd; /* 给容器添加边框，以便更容易看到 */
+}
+.controls {
+    display: none; /* 初始时隐藏控件 */
+    align-items: center; /* 垂直居中对齐 */
+    margin: 10px 0; /* 添加上下间距 */
+    justify-content: center; /* 水平居中对齐 */
+    width: 100%; /* 确保控件占据父元素的宽度 */
+}
+
+.controls label {
+    margin-right: 20px; /* 添加标签与滑块的间距 */
+}
+#infoBox {
+    display: none; /* 初始化时隐藏信息框 */
+    position: absolute; /* 设置为相对定位 */
+    top: 30px; /* 距离上边距 */
+    width: 40%; /* 确保信息框宽度占满父元素 */
+    right: 20px; /* 距离右边距 */
+    height: 70%; /* 自适应高度 */
+    padding: 20px; /* 添加内边距 */
+    background-color: rgba(249, 249, 249, 0.9); /* 设置透明度 */
+    border: 1px solid #ddd; /* 边框 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    overflow-y: auto; /* 允许垂直滚动 */
+    z-index: 10; /* 确保信息框在上层 */
+}
+.close-btn {
+    cursor: pointer; /* 鼠标悬停时显示为手形 */
+    color: rgb(223, 21, 21); /* 关闭按钮的颜色 */
+    font-weight: bold; /* 关闭按钮加粗 */
+    float: right; /* 右对齐 */
+    margin-bottom: 10px; /* 与标题的间距 */
+}
+.input_box {
+    height: 40px; /* 高度 */
+    font-size: 16px; /* 字体大小 */
+    padding: 10px; /* 内边距 */
+    border: 2px solid #ccc; /* 边框 */
+    border-radius: 5px; /* 圆角 */
+    min-width: 20%;  /* 最小宽度 */
+    max-width: 95%;  /* 最大宽度 */
+    box-sizing: border-box;
+    transition: width 0.2s;  /* 添加过渡效果 */
+}
+#confirmationModal {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定定位 */
+    top: 50%; /* 垂直居中 */
+    left: 50%; /* 水平居中 */
+    transform: translate(-50%, -50%); /* 调整位置 */
+    background-color: white; /* 背景颜色 */
+    border: 1px solid #ccc; /* 边框 */
+    border-radius: 8px; /* 圆角 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 阴影 */
+    z-index: 1001; /* 设置 z-index 使其在最上层 */
+    padding: 20px; /* 内边距 */
+}
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    width: 300px;
+}      
+.modal-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.chat-container {
+    text-align: center;
+}
+
+.chat-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* 新的容器，用于水平排列候选框和输入框 */
+.input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 控制候选框与输入框之间的间距 */
+}
+
+/* 样式化候选框 */
+.suggestion-box {
+    margin-right: 5px;
+}
+
+#suggestions {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* 输入框样式 */
+.input-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: white;
+    width: 300px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-box input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+
+.input-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer; /* 使指针在悬停时变为手型 */
+}
+
+.square-checkbox {
+    width: 20px; /* 正方形的宽度 */
+    height: 20px; /* 正方形的高度 */
+    border: 2px solid #0c0c0c; /* 边框颜色 */
+    background-color: white; /* 默认背景颜色 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px; /* 与文本之间的间距 */
+}
+
+.square-checkbox.checked {
+    background-color: #f6f9fc; /* 选中时的背景颜色 */
+}
+
+.square-checkbox.checked:before {
+    content: "✔"; /* 选中时的符号 */
+    color: rgb(15, 15, 15); /* 符号颜色 */
+    font-size: 20px; /* 符号大小 */
+}
+
+.prompt-text {
+    margin-right: 8px;
+}
+
+#back_showkdb {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: none;       /* 去除按钮的边框 */
+    cursor: pointer;
+    padding: 8px;
+    font-size: 16px;
+    outline: none;       /* 去除按钮的点击时的边框 */
+}
+
+#back_showkdb img {
+    margin-right: 8px;  /* 控制图标与文字之间的间距 */
+    width: 20px;        /* 设置图标大小 */
+    height: 20px;
+}
+
+.file-li{
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    gap: 10px; /* 元素之间的间距 */
+}
+
+
+.finish-analyze-img{
+    display: none; /* 控制整个容器的显示 */
+    width: 20px; /* 设定图片的宽度 */
+    height: auto; /* 保持图片的纵横比 */
+}
+
+.depth-select {
+    display: inline-block;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    width: 150px;
+    cursor: pointer;
+}
+
+.depth-select:hover{
+    background-color: #e0e0e0;
+}
+.depth-selected {
+    font-size: 16px;
+}
+
+.depth-options {
+    display: none; /* 初始隐藏 */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.depth-option {
+    padding: 10px;
+    font-size: 14px;
+    color: black;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.depth-option:hover {
+    background-color: #ddd;
+}
+
+
+
+.choice-rounded-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.choice-rounded-button:hover {
+    background-color: #45a049;
+}
+
+.choice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.choice-modal {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px;
+    text-align: center;
+}
+
+.choice-file-list {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.choice-file-item {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+
+.choice-file-item:hover {
+    background-color: #f1f1f1;
+}
+
+.choice-file-item.selected {
+    background-color: #d1f1d1;
+}
+
+.choice-file-item.selected:hover {
+    background-color: #bde4bd;
+}
+
+.choice-selected-files {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f3f3f3;
+}
+
+.choice-selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.choice-remove-button-s {
+    margin-left: 10px;
+    padding: 2px 5px;
+    color: white;
+    background-color: red;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.choice-remove-button:hover {
+    background-color: #ccd1cd;  /* 背景变色 */
+}
+
+.choice-remove-button{
+    color: rgb(7, 7, 7);
+    background: none; /* 背景设置为透明 */
+    border: 2px solid lightgray;  /* 使用较浅的灰色边框 */
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 5px;
+    padding: 5px 5px;           /* 内边距，自动调整宽度和高度 */
+    border-radius: 5px;        /* 圆角边框 */
+}
+
+/* 禁用状态的样式 */
+.choice-remove-button.disabled {
+    background-color: #e0e0e0;  /* 禁用状态的背景色 */
+    color: #a0a0a0;             /* 禁用状态的文字颜色 */
+    border-color: #a0a0a0;      /* 禁用状态的边框颜色 */
+    cursor: not-allowed;        /* 改变鼠标图标 */
+  }
+
+

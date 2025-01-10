@@ -1,0 +1,7 @@
+fastapi
+TTS
+openai-whisper
+soundfile
+
+
+httpx

@@ -1,0 +1,86 @@
+{% extends "shared/base.html" %}
+
+{% block title %}
+  <title>Register</title>
+{% endblock %}
+<style>
+.button-container {
+  display: flex;
+  justify-content: space-evenly;  
+  align-items: center;            
+  width: 100%;                    
+  margin: 0 auto;                 
+}
+
+.button-container .btn {
+  /* Optionally style the buttons as needed */
+  padding: 10px 20px;              /* Add padding for better appearance */
+}
+
+</style>
+
+{% block content %}
+  <div class="container">
+
+    <div class="row">
+      <h5 class="display-5">{{resources['title']}}</h5>
+    </div>
+
+    <div class="row my-5">
+      <form id="registerForm">
+        <div class="mb-3">
+          <label>{{resources['email']}}</label>
+          <input type="email" required placeholder="{{resources['email_']}}" name="email" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label>{{resources['password']}}</label>
+          <input type="password" required placeholder="{{resources['password_']}}" name="password" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label>{{resources['confirm_password']}}</label>
+          <input type="password" required placeholder="{{resources['confirm_password_']}}" name="confirm_password" class="form-control">
+        </div>
+        <div class="button-container">
+          <button type="submit" class="btn btn-primary">{{resources['registerButton']}}</button>
+          <a href="/login" class="text-primary small">{{resources['return']}}？</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+      window.onload = function () {
+        document.getElementById("registerForm").addEventListener("submit", async function (event) {
+          event.preventDefault(); // 阻止默认表单提交
+          const form = event.target;
+
+          // 获取表单数据
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+
+          try {
+            const response = await fetch("/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+              // 如果注册成功，跳转到登录页面
+              window.location.href = "/login";
+            } else {
+              // 如果返回错误，解析错误消息并显示提示框
+              const errorData = await response.json();
+              alert(errorData.detail);  // 显示错误消息的弹出框
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("{{resources['error_unexpected']}}"); // 异常处理
+          }
+        });
+      };
+
+  </script>
+{% endblock %}

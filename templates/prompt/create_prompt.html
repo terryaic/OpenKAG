@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources['title']}}</title>
+    <link rel="stylesheet" href="/static/css/btn.css">
+    <link rel="stylesheet" href="/static/css/create_kdb.css">
+    <style>
+        /* 整体布局 */
+        .main-content {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        /* 返回按钮样式 */
+        .back-button {
+            padding: 28px 28px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .back-button img.icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        /* 名字和分享区域 */
+        .container {
+            margin-top: 20px;
+            background-color: inherit; /* 继承背景色 */
+        }
+
+        .info-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-label {
+            font-weight: bold;
+        }
+
+        .input-box {
+            width: 200px;
+            padding: 5px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 单选按钮样式 */
+        #kdb_share_choose_area span {
+            font-weight: bold;
+        }
+
+        input[type="radio"] {
+            margin-left: 5px;
+        }
+
+        /* 提示词内容展示 */
+        .prompt-container {
+            margin-top: 0px;
+        }
+
+        .prompt-box {
+            white-space: pre-wrap;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            margin-top: 5px;
+        }
+
+        #promptContent {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* 输入区域和按钮样式 */
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .button-container {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn.confirm {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn.cancel {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* 禁止手动调整大小，并隐藏滚动条 */
+        #promptInput {
+            resize: none; /* 禁止用户手动调整大小 */
+            overflow: hidden; /* 隐藏滚动条 */
+        }
+
+        .alert {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+
+    </style>
+</head>
+<body>
+    <!-- 返回按钮 -->
+    <div>
+        <button type="button" id="back_showPrompt" class="back-button">
+            <img id="icon" class="icon" alt="icon" src="/static/images/back.png"> 
+            {{resources['return']}}
+        </button>
+    </div> 
+    <div id="main_content" class="main-content">    
+        <!-- 名字参数和分享选项 -->
+        <div class="container" id="prompt_info">
+            <div class="info-content">
+                <!-- 提示词名字 -->
+                <div class="info-item" id="kdb_name_area">
+                    <label for="inputBox" class="input-label">{{resources['prompt_name']}}：</label>
+                    <input type="text" id="inputBox" class="input-box" placeholder="{{ value }}" value="{{ value }}">
+                </div>
+    
+                <!-- 分享选项 -->
+                <div class="info-item" id="prompt_share_choose_area">
+                    <span>{{resources['share_prompt']}}：</span>
+                    <label>
+                        <input type="radio" name="confirm" value="yes" id="radioYes"> {{resources['yes']}}
+                    </label>
+                    <label>
+                        <input type="radio" name="confirm" value="no" id="radioNo"> {{resources['no']}}
+                    </label>
+                </div>
+            </div>
+        </div>
+    
+        <!-- 提示词内容展示区域 -->
+        <div class="container" id="prompt_content_show" style="display: none;">
+            <div class="prompt-container">
+                <h1>{{resources['prompt_content']}}</h1>
+                <div class="prompt-box" id="promptBox">
+                    <p id="promptContent" ></p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Prompt 输入区域 -->
+        <div class="container" id="prompt_content_input_area">
+            <h1>{{resources['write_prompt']}}</h1>
+            <form id="promptForm">
+                <textarea id="promptInput" rows="4" cols="50"></textarea>
+                <div class="button-container">
+                    <button type="button" class="btn confirm" onclick="submitPrompt()">{{resources['save']}}</button>
+                    <button type="button" class="btn cancel" onclick="clearInput()">{{resources['clean']}}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+        const if_from_share = "{{is_from_share}}"
+
+        if (if_from_share === "True") {
+            // 只显示，已有文件和展示图谱
+            const inputBox = document.getElementById("inputBox")
+            const prompt_share_choose_area = document.getElementById("prompt_share_choose_area")
+            const prompt_content_input_area = document.getElementById("prompt_content_input_area")
+
+
+            inputBox.disabled = true;   // 禁用输入框
+            prompt_share_choose_area.style.display = "none";
+            prompt_content_input_area.style.display = "none";
+        }
+
+
+        function showAlert(message, isError = false) {
+            const main_content = document.getElementById("main_content");
+            let alertDiv = document.createElement('div');
+            alertDiv.className = 'alert';
+            if (isError) {
+                alertDiv.style.backgroundColor = '#f8df01'; // Red for errors
+            }
+            alertDiv.innerText = message;
+
+            // document.body.insertBefore(alertDiv, document.body.firstChild);
+            main_content.prepend(alertDiv);
+            
+            // 自动移除提示信息
+            setTimeout(function() {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+
+
+        // 返回展示页面
+        const backButtons = document.getElementById("back_showPrompt")
+        backButtons.addEventListener("click", function(){
+            // 判读是否有prompt的输入，有即没有保存，无则直接返回
+            const promptInputText = document.getElementById('promptInput').value.trim();
+            const promptContentText = document.getElementById('promptContent').textContent.trim(); 
+            // 比较内容
+            if (promptInputText !== promptContentText && promptInputText !== "") {
+                showAlert("{{resources['save_prompt_mes']}}"+"！",true);
+                return;
+            }
+
+            // 进行重定向
+            const url = `${window.location.protocol}//${window.location.host}/prompt/backShowPrompt`;
+            window.location.href = url;
+        });
+
+
+        // 获得input的内容
+        const inputBox = document.getElementById("inputBox")
+        let oldTitle = String(inputBox.value);
+
+        inputBox.addEventListener('blur', function() {
+            const newTitle = String(inputBox.value); // 获取输入框的值
+            if (oldTitle === newTitle){
+                return 
+            }
+            const prompt = document.getElementById('promptInput').value;
+            // 修改kdb的名字
+            fetch(`${window.location.protocol}//${window.location.host}/prompt/change_prompt_title`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                },
+                body: JSON.stringify({old_title: oldTitle, new_title: newTitle, prompt: prompt})
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误，状态码: ' + response.status);
+            }
+            return response.json(); // 解析 JSON 数据
+            })
+            .then(data => {
+                oldTitle = newTitle
+            })
+            .catch(error => {
+                console.error('Error:', error); // 处理错误
+            });
+                //
+        });
+
+
+        // 分享选择
+        const share_type = "{{share}}";
+
+        // 获取单选按钮
+        const radioYes = document.getElementById('radioYes');
+        const radioNo = document.getElementById('radioNo');
+
+        // 根据 type 的值设置单选按钮状态
+        if (share_type === "True") {
+            radioYes.checked = true; // 选中“是”
+        } else {
+            radioNo.checked = true;  // 选中“否”
+        }
+
+        // 获取单选按钮
+        const radioButtons = document.querySelectorAll('input[name="confirm"]');
+
+        // 添加点击事件监听器
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                let share_type = false
+                const selectedValue = event.target.value;
+
+                if (selectedValue === 'yes') {
+                    share_type = true
+                } else {
+                    share_type = false
+                }
+
+                // 修改share的值
+                fetch(`${window.location.protocol}//${window.location.host}/prompt/change_user_prompt_share`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                    },
+                    body: JSON.stringify({ title: oldTitle, share_type: share_type })
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应错误，状态码: ' + response.status);
+                }
+                return response.json(); // 解析 JSON 数据
+                })
+                .then(data => {
+                    if(!data.is_change){
+                        // 选择框变为否
+                        // 通过 JavaScript 设置 "no" 选项被选中
+                        document.getElementById('radioYes').checked = false; // 将 "否" 设置为选中状态
+                        document.getElementById('radioNo').checked = true; // 将 "否" 设置为选中状态
+                        showAlert("{{resources['change_prompt_name_mes']}}"+"！")
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error); // 处理错误
+                });
+            });
+        });
+
+        const textarea = document.getElementById('promptInput');
+
+        // 监听input事件，当内容发生变化时
+        textarea.addEventListener('input', function() {
+            // 重置textarea的高度，以便适应新的内容
+            textarea.style.height = 'auto'; // 清空之前的高度
+            textarea.style.height = textarea.scrollHeight + 'px'; // 设置为内容的实际高度
+
+            // 页面滚动到页面底部
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        // 自适应调整 textarea 高度
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto'; // 清空之前的高度
+            textarea.style.height = textarea.scrollHeight + 'px'; // 设置为内容的实际高度
+        }
+
+
+
+        // 展示用户的prompt_content
+        function show_prompt_content(){
+            // 假设从后端获取到的数据
+            fetch(`${window.location.protocol}//${window.location.host}/prompt/get_user_prompt_content`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                        },
+                        body: JSON.stringify({ title: oldTitle})
+                    })
+            .then(response => response.json())  // 解析返回的JSON数据
+            .then(data => {
+                // 获取展示 prompt 的容器和内容区域
+                const promptContent = document.getElementById('promptContent');  // 获取展示内容的区域
+                const promptContainer = document.getElementById('prompt_content_show');  // 获取整个展示的容器
+
+
+                // 判断是否有 content 数据
+                if (data.content) {
+                    // 如果有 content 数据，显示容器并展示数据
+                    promptContainer.style.display = 'block';  // 显示容器
+                    
+                    promptContent.textContent = data.content;  // 显示从后端返回的内容
+
+                    const promptInput = document.getElementById('promptInput')
+                    promptInput.value = data.content;
+
+                    // 调用自适应高度函数
+                    adjustTextareaHeight(promptInput);
+                } else {
+                    // 如果没有 content 数据，隐藏 prompt 区域
+                    promptContainer.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching prompt:', error);
+            });
+        }
+
+
+        // 展示prompt_content
+        show_prompt_content()
+
+        
+        function submitPrompt() {
+            const prompt = document.getElementById('promptInput').value;
+            if (prompt.trim() === "") {
+                showAlert("{{resources['save_prompt_use_mes']}}");
+                return;
+            }
+
+            // 判断是否有修改
+            const promptInputText = document.getElementById('promptInput').value.trim();
+            const promptContentText = document.getElementById('promptContent').textContent.trim(); 
+            // 比较内容
+            if (promptInputText === promptContentText) {
+                showAlert("{{resources['change_prompt_save_mes']}}"+"！",true);
+                return;
+            }
+            
+            fetch(`${window.location.protocol}//${window.location.host}/prompt/change_user_prompt_content`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                },
+                body: JSON.stringify({ title: oldTitle, prompt: prompt })
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误，状态码: ' + response.status);
+            }
+            return response.json(); // 解析 JSON 数据
+            })
+            .then(data => {
+                if(data.is_change){
+                    showAlert("{{resources['save_prompt_suf']}}"+"！")
+                    document.getElementById('promptForm').reset();  // 清空输入框
+                    show_prompt_content()
+                }else{
+                    showAlert("{{resources['change_prompt_name_mes']}}"+"！",true)
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error); // 处理错误
+            });
+           
+        }
+
+        function clearInput() {
+            document.getElementById('promptInput').value = "";  // 清空输入框
+        }
+    </script>
+
+    {% if 'share' not in permissions %}
+    <script>
+        document.getElementById("prompt_share_choose_area").style.display = "none";
+    </script>
+    {% endif %}
+
+
+</body>
+</html>

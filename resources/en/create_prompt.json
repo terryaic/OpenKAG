@@ -1,0 +1,17 @@
+{
+    "return":"back",
+    "prompt_name":"name of the prompt",
+    "share_prompt":"Do you want to share this prompt",
+    "yes":" Yes",
+    "no":"No",
+    "prompt_content":"Content of the prompt",
+    "write_prompt":"Modify prompt",
+    "save":"Save",
+    "clean":"Clear",
+    "save_prompt_mes":"The prompt has not been saved yet. Please press confirm to save, otherwise press clear",
+    "change_prompt_name_mes":"Please modify the prompt name first",
+    "save_prompt_use_mes":"Please enter a valid prompt",
+    "change_prompt_save_mes":"Please modify the prompt",
+    "save_prompt_suf":"Successfully saved prompt content",
+    "title":"Prompt"
+}

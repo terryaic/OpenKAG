@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}  {{resources['haifeng']}}  {% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/prompt_show.css">
+
+    <style>
+        {% block chatbox_styles %}{% endblock %}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            overflow: hidden; /* 隐藏网页滚动条 */
+        }
+
+        /* 左侧菜单栏样式 */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #f0f0f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out; /* 使用 transform 实现显隐效果 */
+            transform: translateX(0); /* 默认显示在屏幕内 */
+        }
+
+        .sidebar h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .conversation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .conversation-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .conversation-list li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        html {
+            scroll-behavior: smooth; /* 平滑滚动 */
+        }
+        .edit{
+            align-self: right;
+            width: 20px;
+            height:20px;
+            cursor: pointer;
+        }
+
+        .language {
+            margin-right: 20px;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        /* 动画关键帧 */
+        @keyframes circle {
+            from {
+                stroke-dashoffset: 1194;
+                opacity: 1; /* 动画开始时显示 */
+            }
+            to {
+                stroke-dashoffset: 0;
+                opacity: 1; /* 动画结束时保持可见 */
+            }
+        }
+
+        @keyframes tick {
+            from {
+                stroke-dashoffset: 350;
+                opacity: 1; /* 动画开始时显示 */
+            }
+            to {
+                stroke-dashoffset: 0;
+                opacity: 1; /* 动画结束时保持可见 */
+            }
+        }
+        .custom-strong {
+            display: block; /* 强调项为块级元素 */
+            margin-bottom: 5px; /* 分隔与下面项的间距 */
+            padding-left: 5px; /* 分隔与下面项的间距 */
+
+        }
+
+        /* 默认隐藏删除按钮 */
+        .delete-btn {
+            cursor: pointer;
+            width: 20px;  /* 根据图片大小调整宽度 */
+            height: 20px;  /* 根据图片大小调整高度 */
+            margin-left: 10px;
+            transition: opacity 0.3s;
+            display: none;  /* 默认情况下不显示 */
+            margin-top: 10px;
+        }
+
+        /* 鼠标悬停在列表项时显示删除按钮 */
+        li:hover .delete-btn {
+            display: inline-block;  /* 显示删除按钮 */
+        }
+
+        /* 鼠标悬停时删除按钮颜色变化 */
+        .delete-btn:hover {
+            color: darkred;  /* 鼠标悬停时颜色变深 */
+        }
+
+
+        /* 确认删除框样式 */
+        .confirm-delete {
+            display: none; /* 初始隐藏 */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center; /* 中心对齐文本 */
+        }
+
+
+        /* 按钮容器使用flexbox */
+        .confirm-delete .button-container {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            gap: 30px; /* 设置按钮之间的间距 */
+        }
+        
+        .confirm-btn {
+            background: #f44336;
+            color: white; /* 字体颜色 */
+            font-size: 16px; /* 设置字体大小，可以根据需求调整 */
+            padding: 10px 20px; /* 设置按钮的内边距（上下和左右） */
+            border: none; /* 去除按钮的边框 */
+            border-radius: 12px; /* 设置圆角效果 */
+            cursor: pointer; /* 鼠标悬停时显示为手形 */
+            transition: background-color 0.3s; /* 添加一个过渡效果，鼠标悬停时背景颜色平滑变化 */
+        }
+
+        .confirm-btn:hover {
+            background-color: #db0f0f; /* 设置鼠标悬停时的背景颜色 */
+        }
+
+
+        .cancel-btn {
+            background: #f0e9e9; /* 背景颜色 */
+            color: rgb(7, 7, 7); /* 字体颜色 */
+            font-size: 16px; /* 设置字体大小，可以根据需求调整 */
+            padding: 10px 20px; /* 设置按钮的内边距（上下和左右） */
+            border: none; /* 去除按钮的边框 */
+            border-radius: 12px; /* 设置圆角效果 */
+            cursor: pointer; /* 鼠标悬停时显示为手形 */
+            transition: background-color 0.3s; /* 添加一个过渡效果，鼠标悬停时背景颜色平滑变化 */
+        }
+
+        .cancel-btn:hover {
+            background-color: #a89e9e; /* 设置鼠标悬停时的背景颜色 */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 左侧菜单 -->
+    <div class="sidebar" id="sidebar">
+        <!--<img src="/static/images/sidebar.png" class="icon" id="toggleIcon" />-->
+        <h2>  {{resources['haifeng']}}</h2>
+        <div style="display: flex;align-content: right; justify-content: right; align-items: right; width:100%">
+            <!-- <div class="lan-container" id="language_select">语言</div> -->
+            <img src="/static/images/prompt.png" class="prompt" id="promptIcon" />
+            <img src="/static/images/edit.png" class="edit" id="editIcon" />
+        </div>
+        <div class="prompt-container" id="promptSubmenu"></div>
+        <ul id="menuList" class="conversation-list">
+        </ul>
+        <h2>{{resources['session']}}</h2>
+        <ul id="conversationList" class="conversation-list">
+            <!-- 动态生成的会话项将放在这里 -->
+        </ul>
+    </div>
+
+    <!-- 主内容区 
+    <div class="main-content">
+        <h1>欢迎！</h1>
+        <p>点击左侧菜单中的会话项以显示更多内容。</p>
+    </div>-->
+{% block content %}{% endblock %}
+
+    <script>
+        let uniqueIdCounter = 0;
+
+        function generateUniqueId() {
+            return `promot-${uniqueIdCounter++}`;
+        }
+        var prompt_name = "{{prompt_name}}";
+        document.getElementById("promptIcon").addEventListener("click", (event) => {
+            // 阻止点击 promptIcon 时冒泡，避免触发外部点击事件
+            event.stopPropagation();
+
+            fetchPrompt();
+            togglePromptSubmenu();
+        });
+
+        // 切换 submenu 显示状态
+        function togglePromptSubmenu() {
+            const submenuPrompt = document.getElementById("promptSubmenu");
+
+            // 如果 submenu 当前是隐藏的，则显示它，反之则隐藏
+            if (submenuPrompt.style.display === "none" || submenuPrompt.style.display === "") {
+                submenuPrompt.style.display = "flex";  // 显示
+            } else {
+                submenuPrompt.style.display = "none";  // 隐藏
+            }
+        }
+
+        document.addEventListener("click", (event) => {
+                const submenuPrompt = document.getElementById("promptSubmenu");
+                const promptIcon = document.getElementById("promptIcon");
+
+                // 如果点击的是 submenu 或 promptIcon 以外的区域，隐藏 submenu
+                if (!submenuPrompt.contains(event.target) && event.target !== promptIcon) {
+                    submenuPrompt.style.display = "none";
+                }
+            });
+
+        function fetchPrompt() {
+            const submenuPrompt = document.getElementById('promptSubmenu');
+            submenuPrompt.innerHTML = "";
+            const url = `${window.location.protocol}//${window.location.host}/prompt/get_share_user_prompt`;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("请求失败");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+
+                    // 如果 user 和 share 都为空，显示提示
+                    if ((!data.user || data.user.length === 0) && (!data.share || data.share.length === 0)) {
+                        alert("{{resources['Noprompt']}}");
+                        const submenuPrompt = document.getElementById('promptSubmenu');
+                        submenuPrompt.style.display = 'none'; // 隐藏菜单
+                        return; // 终止后续处理
+                    }
+
+                    // 创建 User 子菜单
+                    if (data.user) {
+                        const userPromptSubmenu = document.createElement('div');
+                        userPromptSubmenu.className = 'promptSubmenu';
+                        userPromptSubmenu.innerHTML = `<strong class="custom-strong" style="font-size: 17px; font-weight: bold; color: black;">{{resources['MyPromptT']}}</strong>`;
+
+                        data.user.forEach(item => {
+                            const menuItem = document.createElement('div');
+                            menuItem.textContent = item.title; // 显示 title
+                            const animationDiv = document.createElement('div');
+                            animationDiv.className = 'animation-container'; // 为动画添加样式类
+                            animationDiv.style.display = 'inline-block'; // 确保动画在右侧显示
+                            animationDiv.style.marginLeft = '5px'; // 与文字保持间距
+                            animationDiv.innerHTML = `
+                                <svg width="30" height="30" viewBox="0 0 300 300">
+                                    <circle class="circle" cx="150" cy="150" r="130" stroke="#656363" stroke-width="20" fill="none"></circle>
+                                    <polyline class="tick" points="100,150 140,200 220,100" stroke="#656363" stroke-width="20" fill="none" stroke-linecap="round"></polyline>
+                                </svg>
+                            `;
+                            menuItem.style.display = 'flex';
+                            menuItem.style.justifyContent = 'flex-start';
+                            menuItem.appendChild(animationDiv);
+                            menuItem.dataset.id = generateUniqueId();
+                            menuItem.onclick = (event) => {
+                                event.preventDefault();
+                                handlePItemClick(menuItem.dataset.id,item.title);
+                            };
+                            menuItem.className = 'Prompt-item'; // 添加样式类
+                            userPromptSubmenu.appendChild(menuItem);
+                        });
+                        submenuPrompt.appendChild(userPromptSubmenu);
+                    }
+
+                    // 创建 Share 子菜单
+                    if (data.share) {
+                        const sharePromptSubmenu = document.createElement('div');
+                        sharePromptSubmenu.className = 'promptSubmenu';
+                        sharePromptSubmenu.innerHTML = `<strong class="custom-strong" style="font-size: 17px; font-weight: bold; color: black;">{{resources['SharePromptT']}}</strong>`;
+
+                        data.share.forEach(item => {
+                            const menuItem = document.createElement('div');
+                            menuItem.textContent = item.title; // 显示 title
+                            const animationDiv = document.createElement('div');
+                            animationDiv.className = 'animation-container'; // 为动画添加样式类
+                            animationDiv.style.display = 'inline-block'; // 确保动画在右侧显示
+                            animationDiv.style.marginLeft = '5px'; // 与文字保持间距
+                            animationDiv.innerHTML = `
+                                <svg width="30" height="30" viewBox="0 0 300 300">
+                                    <circle class="circle" cx="150" cy="150" r="130" stroke="#656363" stroke-width="20" fill="none"></circle>
+                                    <polyline class="tick" points="100,150 140,200 220,100" stroke="#656363" stroke-width="20" fill="none" stroke-linecap="round"></polyline>
+                                </svg>
+                            `;
+                            menuItem.style.display = 'flex';
+                            menuItem.style.justifyContent = 'flex-start';
+                            menuItem.appendChild(animationDiv);
+                            menuItem.dataset.id = generateUniqueId();
+                            menuItem.onclick = (event) => {
+                                event.preventDefault();
+                                handlePItemClick(menuItem.dataset.id,item.title);
+                            };
+                            menuItem.className = 'Prompt-item'; // 添加样式类
+                            sharePromptSubmenu.appendChild(menuItem);
+                        });
+                        submenuPrompt.appendChild(sharePromptSubmenu);
+                    }
+                } else {
+                    alert("{{resources['dataerror']}}");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+
+        function handlePItemClick(menuItemId,title) {
+            set_prompt_name(title);
+            const menuItem = document.querySelector(`[data-id="${menuItemId}"]`);// 查找对应的菜单项（根据 id）
+            if (!menuItem) {
+                console.error('Menu item not found!');
+                return; // 如果没有找到对应的菜单项，退出函数
+            }
+
+                // 找到动画容器
+           const animationDiv = menuItem.querySelector('.animation-container');
+            if (animationDiv) {
+                animationDiv.classList.add('play-animation'); // 添加触发动画的类
+
+                // 动画播放后延时隐藏菜单容器
+                const totalAnimationDuration = 1 + 0.8+0.25 ; // 动画时长 + 延迟
+                setTimeout(() => {
+                    const promptContainer = document.getElementById('promptSubmenu');
+                    if (promptContainer) {
+                        promptContainer.style.display = 'none'; // 隐藏容器
+                    }
+
+                    // 清除动画状态，允许重新触发
+                    animationDiv.classList.remove('play-animation');
+                }, totalAnimationDuration * 1000);
+            }
+        }
+
+
+
+
+
+        // 示例会话数据，实际情况下可以通过API获取
+        //var conversations = [];
+        var base_url = `${window.location.protocol}//${window.location.host}`
+        function get_conversation_list(){
+            // 创建一个 XMLHttpRequest 对象
+            var xhr = new XMLHttpRequest();
+
+            // 配置请求
+            xhr.open('GET', base_url+'/conversation/list', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // 发送 JSON 数据
+            //xhr.send(JSON.stringify(data));
+            xhr.send();
+
+            // 监听请求的状态
+            xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+
+                obj = JSON.parse(xhr.responseText)
+                render_conversations(obj.conversations);
+            }
+            };
+        }
+
+        get_conversation_list();
+
+        function render_conversations(conversations){
+            // 获取会话列表的ul元素
+            const conversationList = document.getElementById('conversationList');
+
+            // 动态生成会话列表项
+            conversations.forEach(conversation => {
+                const listItem = document.createElement('li');
+                listItem.textContent = conversation.title.slice(0,20);
+                listItem.setAttribute('data-id', conversation.id);
+                
+                // 设置 listItem 为 flex container，使内容（标题）和删除按钮在一行上排列
+                listItem.style.display = 'flex';
+                listItem.style.justifyContent = 'space-between';  // 确保标题和按钮分开
+                listItem.style.alignItems = 'center';  // 垂直居中对齐
+
+                // 创建删除按钮 (替换为图片)
+                const deleteButton = document.createElement('img');
+                deleteButton.src = '/static/images/delete2.png';  // 设置图片的路径
+                deleteButton.alt = 'Delete';  // 添加 alt 属性
+                deleteButton.classList.add('delete-btn');  // 添加样式类
+
+                // 删除按钮点击事件
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();  // 阻止事件冒泡，防止触发列表项的点击事件
+                    
+                    // 创建和显示背景遮罩层
+                    const overlay = document.createElement('div');
+                    overlay.style.position = 'fixed';
+                    overlay.style.top = '0';
+                    overlay.style.left = '0';
+                    overlay.style.width = '100%';
+                    overlay.style.height = '100%';
+                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    overlay.style.zIndex = '999';
+                    document.body.appendChild(overlay);
+
+                    const confirmDeleteBox = document.createElement('div');
+                    confirmDeleteBox.classList.add('confirm-delete');
+                    confirmDeleteBox.innerHTML = `
+                        <p>${"{{resources['delete_info']}}"}</p>
+                        <div class="button-container">
+                            <button id="cancelDeleteBtn" class="cancel-btn">${"{{resources['cancle']}}"}</button>
+                            <button id="confirmDeleteBtn" class="confirm-btn">${"{{resources['delete']}}"}</button>
+                        </div>
+                    `;
+                    document.body.appendChild(confirmDeleteBox);
+
+                    // 显示确认框
+                    confirmDeleteBox.style.display = 'block';
+
+                    // 确认删除按钮点击事件
+                    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+                    confirmDeleteBtn.addEventListener('click', () => {
+                        // 执行删除操作
+                        console.log('Item deleted');
+
+                        const data = {
+                            session: conversation.id
+                        };
+                        // 发送获取请求
+                        fetch(`/delete_history`, {
+                            method: 'POST',
+                            credentials: 'include', // 发送 cookie
+                            headers: {
+                                'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                            },
+                            body: JSON.stringify(data) // 将对象转为 JSON 字符串s
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if(result.is_delete){
+                                console.log("成功删除历史记录")
+                                listItem.remove();  // 删除该列表项
+                                // 判断是否是当前的session
+                                const currentUrl = window.location.href;
+                                if (currentUrl.includes(conversation.id)) {
+                                    // 进行重定向
+                                    window.location.href='/';
+                                }
+                            }else{
+                                console.log("删除历史记录失败")
+                            }
+
+                            // 删除确认框和遮罩
+                            document.body.removeChild(overlay); // 移除遮罩层
+                            document.body.removeChild(confirmDeleteBox);
+                        })
+
+                    });
+
+                    // 取消删除按钮点击事件
+                    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+                    cancelDeleteBtn.addEventListener('click', () => {
+                        // 取消删除，隐藏确认框
+                        document.body.removeChild(overlay); // 移除遮罩层
+                        document.body.removeChild(confirmDeleteBox);
+                    });
+                });
+
+                listItem.addEventListener('click', () => {
+                    // 发送请求获取 kdb_id
+                    fetch(`${window.location.protocol}//${window.location.host}/kdb/get_current_kdbid`, {
+                        method: 'POST', // 假设这个 API 使用 POST 方法
+                        credentials: 'include', // 发送 cookie
+                        headers: {
+                            'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                        },
+                        body: JSON.stringify({ session_id: conversation.id }) // 发送 session_id 作为请求体
+                    })
+                    .then(response => response.json())  // 解析返回的 JSON 数据
+                    .then(data => {
+                        // 获取返回的 kdb_id
+                        const kdb_id = data.kdb_id;
+                        const baseUrl = `${window.location.protocol}//${window.location.host}`;
+                        // 根据是否存在 kdb_id 跳转到相应的 URL
+                        const targetUrl = kdb_id
+                            ? `${baseUrl}/chatbox/${conversation.id}?mode=faq&kdb_id=${kdb_id}`
+                            : `${baseUrl}/chatbox/${conversation.id}?mode=faq`;
+                        // 执行跳转
+                        window.location.href = targetUrl;
+                    })
+                    .catch(error => {
+                        console.error("获取 kdb_id 时发生错误:", error);
+
+                        // 如果发生错误，默认跳转到不带 kdb_id 的 URL
+                        window.location.href = `http://localhost:8000/chatbox/${conversation.id}`;
+                    });
+                });
+
+                // 将删除按钮添加到列表项
+                listItem.appendChild(deleteButton);
+                conversationList.appendChild(listItem);
+            });
+        }
+
+        const menus = [{title:"{{resources['kdb']}}", href:`${window.location.protocol}//${window.location.host}/kdb/showkdb`},
+                        {title:"{{resources['prompt']}}", href:`${window.location.protocol}//${window.location.host}/prompt/showPrompt`}]
+        function render_menus(menus){
+            // 获取会话列表的ul元素
+            const list = document.getElementById('menuList');
+
+            // 动态生成会话列表项
+            menus.forEach(menu => {
+                const listItem = document.createElement('li');
+                listItem.textContent = menu.title;
+                //listItem.setAttribute('data-id', conversation.id);
+                listItem.addEventListener('click', () => {
+                    window.location.href = menu.href
+                });
+                list.appendChild(listItem);
+            });
+        }
+        render_menus(menus);
+    </script>
+
+<script>
+    {% block chatbox_scripts %}{% endblock %}
+/*
+    const icon = document.getElementById("toggleIcon");
+    document.getElementById("toggleIcon").addEventListener("click", () => {
+        if (sidebar.classList.contains("collapsed")) {
+            sidebar.classList.remove("collapsed");
+        } else {
+            sidebar.classList.add("collapsed");
+        }
+    });
+*/
+    const sidebar = document.getElementById("sidebar");
+    document.getElementById("editIcon").addEventListener("click", () => {
+        console.log("goto /")
+        window.location.href='/';
+    });
+
+</script>
+
+<style>
+    .collapsed {
+       transform: translateX(-100%); /* 隐藏时移动到屏幕外 */
+    }
+
+
+
+
+</style>
+
+
+</body>
+</html>
+

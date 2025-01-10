@@ -1,0 +1,66 @@
+.prompt {
+    margin-right: 20px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.prompt-container {
+    position: relative; /* 让子菜单基于容器定位 */
+    flex-direction: column;
+    display: none; /* 控制容器尺寸 */
+    background-color: white; /* 背景颜色 */
+    border-radius: 10px; /* 圆角 */
+    padding:10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    box-sizing: border-box; /* 确保内边距不影响容器的总宽高 */
+}
+.promptSubmenu {
+    display: flex;
+    flex-direction: column;
+    position: ralative; /* 确保菜单悬浮 */
+    background-color: white;
+    z-index: 15;
+    padding:0px;
+}
+.Prompt-item strong {
+    display: block;
+    border: 2px ;
+    margin-bottom: 10px;
+     margin-top: 10px;/* 分类标题和列表项之间有间距 */
+    font-weight: bold;
+    font-size: 14px;
+    color: #333; /* 文字颜色 */
+    padding-left:0px;
+
+}
+.Prompt-item {
+    padding:5px;
+    margin-bottom: 10px;
+    /* 每个分类之间有空隙 */
+}
+.Prompt-item:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+    border-radius: 5px; /* 圆角 */
+}
+
+
+.animation-container .circle,
+.animation-container .tick {
+    /* 设置初始状态的 dasharray 和 dashoffset */
+    stroke-dasharray: 817, 350; /* 130 是圆的半径，2 * π * r = 2 * π * 130 ≈ 816.8，350 是勾形路径的长度 */
+    stroke-dashoffset: 817, 350;
+    /* 默认状态下保持不可见 */
+    opacity: 0;
+}
+
+.animation-container.play-animation .circle {
+    /* 激活后播放 circle 动画 */
+    animation: circle 0.8s ease-in-out forwards;
+}
+
+.animation-container.play-animation .tick {
+    /* 激活后播放 tick 动画，并且延迟启动 */
+    animation: tick 0.3s ease-out forwards 0.95s;
+}

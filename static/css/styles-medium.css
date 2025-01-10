@@ -1,0 +1,237 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-box {
+    flex-grow: 1;
+    overflow-y: scroll;
+    position: fixed;
+    border: none;
+    padding: 10px;
+    margin: 10px auto; /* 居中对话框 */
+    width: 100%;
+    height: calc(100% - 200px);
+    bottom: 100px;
+}
+
+.form-container {
+    display: flex; /* 使用flex布局 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0; /* 使容器横向铺满 */
+    background-color: white;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+
+#message-input {
+    width: 60%; /* 控制输入框的宽度 */
+    min-width: 600px; /* 确保输入框有足够的最小宽度 */
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+#send-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+.code-block {
+    background-color: #333; /* 代码块的背景色 */
+    color: #f8f8f2; /* 代码的文本颜色 */
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre-wrap; /* 保持空白符并支持自动换行 */
+    word-wrap: break-word; /* 长单词或URL可以被断开换行 */
+    font-family: 'Courier New', Courier, monospace; /* 代码字体 */
+    margin: 10px 0; /* 上下的间距 */
+}
+
+/* 基础样式 */
+#recordButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* 录音时的样式 */
+  #recordButton.recording {
+    background-color: #d9534f; /* Red */
+    color: black;
+  }
+
+#scriptButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#scriptButton:hover {
+    background-color: #0056b3;
+}
+
+.top-nav {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.top-nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.top-nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+.top-nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.top-nav ul li a:hover {
+    text-decoration: underline;
+}
+/* 下拉菜单样式 */
+.dropdown {
+    position: fixed;
+    left: 100px;   /* 改为右上角 */
+    top: 100px;     /* 定位到顶部 */
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;   /* 确保下拉内容也在右边展开 */
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+
+.dropdown2 {
+    position: fixed;
+    left: 180px;   /* 改为右上角 */
+    top: 100px;     /* 定位到顶部 */
+    display: inline-block;
+}
+
+.dropbtn2 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown2-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;   /* 确保下拉内容也在右边展开 */
+}
+
+.dropdown2-content pre {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown2-content pre:hover {background-color: #f1f1f1}
+
+.dropdown2:hover .dropdown2-content {
+    display: block;
+}
+
+.dropdown2:hover .dropbtn2 {
+    background-color: #3e8e41;
+}
+
+.chat-message {
+    position: relative;
+    /* 其他样式，例如 padding, borders, etc. */
+    margin-bottom: 10px; /* 给聊天信息之间添加一些空间 */
+}
+
+.copy-btn, .execute-btn {
+    position: absolute;
+    top: 0;
+}
+
+.copy-btn {
+    right: 60px; /* 将复制按钮向左移动，避免与执行按钮重叠 */
+}
+
+.execute-btn {
+    right: 10px; /* 执行按钮保持在右上角 */
+}

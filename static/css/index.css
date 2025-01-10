@@ -1,0 +1,226 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #000;
+}
+
+#chat-box {
+    width: 35%; /* 设置宽度为 400px */
+    height: calc(100% - 200px); /* 减去顶部导航栏和底部输入框的高度 */
+    overflow-y: scroll;
+    border: none;
+    padding: 0px;
+    position: fixed; /* 固定位置 */
+    right: 0; /* 右对齐 */
+    top: 100px; /* 距离顶部的距离 */
+    bottom: 100px;
+    color: #ddd;
+}
+/* 自定义滚动条的样式 */
+#chat-box::-webkit-scrollbar {
+    width: 10px; /* 滚动条的宽度 */
+}
+
+#chat-box::-webkit-scrollbar-track {
+    background: #f1f1f1; /* 滚动条轨道的颜色 */
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+    background: #888; /* 滚动条滑块的颜色 */
+    border-radius: 5px; /* 滚动条滑块的圆角 */
+}
+
+#chat-box::-webkit-scrollbar-thumb:hover {
+    background: #555; /* 滚动条滑块悬停时的颜色 */
+}
+
+.form-container {
+    display: flex; /* 使用flex布局 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0; /* 使容器横向铺满 */
+    background-color: white;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+
+#message-input {
+    width: 60%; /* 控制输入框的宽度 */
+    min-width: 600px; /* 确保输入框有足够的最小宽度 */
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+#send-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+.code-block {
+    background-color: #333; /* 代码块的背景色 */
+    color: #f8f8f2; /* 代码的文本颜色 */
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre-wrap; /* 保持空白符并支持自动换行 */
+    word-wrap: break-word; /* 长单词或URL可以被断开换行 */
+    font-family: 'Courier New', Courier, monospace; /* 代码字体 */
+    margin: 10px 0; /* 上下的间距 */
+}
+/* 基础样式 */
+#recordButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* 录音时的样式 */
+  #recordButton.recording {
+    background-color: #d9534f; /* Red */
+    color: black;
+  }
+
+  #scriptButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#scriptButton:hover {
+    background-color: #0056b3;
+}
+
+.normalButton{
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.normalButton:hover{
+    background-color: #0056b3;
+}
+
+
+.toast { 
+    position: fixed; 
+    top: 25px; 
+    right: 25px; 
+    max-width: 300px; 
+    background: #fff; 
+    padding: 0.5rem; 
+    border-radius: 4px; 
+    box-shadow: -1px 1px 10px
+        rgba(0, 0, 0, 0.3); 
+    z-index: 1023; 
+    animation: slideInRight 0.3s 
+            ease-in-out forwards, 
+        fadeOut 0.5s ease-in-out 
+            forwards 3s; 
+    transform: translateX(110%); 
+} 
+  
+.toast.closing { 
+    animation: slideOutRight 0.5s 
+        ease-in-out forwards; 
+} 
+  
+.toast-progress { 
+    position: absolute; 
+    display: block; 
+    bottom: 0; 
+    left: 0; 
+    height: 4px; 
+    width: 100%; 
+    background: #b7b7b7; 
+    animation: toastProgress 3s 
+        ease-in-out forwards; 
+} 
+  
+.toast-content-wrapper { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+} 
+  
+.toast-icon { 
+    padding: 0.35rem 0.5rem; 
+    font-size: 1.5rem; 
+} 
+  
+.toast-message { 
+    flex: 1; 
+    font-size: 0.9rem; 
+    color: #000000; 
+    padding: 0.5rem; 
+} 
+  
+.toast.toast-success { 
+    background: #95eab8; 
+} 
+  
+.toast.toast-success .toast-progress { 
+    background-color: #2ecc71; 
+} 
+  
+.toast.toast-danger { 
+    background: #efaca5; 
+} 
+  
+.toast.toast-danger .toast-progress { 
+    background-color: #e74c3c; 
+} 
+  
+.toast.toast-info { 
+    background: #bddaed; 
+} 
+  
+.toast.toast-info .toast-progress { 
+    background-color: #3498db; 
+} 
+  
+.toast.toast-warning { 
+    background: #ead994; 
+} 
+  
+.toast.toast-warning .toast-progress { 
+    background-color: #f1c40f; 
+} 
+#video{
+    object-fit: cover;
+    object-position: center center;
+}

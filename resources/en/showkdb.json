@@ -1,0 +1,14 @@
+{
+    "return":"back",
+    "personal_kdb_list_show":"Personal knowledge base list",
+    "create_kdb":"Create a new knowledge base",
+    "source":"sources",
+    "unshare_kdb":"Do not share this knowledge base",
+    "share_kdb":"Share this knowledge base",
+    "share_kdb_list_show":"Shared knowledge base list",
+    "from_user":"From users",
+    "delete_kdb":"Are you sure to delete this knowledge base?",
+    "yes":"Delete",
+    "no":"Cancel",
+    "title":"Knowledge Base Display"
+}

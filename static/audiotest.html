@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Play Audio Stream</title>
+</head>
+<body>
+
+<audio id="audioPlayer" autoplay muted controls>
+    <source src="/streamtest" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<script>
+    const audio = document.getElementById('audioPlayer');
+    audio.muted = false; // 取消静音
+    audio.play().catch(error => {
+        console.error('Error attempting to play audio:', error);
+    });
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,14 @@
+{
+    "return":"back",
+    "personal_prompt_list_show":"Personal prompt list",
+    "create_prompt":"Create a new prompt",
+    "source":"sources",
+    "unshare_prompt":"Do not share this prompt",
+    "share_prompt":"Share this prompt",
+    "share_prompt_list_show":"Shared prompt list",
+    "from_user":"From users",
+    "delete_prompt":"Are you sure to delete this prompt?",
+    "yes":"yes",
+    "no":"no",
+    "title":"Prompt Display"
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="description" content="Video player" />
+    <meta name="theme-color" content="#1f2124" />
+    <title>Avatar</title>
+
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/bootstrap-5.0.0.min.css" />
+
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            background-color: #f5f5f5;
+            margin: 50px;
+            margin-top: 25px;
+        }
+
+        .bg-dark {
+            background-color: rgb(31, 33, 36);
+        }
+        .btn-secondary {
+            background-color: rgb(69, 69, 69);
+            border-color: rgb(69, 69, 69);
+        }
+        #stream {
+            margin: 0 auto;
+        }
+        #overlaycontinue {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 40%);
+        }
+        #overlaycontinue svg {
+            margin-top: -5px;
+        }
+        .bottom-bar {
+            margin-top: 2rem;
+            display: none;
+        }
+        #video-container {
+            max-width: 100%;
+            max-height: 100%;
+
+            width: 100%;
+            height: auto;
+
+            position: relative;
+            background-color: rgb(0 0 0 / 50%);
+            box-shadow: 0 1rem 2rem rgb(0 0 0 / 50%);
+
+            overflow: hidden;
+        }
+        video {
+            display: block;
+            object-fit: contain;
+
+            width: 100%;
+            height: auto;
+        }
+
+        label {
+            display: none;
+        }
+
+        #info-container {
+            position: fixed;
+            top: 0px;
+            right: 10px;
+        }
+
+        #info-icon {
+            position: absolute;
+            top: 0px;
+            right: 2px;
+            padding: 10px;
+            color: #cccccc;
+            cursor: help;
+        }
+
+        #info-panel {
+            position: fixed;
+            top: 45px;
+            right: 10px;
+            padding: 10px 15px;
+            background-color: #333333;
+            box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 50%);
+        }
+        #info-panel ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script src="libs/adapter.min.js" ></script>
+    <script src="js/webrtcstreamer.js" ></script>
+    <script>        
+        var webRtcServer      = null;
+        window.onload         = function() { 
+            webRtcServer      = new WebRtcStreamer("video",location.protocol+"//192.168.1.14:8002");
+            webRtcServer.connect("window://gst-launch-1.0");
+            //webRtcServer.connect("audiocap://1");
+        }
+        window.onbeforeunload = function() { webRtcServer.disconnect(); }
+    </script>
+  </head>
+  <body>
+
+    <video id="video" />
+    <!--<div id="chat-box"></div>-->
+    <div class="form-container">
+        <form id="message-form">
+            <input type="text" id="message-input" name="message" placeholder="Type your message here" required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">按住录音</button>
+    </div>
+    <script src="js/webs.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/simple.js"></script>
+  </body>
+</html>

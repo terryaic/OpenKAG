@@ -1,0 +1,530 @@
+
+    <style>
+
+
+.menu-container {
+    width: 260px;
+    background-color: white;
+    border-radius: 12px;
+
+    padding: 16px;
+    font-family: Arial, sans-serif;
+color: #333;
+}
+
+.menu-button {
+    background-color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+    padding-left:20px;
+    padding-right:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+    width: fit-content;
+
+}
+.menu-button:hover {
+    background-color: #e0e0e0;
+    border-radius: 10px; /* 保持椭圆形 */
+    }
+    .icon {
+    width: 20px; /* 设置图标宽度 */
+    height: 20px; /* 设置图标高度 */
+    margin-left: 10px; /* 图标与按钮的间距 */
+    vertical-align: middle; /* 垂直对齐 */
+}
+.icon_small {
+    width: 12px; /* 设置图标宽度 */
+    height: 12px; /* 设置图标高度 */
+    margin-left: 10px;
+    transition: transform 0.3s ease;/* 图标与按钮文本的间距 */
+}
+.icon-small-rotated {
+    transform: rotate(180deg);
+}
+.menu-dropdown {
+    display: none;
+    flex-direction: column;
+    position: relative;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    min-width: 160px;
+    max-width: 300px;
+    left: 0;
+    margin-top: 5px;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.menu-dropdown a {
+    display: block; /* 确保菜单项在显示时正常显示 */
+    position: relative;
+    padding: 10px 15px;
+    padding-left: 30px;
+    text-decoration: none;
+    color: black;
+    font-size: 18px;
+    }
+    .menu-dropdown a:hover {
+    background-color: #f1f1f1;
+    border: 2px solid ; /* 红色外边框 */
+    border-radius: 5px; /* 椭圆形效果，您可以根据需要调整 */
+    padding: 8px 12px; /* 确保内边距适合新边框 */
+}
+
+
+.menu-dropdown-item {
+    position: relative;
+    }
+.submenucontainer {
+    display: none; /* 使用 Flexbox 布局 */
+    flex-direction: column; /* 垂直排列子菜单项 */
+    position: relative; /* 绝对定位，以便相对于父元素 */
+    top: -40%; /* 距离页面顶部的距离 -262px*/
+    left: 100%; /* 距离左侧的距离 */
+    background-color: white; /* 背景颜色 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    z-index: 15; /* 确保在其他元素上方 */
+    border-radius: 10px; /* 圆角 */
+    padding: 10px; /* 内边距 */
+    min-width: 150px; /* 最小宽度，以保证内容不被遮挡 */
+    max-height: 414px;
+    overflow-y: auto;
+}
+.submenu {
+    display: flex; /* 默认显示 */
+    flex-direction: column;
+    position: relative;;
+    background-color: white;
+    z-index: 15;
+}
+.submenu-item-title {
+    display: flex;
+    padding: 8px 12px;
+    color: black;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap; /* 防止文本换行 */
+}
+.submenu-item {
+    display: flex;
+    padding: 8px 12px;
+    color: black;
+    padding-left: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap; /* 防止文本换行 */
+    width: 200px;
+
+}
+
+.submenu-item:hover {
+    background-color: #f1f1f1; /* 悬停时的背景颜色 */
+    border: 2px solid ; /* 红色外边框 */
+    border-radius: 5px; /* 椭圆形效果，您可以根据需要调整 */
+    padding: 8px 12px; /* 确保内边距适合新边框 */
+}
+
+
+.link-container {
+    border: 2px solid #D1D5DB; /* 设置边框颜色 */
+    border-radius: 0.5rem; /* 圆角 */
+    margin-bottom: -2px; /* 负值确保上下相接 */
+    overflow: hidden; /* 确保内容不溢出 */
+    max-width: 600px; /* 设置最大宽度，适应最长的链接 */
+    margin: 10px 0 0 20px; /* 顶部和底部间距，左侧距离网页边框 */
+    transition: background-color 0.3s; /* 背景颜色过渡 */
+}
+
+.link-container:last-child {
+    margin-bottom: 0; /* 最后一个链接不需要负边距 */
+}
+
+.link-anchor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* 标题和 URL 之间的间隔 */
+    padding: 0.75rem 1rem; /* 上下左右内边距 */
+    text-decoration: none; /* 移除链接下划线 */
+    color: #4B5563; /* 链接文本颜色 */
+    background: white; /* 背景色 */
+}
+
+.link-anchor:hover {
+    background-color: #F3F4F6; /* 悬停时的背景色 */
+}
+
+.submenu-small-text {
+    display: block; /* 块级显示，确保在新行显示 */
+    font-size: 12px; /* 设置副标题和小字的字体大小 */
+    color: #666; /* 副标题的颜色 */
+    margin-top: 0px; /* 上方间距 */
+}
+strong {
+    display: block; /* 强调项为块级元素 */
+    margin-bottom: 5px; /* 分隔与下面项的间距 */
+    padding-left: 30px; /* 分隔与下面项的间距 */
+
+}
+
+
+
+
+    </style>
+
+<div class="menu-container">
+    <button id="menuButton" class="menu-button" onclick="toggleDropdown()">
+        <img id="icon" class="icon" alt="icon" src="/static/images/down.png">
+    </button>
+
+    <div id="dropdown" class="menu-dropdown">
+        <div class="menu-dropdown-item">
+            <a href="#" onclick="selectOption('chat', '{{ resources['chat'] }}')">{{resources['chat']}}<small class="submenu-small-text">{{resources['chat_']}}</small></a>
+        </div>
+        <div class="menu-dropdown-item">
+            <a href="#" id="faq-link" onclick="toggleSubmenu(event,'faq_submenu')">{{resources['faq']}}
+                <img id="iconsmallFaq" class="icon_small" alt="icon" src="/static/images/right.png">
+                <small class="submenu-small-text">{{resources['faq_']}}</small>
+            </a>
+        </div>
+<!--        <div class="menu-dropdown-item">-->
+<!--            <a href="#" onclick="selectOption('agent', '智能体')">智能体<small class="submenu-small-text">使用rag</small></a>-->
+<!--        </div>-->
+        <div class="menu-dropdown-item">
+            <a href="#" id="tujian-link" onclick="toggleSubmenu(event,'submenu_tujian')">{{resources['graph']}}
+                <img id="iconsmallT" class="icon_small" alt="icon" src="/static/images/right.png">
+                <small class="submenu-small-text">{{resources['graph_']}}</small>
+            </a>
+        </div>
+    </div>
+    <!-- 二级菜单将单独定义在这里 -->
+    <div id="faq_submenu" class="submenucontainer"></div>
+    <div id="submenu_tujian" class="submenucontainer"></div>
+</div>
+
+
+<script>
+    //更新按钮文本
+async function updateMenuButton() {
+    console.log("updateMenuButtonupdateMenuButtonupdateMenuButtonupdateMenuButton");
+
+    // 获取当前页面 URL 的查询参数 mode 和 kdb_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode'); // 获取 mode 参数
+    const kdb_id = urlParams.get('kdb_id'); // 获取 kdb_id 参数
+
+
+    const modeText = getModeText(mode); // 获取 mode_text
+    const menuButton = document.getElementById('menuButton');
+
+    let title = ''; // 在函数作用域内声明 title
+
+    if (mode !== "chat" && kdb_id) {
+        // 如果有 kdb_id，等待 fetchKdbTitle 执行完成并获取 title
+        title = await fetchKdbTitle(kdb_id);
+    }
+    // 更新 menuButton 的内容
+    menuButton.innerHTML = title
+        ? `${modeText}: ${title} <img id="icon" class="icon" alt="icon" src="/static/images/down.png">`
+        : `${modeText} <img id="icon" class="icon" alt="icon" src="/static/images/down.png">`;
+}
+
+
+    //mode to 文本
+function getModeText(mode) {
+    let mode_text = ""; // 定义一个空的变量
+    switch (mode) {
+        case "agent":
+            mode_text = "智能体";
+            break;
+        case "faq":
+            mode_text = "{{resources['faq']}}";
+            break;
+        case "graphrag":
+            mode_text = "{{resources['graph']}}";
+            break;
+        default:
+            mode_text = "{{resources['chat']}}"; // 如果没有匹配到，返回默认值
+    }
+    return mode_text;
+}
+
+
+//一级
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const dropdown = document.getElementById('dropdown');
+    dropdown.style.display='none';
+});
+
+// 切换下拉菜单显示
+function toggleDropdown() {
+    const dropdown = document.getElementById('dropdown');
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+
+    const faq_submenu = document.getElementById('faq_submenu');
+    faq_submenu.style.display = "none";
+
+    const submenu_tujian = document.getElementById('submenu_tujian');
+    submenu_tujian.style.display = "none";
+
+    const icons = document.querySelectorAll('.icon_small');
+    icons.forEach(icon => {
+            icon.classList.remove('icon-small-rotated'); // 移除旋转类
+        });
+
+    const first_icon = document.getElementById('icon');
+    if (dropdown.style.display === 'block') {
+        first_icon.classList.add('icon-small-rotated');
+    }else {
+        first_icon.classList.remove('icon-small-rotated');  // 移除旋转类
+    }
+}
+
+// 切换子菜单显示
+function toggleSubmenu(event, submenuId) {
+    event.preventDefault();
+    const submenu = document.getElementById(submenuId);
+    const submenus = document.querySelectorAll('.submenucontainer'); // 获取所有子菜单
+    const icon = submenuId === 'faq_submenu' ? document.getElementById('iconsmallFaq') : document.getElementById('iconsmallT');
+    // 先关闭所有已打开的子菜单
+    submenus.forEach((sub) => {
+        if (sub.id !== submenuId) {
+            sub.style.display = 'none'; // 关闭其他子菜单
+        }
+    });
+
+    // 切换当前子菜单的显示状态
+    submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
+    if (submenu.style.display === 'flex') {
+        fetchData(submenuId);
+        icon.classList.add('icon-small-rotated');
+    }else {
+        icon.classList.remove('icon-small-rotated');  // 移除旋转类
+    }
+}
+function fetchData(ModeID) {
+    const submenu = document.getElementById(ModeID);
+    submenu.innerHTML = ""; // 清空子菜单内容
+    let mainTitle = "";
+    let url = ""
+    if (ModeID === 'faq_submenu') {
+        mainTitle = "{{resources['faq']}}";
+        url = `${window.location.protocol}//${window.location.host}/kdb/get_share_user_rag`;
+    } else if (ModeID === 'submenu_tujian') {
+        mainTitle = "{{resources['graph']}}";
+        url = `${window.location.protocol}//${window.location.host}/kdb/get_share_user_graphrag`;
+    }
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("{{resources['request_error']}}");
+        }
+        return response.json();
+    })
+    .then(data => {
+
+        if (data) {
+            if (data.user.length === 0 && data.share.length === 0) {
+                alert("{{resources['no_kdb']}}");
+                // 二级菜单不显示
+                const menu = document.getElementById(ModeID);
+                menu.style.display = "none";
+
+                // 按钮旋转取消
+                const icons = document.querySelectorAll('.icon_small');
+                icons.forEach(icon => {
+                        icon.classList.remove('icon-small-rotated'); // 移除旋转类
+                    });
+                return; // 终止后续处理
+            }
+
+            // 创建 User 子菜单
+            if (data.user && data.user.length > 0) {
+                const userSubmenu = document.createElement('div');
+                userSubmenu.className = 'submenu';
+                userSubmenu.innerHTML = `
+                    <strong> {{resources['myKnowledge']}} :</strong>
+                `;
+
+                data.user.forEach(item => {
+                    const menuItem = document.createElement('div');
+                    menuItem.textContent = item.title; // 显示 title
+                    menuItem.onclick = (event) => {
+                        event.preventDefault();
+                        handleItemClick(mainTitle, item.title, item.kdb_id);
+                    };
+                    menuItem.className = 'submenu-item'; // 添加样式类
+                    userSubmenu.appendChild(menuItem);
+                });
+
+                submenu.appendChild(userSubmenu); // 插入 User 子菜单
+            }
+
+            // 创建 Share 子菜单
+            if (data.share && data.share.length > 0) {
+                const shareSubmenu = document.createElement('div');
+                shareSubmenu.className = 'submenu';
+                shareSubmenu.innerHTML = '<strong>{{resources['PublicKnowledge']}} :</strong>';
+
+                data.share.forEach(item => {
+                    const menuItem = document.createElement('div');
+                    menuItem.textContent = item.title; // 显示 title
+                    menuItem.onclick = (event) => {
+                        event.preventDefault();
+                        handleItemClick(mainTitle, item.title, item.kdb_id);
+                    };
+                    menuItem.className = 'submenu-item'; // 添加样式类
+                    shareSubmenu.appendChild(menuItem);
+                });
+
+
+
+                submenu.appendChild(shareSubmenu); // 插入 Share 子菜单
+            }
+        } else {
+            alert("{{resources['no_kdb']}}");
+        }
+    })
+    .catch(error => {
+        console.error( error);
+    });
+}
+
+
+
+
+
+
+function selectOption(option, displayName) {
+    const menuButton = document.getElementById('menuButton');
+    menuButton.innerHTML = `${displayName} <img id="icon" class="icon" alt="icon" src="/static/images/down.png">`;
+
+    menuButton.style.fontWeight = 'bold';
+    menuButton.style.color = 'black';
+    set_mode(option);
+
+    const currentUrl = window.location.href;
+
+    if (currentUrl.includes('/chatbox/')) {
+        // 如果当前 URL 包含 /chatbox/，则假设 session_id 存在
+        window.location.href = `${window.location.protocol}//${window.location.host}/chatbox/${session_id ? session_id : ''}?mode=${option}`;
+    } else {
+        window.history.pushState(
+            { mode: option, kdb_id: kdb_id }, // 状态对象
+            '', // 页面标题（可以为空）
+            `/?mode=${option}` // 新的 URL，使用反引号包裹
+        );
+    }
+
+    // 隐藏所有菜单
+    const dropdown = document.getElementById('dropdown');
+    dropdown.style.display = 'none';
+
+    //隐藏二级菜单
+    const faq_submenu = document.getElementById('faq_submenu');
+    const submenu_tujian = document.getElementById('submenu_tujian');
+
+    faq_submenu.style.display = 'none'; // 隐藏一级菜单
+    submenu_tujian.style.display = 'none'; // 隐藏二级菜单
+}
+
+function handleItemClick(mode,title,kdbId) {
+    // 获取菜单按钮和二级菜单
+
+    const menuButton = document.getElementById('menuButton');
+    const dropdown = document.getElementById('dropdown');
+    const submenu = document.getElementById('submenu_tujian');
+    // 设置菜单按钮的文本为“问答：item.title”
+    menuButton.innerHTML = `${mode}：${title} <img id="icon" class="icon" alt="icon" src="/static/images/down.png">`;
+    let chosenmode;
+    if (mode === "{{resources['graph']}}") {
+        chosenmode = "graphrag";
+    } else if (mode === "{{resources['faq']}}") {
+        chosenmode = "faq";
+    }
+
+    set_mode(chosenmode);
+    set_kdb_id(kdbId);
+    const currentUrl = window.location.href;
+     if (currentUrl.includes('/chatbox/')) {
+        // 如果当前 URL 包含 /chatbox/，刷新以显示图片
+        window.location.href = `${window.location.protocol}//${window.location.host}/chatbox/${session_id ? session_id : ''}?mode=${chosenmode}&kdb_id=${kdb_id}`;
+    }else{
+             window.history.pushState(
+                  { mode: chosenmode, kdb_id: kdb_id }, // 状态对象，可以存储你想要传递的额外数据
+                  '', // 页面标题（可以为空）
+                  `/?mode=${chosenmode}&kdb_id=${kdb_id}` // 新的 URL
+                );
+    }
+     // 如果 session_id 未定义，使用空字符串
+
+    menuButton.innerHTML = `${mode}：${title} <img id="icon" class="icon" alt="icon" src="/static/images/down.png">`;
+    // 隐藏所有菜单
+    dropdown.style.display = 'none'; // 隐藏一级菜单
+    submenu.style.display = 'none'; // 隐藏二级菜单
+}
+
+function fetchKdbTitle(kdbId) {
+
+const url = `${window.location.protocol}//${window.location.host}/kdb/get_kdb_title`;
+
+    const payload = {
+    kdb_id: kdbId
+    };
+
+    // 确保返回 Promise
+        return fetch(url, {
+        method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+        body: JSON.stringify(payload),
+    })
+    .then(response => {
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+        return response.json(); // 返回解析后的 JSON 数据
+    })
+    .then(data => {
+        const title = data.title; // 获取返回的 title
+        return title; // 确保返回 title
+    })
+    .catch(error => {
+
+        return null; // 如果失败，返回 null
+    });
+}
+updateMenuButton();
+//点击外部关闭
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('dropdown');
+    const menuButton = document.getElementById('menuButton');
+    const icons = document.querySelectorAll('.icon_small');
+
+    // 检查点击事件是否在菜单或按钮内部
+    if (!dropdown.contains(event.target) && !menuButton.contains(event.target)) {
+        dropdown.style.display = 'none'; // 关闭一级菜单
+        document.querySelectorAll('.submenucontainer').forEach(submenucontainer => {
+            submenucontainer.style.display = 'none'; // 关闭所有二级菜单
+        });
+        icons.forEach(icon => {
+            icon.classList.remove('icon-small-rotated'); // 移除旋转类
+        });
+        const first_icon = document.getElementById('icon');
+        first_icon.classList.remove('icon-small-rotated');  // 移除旋转类
+    }
+});
+</script>
+

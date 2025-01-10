@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources['title']}}</title>
+    <link rel="stylesheet" href="/static/css/btn.css">
+    <link rel="stylesheet" href="/static/css/create_kdb.css">
+    <link rel="stylesheet" href="/static/css/prompt_show.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="select_sidebar">
+        <div>
+            <button type="button" id="back_showkdb">
+                <img id="icon" class="icon" alt="icon" src="/static/images/back.png">
+                {{resources['return']}}
+            </button>
+        </div>  
+
+        <div id="select_upload_file_area">
+            <h2>{{resources['selete_file_upload']}}</h2>
+            <form id="upload_form" method="post" enctype="multipart/form-data">
+            <div class="upload-area", id="uploading_files_area">
+                <div id="drop_area">{{resources['file_upload_area']}}</div>
+                <!--<label for="file_input">files:</label>-->
+                <input type="file" id="file_input" name="files" multiple style="display:none;">
+                <button type="button" id="upload_btn" class="upload-btn" style="display:none;">{{resources['chose_file']}}</button>
+            </div>
+        </div>
+
+        <div id="analyse_upload_file_area">
+            <h2>{{resources['fle_to_analyzed']}}</h2>
+            <div class="container" id="uploading_files_container">
+                <ul id="uploading_files" class="file-list"></ul>
+                <div class="button-container">
+                    <button type="submit" id="submit_btn" class="rounded-button">
+                        <svg t="1730352829646" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M491.52 165.888V532.48c0 12.288 8.192 20.48 20.48 20.48s20.48-8.192 20.48-20.48v-370.688l110.592 108.544c8.192 8.192 20.48 8.192 28.672 0 8.192-8.192 8.192-20.48 0-28.672l-139.264-135.168c0-2.048-2.048-6.144-4.096-8.192-4.096-4.096-10.24-6.144-16.384-6.144-6.144 0-12.288 2.048-16.384 6.144-2.048 2.048-4.096 4.096-4.096 8.192l-139.264 135.168c-8.192 8.192-8.192 20.48 0 28.672 8.192 8.192 20.48 8.192 28.672 0l110.592-104.448z m-219.136 262.144c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-102.4v40.96h4.096v-40.96c-67.584 0-122.88 55.296-122.88 122.88v307.2c0 67.584 55.296 122.88 122.88 122.88h675.84c67.584 0 122.88-55.296 122.88-122.88v-307.2c0-67.584-55.296-122.88-122.88-122.88h-96.256c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h96.256c45.056 0 81.92 36.864 81.92 81.92v307.2c0 45.056-36.864 81.92-81.92 81.92h-675.84c-45.056 0-81.92-36.864-81.92-81.92v-307.2c0-45.056 36.864-81.92 81.92-81.92v-40.96h-4.096v40.96h102.4z m116.736 278.528c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h245.76c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-245.76z" fill="#32373B" p-id="4449"></path>
+                        </svg>
+                            <span class="button-text" data-short-text>{{resources['analyzed']}}</span>
+                    </button>
+                </form>
+
+                    <button type="submit" id="prompt_set" class="rounded-button">
+                        <svg id="prompt-select-icon" t="1732516065596" class="button-icon-only-img" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z" fill="#444444" p-id="3286"></path>
+                        </svg>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="muilt_model_prompt_area" style="display: none;">
+            <h2>{{resources['upload_select']}}</h2>
+            <div class="container" id="muilt_model_prompt_data_clean_container">
+                <h2>{{resources['re_anz']}}</h2>
+                <div class="container" id="reanalyze_container">
+                    <button type="submit" id="reanalyze_btn" class="rounded-button" onclick="reanalyze()">
+                        <svg t="1733816622417" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M192 128a64 64 0 0 0-64 64v640a64 64 0 0 0 64 64h192a32 32 0 0 0 0-64H192V192h640v232a32 32 0 0 0 64 0V192a64 64 0 0 0-64-64H192z m128 320a32 32 0 0 0 0 64h192a32 32 0 0 0 0-64H320z m-32-128a32 32 0 0 1 32-32h384a32 32 0 0 1 0 64H320a32 32 0 0 1-32-32zM704 480a32 32 0 0 0 0 64 160 160 0 1 1-156.8 192H640a32 32 0 0 0 0-64H512a32 32 0 0 0-32 32A224 224 0 1 0 704 480z" fill="#000000" p-id="8924"></path>
+                        </svg>    
+                            <span class="button-text" data-short-text>{{resources['re_anz_btn']}}</span>
+                    </button>
+
+                    <button type="submit" id="choice_file_btn" class="rounded-button" onclick="openFileSelectionModal()" style="margin-top: 10px">
+                        <svg t="1733816536713" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M640 528h-88v-88c0-22.092-17.908-40-40-40s-40 17.908-40 40v88h-88c-22.092 0-40 17.908-40 40 0 22.091 17.908 40 40 40h88v88c0 22.091 17.908 40 40 40s40-17.909 40-40v-88h88c22.092 0 40-17.909 40-40 0-22.092-17.908-40-40-40z" fill="#333333" p-id="7925"></path><path d="M768 208H595.349a223.478 223.478 0 0 1-147.964-56 223.473 223.473 0 0 0-147.964-56H256C149.961 96 64 181.961 64 288v448c0 106.038 85.961 192 192 192h512c106.039 0 192-85.962 192-192V400c0-106.039-85.961-192-192-192z m112 528c0 61.757-50.243 112-112 112H256c-61.757 0-112-50.243-112-112V288c0-61.758 50.243-112 112-112h43.421a143.372 143.372 0 0 1 94.995 35.953A303.263 303.263 0 0 0 595.349 288H768c61.757 0 112 50.242 112 112v336z" fill="#333333" p-id="7926"></path>
+                        </svg>    
+                            <span class="button-text" data-short-text>{{resources['choice_file']}}</span>
+                    </button>
+                    <!-- 显示已选择的文件 -->
+                    <div id="selected_files_display" class="choice-selected-files" style="display:none;">
+                        <button type="button" id="choice_clean_btn" class="clear-button" onclick="clearAllSelectedFiles()">{{resources['re_an_clean']}}</button>
+                    </div>
+
+                    <!-- 显示已选择的文件 -->
+                    <div id="selected_files_display" class="choice-selected-files" style="display:none;"></div>
+
+                    <!-- 文件选择浮窗 -->
+                    <div id="file_selection_modal" class="choice-modal-overlay">
+                        <div class="choice-modal">
+                            <h3>选择文件</h3>
+                            <div id="file_list" class="choice-file-list"></div>
+                            <button type="button" class="choice-rounded-button" onclick="confirmFileSelection()">{{resources['choice_sub']}}</button>
+                            <button type="button" class="choice-rounded-button" style="background-color: gray;" onclick="closeFileSelectionModal()">{{resources['choice_can']}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>{{resources['data_clean']}}</h2>
+                <div class="container" id="data_clean_container">
+                    <h2>{{resources['selscted']}}: <span id="selectedClean">{{resources['no']}}</span></h2>
+
+                    <div class="sp-container" id="data_clean_container">
+                        <button type="submit" id="clean_data_yes" class="rounded-button" onclick="handleChoice('Yes')">
+                            <svg t="1733292284955" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                                <path d="M936.753 234.01c12.145-12.84 32.398-13.402 45.237-1.257 12.711 12.024 13.39 31.994 1.618 44.85l-0.361 0.387-548.695 580.05c-0.305 0.322-0.615 0.64-0.93 0.955-18.557 18.558-48.53 18.743-67.316 0.557l-0.566-0.557L57.373 550.627c-12.497-12.496-12.497-32.758 0-45.254C69.744 493 89.726 492.877 102.25 505l0.377 0.372 296.735 296.734L936.753 234.01z" fill="#000000" p-id="19929"></path>
+                            </svg>    
+                                <span class="button-text" data-short-text>{{resources['yes']}}</span>
+                        </button>
+                        <button type="submit" id="clean_data_no" class="rounded-button" onclick="handleChoice('No')">
+                            <svg t="1733291490919" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                                <path d="M557.3 512l329.3-329.4a32 32 0 1 0-45.2-45.2L512 466.7 182.6 137.4a32 32 0 1 0-45.2 45.2L466.7 512 137.4 841.4a31.9 31.9 0 0 0 0 45.2 31.9 31.9 0 0 0 45.2 0L512 557.3l329.4 329.3a31.9 31.9 0 0 0 45.2 0 31.9 31.9 0 0 0 0-45.2z" fill="#333333" p-id="14253"></path>
+                            </svg>    
+                                <span class="button-text" data-short-text>{{resources['no']}}</span>
+                        </button>
+                    </div>
+                </div>
+
+
+                <h2>{{resources['multimodal_prompt']}}</h2>
+                <div class="container" id="muilt_model_prompt_container">
+                    <h2>{{resources['selscted']}}: <span id="selectedPrompt">{{resources['system_default']}}</span></h2>
+
+                    <button type="submit" id="recover_prompt" class="rounded-button">
+                        <svg t="1732756698132" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M129.9 741.836a16 16 0 0 1-8-13.856V296.02a16 16 0 0 1 8-13.856l374.088-215.98a16 16 0 0 1 16 0l374.088 215.98a16 16 0 0 1 8 13.856V448h-70.088V325.988l-320-186-320 186v372L448 846.792v78.7l-318.1-183.656z" fill="#091E40" fill-opacity=".9" p-id="10190"></path><path d="M662.996 448A164.004 164.004 0 0 0 348 512a163.996 163.996 0 0 0 100 150.996v-84.908A92 92 0 1 1 578.092 448h84.904zM791.64 523.308a8 8 0 0 0-0.084-11.312l-34.188-33.692a7.996 7.996 0 0 0-11.312 0.08l-169.452 171.94a8.004 8.004 0 0 0 0 11.232l175.064 177.636 39.888-39.308a8 8 0 0 0 0.084-11.312l-97.204-98.632H792c57.436 0 104 46.564 104 104 0 57.44-46.564 104-104 104h-224a8 8 0 0 0-8 8v48a8 8 0 0 0 8 8h224c92.784 0 168-75.216 168-168s-75.216-168-168-168h-101.508l101.148-102.632z" fill="#091E40" fill-opacity=".9" p-id="10191"></path>
+                        </svg>    
+                            <span class="button-text" data-short-text>{{resources['system_default']}}</span>
+                    </button>
+
+                    <button type="submit" id="promptIcon" class="rounded-button" style="margin-top: 10px">
+                        <svg id="prompt-button-icon" t="1732516065596" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z" fill="#444444" p-id="3286"></path>
+                        </svg>
+                            <span class="button-text" data-short-text>{{resources['prompt']}}</span>
+                    </button>
+
+                    <div class="prompt-container" id="promptSubmenu"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="spider_file_area">
+            <h2>{{resources['address_spider']}}</h2>
+            <div class="container" id="spider_files_container">
+                <!-- 添加网址输入框 -->
+                <input type="url" id="website-url" placeholder="{{resources['enter_address_spider']}}" style="width: 100%;">
+
+                <br><br>
+
+                <!-- 文件名输入框 -->
+                <input type="text" id="file-name" placeholder="{{resources['enter_name_spider']}}" style="width: 100%;">
+                <br><br>
+                    <label for="depth-limit">{{resources['depth_spider']}}:</label>
+                    <div class="depth-select" id="depth-limit" onclick="toggleDepthOptions(event)">
+                        <div class="depth-selected">1</div>
+                        <div class="depth-options" id="depth-options">
+                            <div class="depth-option" data-value="1">1</div>
+                            <div class="depth-option" data-value="2">2</div>
+                            <div class="depth-option" data-value="3">3</div>
+                            <div class="depth-option" data-value="4">4</div>
+                        </div>
+                    </div>
+                <div class="button-container" style="margin-top: 10px">
+                    <!-- 提交按钮 -->
+                    <button type="submit" id="spider_submit_btn" class="rounded-button" onclick="submitURL()">
+                        <svg t="1730884849480" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M658.64 369.685l42.426 42.426-207.251 207.25-42.426-42.425z" fill="#1D1D1D" p-id="2404"></path><path d="M482 618.8c-7.7 0-15.4-2.9-21.2-8.8l-113-113c-11.7-11.7-11.7-30.7 0-42.4s30.7-11.7 42.4 0l113 113c11.7 11.7 11.7 30.7 0 42.4-5.8 5.9-13.5 8.8-21.2 8.8z" fill="#1D1D1D" p-id="2405"></path><path d="M493.4 940.5c-59.8 0-117.8-11.7-172.4-34.8-52.8-22.3-100.1-54.2-140.8-94.9-40.7-40.7-72.6-88-94.9-140.8-23.1-54.6-34.8-112.6-34.8-172.4 0-59.8 11.7-117.8 34.8-172.4 22.3-52.8 54.2-100.1 94.9-140.8 40.7-40.7 88-72.6 140.8-94.9 54.6-23.1 112.6-34.8 172.4-34.8 48.9 0 97 7.9 142.9 23.6L617 135.1c-39.7-13.5-81.2-20.4-123.5-20.4-211.2 0-383 171.8-383 383s171.8 383 383 383 383-171.8 383-383c0-37.9-5.5-75.3-16.4-111.2l57.4-17.4c12.6 41.6 19 84.8 19 128.6 0 59.8-11.7 117.8-34.8 172.4-22.3 52.8-54.2 100.1-94.9 140.8-40.7 40.7-88 72.6-140.8 94.9-54.8 23-112.9 34.7-172.6 34.7z" fill="#1D1D1D" p-id="2406"></path>
+                        </svg>
+                            <span class="button-text" data-short-text>{{resources['sumbit']}}</span>
+                    </button>
+                    <div id="spider_spinner" class="spinner" upload_small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main_content", class="main-content">
+        <div class="container" id="kdb_title_share_container">
+            <div class="info-content-left">
+                <div style="display: inline-block; margin-left: 30px;", id = "kdb_name_area">
+                    <label for="inputBox">{{resources['kdb_name']}}：</label>
+                    <input type="text" id="inputBox" class="input_box" placeholder="{{ value }}" value="{{ value }}">
+                </div>
+
+                <!-- 添加单选按钮组 -->
+                <div style="display: inline-block; margin-left: 30px;", id = "kdb_share_choose_area">
+                    <span>{{resources['share_kdb']}}：</span>
+                    <label>
+                        <input type="radio" name="confirm" value="yes" id="radioYes"> {{resources['yes']}}
+                    </label>
+                    <label>
+                        <input type="radio" name="confirm" value="no" id="radioNo"> {{resources['no']}}
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="info-content-left">
+            <div id="container" style="display: flex; align-items: center;">
+                <h2>{{resources['file_cloud']}}</h2>
+                <div id="upload_spinner" class="spinner" upload_small></div>
+            </div>
+            <div class="container" id="existing_files_container">
+                <ul id="existing_files" class="file-list"></ul>
+            </div>
+        </div>
+
+        <div class="info-content-middle">
+
+            <div id="rebuild_btn_area" class="button-container">
+                <button id="rebuild_btn" class="rounded-button">
+                    <!-- 嵌入 SVG 代码 -->
+                    <svg t="1730342212855" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M161.85396729 546.01169434H529.44189453v250.29118652H161.85396729z" fill="#BA0C00" p-id="4998"></path>
+                      <path d="M427.40681152 338.01710205H459.67431641V529.44189453h-32.26750489zM223.33664551 705.6050293c7.41280518 7.84885254 18.31398926 13.0814209 30.52331543 13.0814209s22.67446289-4.796521 30.52331543-12.64537354l0.43604736-0.43604736c7.84885254-7.84885254 12.64537354-18.75003662 12.64537354-30.9593628s-4.796521-23.11051025-12.64537354-30.52331543c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.52331543 12.64537353s-13.0814209 18.75003662-13.0814209 30.52331543 4.796521 22.23841553 12.20932617 30.08726807l0.87209473 0.87209473z" fill="#000000" p-id="4999"></path>
+                      <path d="M902.6984375 773.62841797L744.84929199 187.14471436l-182.70384521 47.96520996-0.87209473-11.77327881H127.84227295v607.85002441h439.09969482l-0.43604736-361.48326416 99.85484619 367.15187988 236.3376709-63.22686767z m-571.2220459 9.15699463H176.67957764V271.73790283h154.3607666l0.43604736 511.04750977z m181.83175049 0H362.87180176V271.73790283h150.43634033v511.04750977z m266.86098633-173.11080323l1.30814209 0.87209473c9.15699463 10.02908936 14.82561035 22.67446289 14.82561035 37.06402588 0 14.82561035-6.10466309 28.34307861-15.69770508 37.93612061-9.59304199 9.59304199-23.11051025 15.69770508-37.9361206 15.69770507s-28.34307861-6.10466309-37.50007325-15.69770507c-10.02908936-9.59304199-16.13375244-23.11051025-16.13375244-37.93612061 0-14.82561035 6.10466309-28.34307861 16.13375244-37.93612061 9.59304199-9.59304199 23.11051025-15.69770508 37.50007325-15.69770507s27.90703125 6.10466309 37.50007324 15.69770507z m-108.1397461-289.09940185l49.70939942 185.32012939-30.52331543 8.28489991L641.50606689 328.86010742l30.52331543-8.2848999z" fill="#000000" p-id="5000"></path><path d="M436.56380615 718.6864502c12.20932617 0 22.67446289-5.23256836 30.9593628-13.0814209s13.0814209-18.75003662 13.08142089-30.9593628c0-11.33723145-4.796521-22.23841553-11.7732788-30.08726806l-0.87209473-0.43604737c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.9593628 12.64537353s-12.64537354 18.75003662-12.64537353 30.52331543c0 12.20932617 4.796521 23.11051025 12.64537353 30.9593628 7.84885254 7.84885254 18.75003662 13.0814209 30.52331543 13.0814209zM235.10992432 338.01710205h31.83145752V529.44189453h-31.83145752z" fill="#000000" p-id="5001"></path>
+                    </svg>
+                    <span class="button-text">{{resources['rebuilt_rag']}}</span>
+                </button>
+                <div id="spinner" class="spinner"></div>
+            </div>
+
+            <div id="rebuild_graph_btn_area" class="flex-container">
+                <button id="rebuild_graph_btn" class="rounded-button">
+                    <!-- 嵌入 SVG 代码 -->
+                    <svg t="1730341244187" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M870.4 711.111111c-28.444444 0-56.888889 8.533333-79.644444 22.755556l-162.133334-156.444445c25.6-34.133333 42.666667-76.8 42.666667-122.311111 0-42.666667-14.222222-82.488889-36.977778-113.777778l93.866667-99.555555c17.066667 8.533333 36.977778 17.066667 56.888889 17.066666 62.577778 0 113.777778-51.2 113.777777-113.777777s-51.2-113.777778-113.777777-113.777778-113.777778 51.2-113.777778 113.777778c0 22.755556 5.688889 39.822222 17.066667 56.888889l-93.866667 99.555555c-31.288889-28.444444-73.955556-45.511111-122.311111-45.511111-48.355556 0-93.866667 17.066667-130.844445 48.355556L258.844444 227.555556c8.533333-17.066667 14.222222-36.977778 14.222223-56.888889 0-62.577778-51.2-113.777778-113.777778-113.777778s-113.777778 51.2-113.777778 113.777778 51.2 113.777778 113.777778 113.777777c22.755556 0 42.666667-5.688889 59.733333-17.066666l88.177778 79.644444c-22.755556 31.288889-34.133333 68.266667-34.133333 108.088889 0 51.2 19.911111 96.711111 51.2 130.844445l-59.733334 62.577777c-22.755556-14.222222-48.355556-22.755556-76.8-22.755555-79.644444 0-142.222222 62.577778-142.222222 142.222222s62.577778 142.222222 142.222222 142.222222 142.222222-62.577778 142.222223-142.222222c0-28.444444-8.533333-56.888889-25.6-79.644444l59.733333-65.422223c31.288889 19.911111 68.266667 31.288889 105.244444 31.288889 42.666667 0 82.488889-14.222222 113.777778-36.977778l164.977778 156.444445c-11.377778 22.755556-19.911111 51.2-19.911111 79.644444 0 79.644444 62.577778 142.222222 142.222222 142.222223s142.222222-62.577778 142.222222-142.222223-62.577778-142.222222-142.222222-142.222222z m-85.333333-625.777778c31.288889 0 56.888889 25.6 56.888889 56.888889s-25.6 56.888889-56.888889 56.888889-56.888889-25.6-56.888889-56.888889 25.6-56.888889 56.888889-56.888889z m-682.666667 85.333334c0-31.288889 25.6-56.888889 56.888889-56.888889s56.888889 25.6 56.888889 56.888889-25.6 56.888889-56.888889 56.888889-56.888889-25.6-56.888889-56.888889z m85.333333 682.666666c-48.355556 0-85.333333-36.977778-85.333333-85.333333s36.977778-85.333333 85.333333-85.333333c14.222222 0 25.6 2.844444 36.977778 8.533333l39.822222 36.977778c5.688889 11.377778 8.533333 25.6 8.533334 39.822222 0 48.355556-36.977778 85.333333-85.333334 85.333333z m284.444445-256c-79.644444 0-142.222222-62.577778-142.222222-142.222222s62.577778-142.222222 142.222222-142.222222 142.222222 62.577778 142.222222 142.222222-62.577778 142.222222-142.222222 142.222222z m398.222222 341.333334c-48.355556 0-85.333333-36.977778-85.333333-85.333334s36.977778-85.333333 85.333333-85.333333 85.333333 36.977778 85.333333 85.333333-36.977778 85.333333-85.333333 85.333334z" p-id="1438"></path>
+                    </svg>
+                    <span class="button-text">{{resources['built_graphrag']}}</span>
+                </button>
+                
+                <div id="confirmationModal">
+                    <div class="modal-content">
+                        <p>{{resources['graphrag_no_update_message']}}？</p>
+                        <button id="graphrag_yes">{{resources['yes']}}</button>
+                        <button id="graphrag_no">{{resources['no']}}</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="show_graph_btn_area" class="flex-container">
+                <button id="show_graph_btn" class="rounded-button">
+                    <!-- 嵌入 SVG 代码 -->
+                    <svg t="1730338812309" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M341.333333 384a42.666667 42.666667 0 1 1-42.666666 42.666667 42.666667 42.666667 0 0 1 42.666666-42.666667m0-42.666667a85.333333 85.333333 0 1 0 85.333334 85.333334 85.333333 85.333333 0 0 0-85.333334-85.333334zM512 618.666667a21.333333 21.333333 0 1 1-21.333333 21.333333 21.333333 21.333333 0 0 1 21.333333-21.333333m0-42.666667a64 64 0 1 0 64 64 64 64 0 0 0-64-64zM725.333333 405.333333a21.333333 21.333333 0 1 1-21.333333 21.333334 21.333333 21.333333 0 0 1 21.333333-21.333334m0-42.666666a64 64 0 1 0 64 64 64 64 0 0 0-64-64z"></path>
+                    <path d="M667.733333 454.186667l-128 128a64 64 0 0 1 30.08 30.08l128-128a64 64 0 0 1-30.08-30.08zM490.666667 579.84l-81.706667-102.186667a83.413333 83.413333 0 0 1-33.28 26.666667l81.706667 101.973333A64 64 0 0 1 490.666667 579.84z"></path>
+                    <path d="M896 220.16v583.68L518.4 746.666667h-12.8L128 803.84V220.16L505.6 277.333333h12.8L896 220.16M938.666667 170.666667l-426.666667 64L85.333333 170.666667v682.666666l426.666667-64 426.666667 64V170.666667z"></path>
+                    </svg>
+                    <span class="button-text">{{resources['show_graph']}}</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="info-content-middle">
+            <button id="rag_qa_btn" class="rounded-button">
+                <!-- 嵌入 SVG 代码 -->
+                <svg t="1730343470254" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z" fill="#333333" p-id="2329"></path>
+                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z" fill="#333333" p-id="2330"></path>
+                </svg>
+                <span class="button-text">{{resources['rag_search']}}</span>
+            </button>
+
+
+
+            <button id="grapgrag_qa_btn" class="rounded-button">
+                <!-- 嵌入 SVG 代码 -->
+                <svg t="1730343470254" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z" fill="#333333" p-id="2329"></path>
+                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z" fill="#333333" p-id="2330"></path>
+                </svg>
+                <span class="button-text">{{resources['graphrag_search']}}</span>
+            </button>
+        </div>
+
+        <div id= "progressBarShow", class="progressBarfooter">
+            <span id="progressBarText" class="progressBarText">{{resources['build_graphrag_progress']}}：</span>
+            <div id="progressBarContainer">
+                <div id="progressBar">0%</div>
+            </div>
+            <div id="graph_spinner" class="spinner"></div>
+            <button type="button" id="stop_btn" class="stop-btn">{{resources['stop']}}</button>
+        </div>
+
+        <div class="graph-container" id="graphContainer">
+            <!-- 容器 -->
+            <div id="show_graph"></div>
+        
+            <!-- 自定义的滑块控件 -->
+            <div class="controls" id="sliderControls">
+                <label for="thresholdRange">{{resources['node_threshold']}}: </label>
+                <input type="range" id="thresholdRange" min="0" max="100" value="1" step="2" style="width: 200px;">
+                <span id="thresholdValue">1</span>
+            </div>
+    
+            <!-- 显示信息的区域 -->
+            <div id="infoBox">
+                <span class="close-btn" onclick="hideInfo()">✖</span> <!-- 关闭按钮 -->
+                <div id="infoContent"></div> <!-- 内容区域 -->
+            </div>
+        </div>
+    
+
+    <script>
+        // 将 resources 传递为全局变量
+        const resources = {{ resources | tojson }};
+        let analyzing_files = [];
+        let finish_file = []
+        // 上传的文件
+        let uploadedFiles = [];
+    </script>
+    <script>
+        let submitBtn = document.getElementById('submit_btn');
+        let buttonText = submitBtn.querySelector(".button-text");
+
+        let upload_spinner = document.getElementById("upload_spinner")
+        let reanalyze_btn = document.getElementById('reanalyze_btn');
+        let choice_file_btn = document.getElementById('choice_file_btn');
+        let reanalyze_btn_buttonText = reanalyze_btn.querySelector(".button-text");
+        let selectedFilesDiv = document.getElementById('selected_files_display');
+        let rebuildBtn = document.getElementById('rebuild_btn');
+        let RagButton = document.getElementById('rag_qa_btn');
+        var domain = window.location.host;
+        let srv_url = `${window.location.protocol}//${domain}`;
+        let uploadForm = document.getElementById('upload_form');
+        let fileInput = document.getElementById('file_input');
+        let uploadBtn = document.getElementById('upload_btn');
+        let span = submitBtn.querySelector('span.button-text');
+        let spinner = document.getElementById("spinner");
+        let uploadingFilesList = document.getElementById('uploading_files');
+        let existingFilesList = document.getElementById('existing_files');
+        let uploadStatus = document.getElementById('upload_status'); // Status indicator
+
+        let dropArea = document.getElementById('drop_area');
+
+        let rebuild_graph_btn = document.getElementById('rebuild_graph_btn');
+        let graph_spinner = document.getElementById("graph_spinner");
+        let confirmationModal = document.getElementById('confirmationModal');
+        let graphrag_yes_btn = document.getElementById('graphrag_yes');
+        let graphrag_no_btn = document.getElementById('graphrag_no');
+
+        // 显示进度条容器和停止按钮
+        let progressBarShow = document.getElementById('progressBarShow');
+        let progressBarContainer = document.getElementById('progressBarContainer');
+        let progressBarText = document.getElementById('progressBarText');
+        let progressBar = document.getElementById('progressBar');
+        let stopBtn = document.getElementById('stop_btn');
+
+        let show_graph_btn = document.getElementById('show_graph_btn');
+        // 初始化变量追踪图表的显示状态
+        let isChartVisible = false;
+
+        let rean_buttonText = reanalyze_btn.querySelector(".button-text");
+    </script>
+    <script src="../../static/js/kdb.js"></script>
+    <script src="../../static/js/sgrath.js"></script>
+    <script src="../../static/js/jquery.min.js"></script>
+    <script src="../../static/js/echarts.js"></script>
+
+
+    <script>
+        // 获取单选按钮
+        const backButtons = document.getElementById("back_showkdb")
+
+        backButtons.addEventListener("click", function(){
+            // 进行重定向
+            const url = `${window.location.protocol}//${window.location.host}/kdb/backShowKdb`;
+            window.location.href = url;
+        });
+
+
+        const is_from_share = "{{is_from_share}}"
+
+        if (is_from_share === "True") {
+            // 只显示，已有文件和展示图谱
+            const inputBox = document.getElementById("inputBox")
+            const kdb_share_choose_area = document.getElementById("kdb_share_choose_area")
+            const uploading_files_area = document.getElementById("uploading_files_area")
+            const uploading_files_container = document.getElementById("uploading_files_container")
+            const select_upload_file_area = document.getElementById("select_upload_file_area")
+            const analyse_upload_file_area = document.getElementById("analyse_upload_file_area")
+            const spider_file_area = document.getElementById("spider_file_area")
+            const muilt_model_prompt_area = document.getElementById("muilt_model_prompt_area")
+            const select_sidebar = document.getElementById("select_sidebar")
+
+            const rebuild_btn_area = document.getElementById("rebuild_btn_area")
+            const rebuild_graph_btn_area = document.getElementById("rebuild_graph_btn_area")
+
+
+            inputBox.disabled = true;   // 禁用输入框
+            kdb_share_choose_area.style.display = "none";
+            uploading_files_area.style.display = "none";
+            uploading_files_container.style.display = "none";
+            select_upload_file_area.style.display = "none";
+            analyse_upload_file_area.style.display = "none";
+            spider_file_area.style.display = "none";
+            muilt_model_prompt_area.style.display = "none";
+            select_sidebar.style.width = "10%";
+
+            rebuild_btn_area.style.display = "none";
+            rebuild_graph_btn_area.style.display = "none";
+        }
+
+
+        const kdb_id = "{{kdb_id}}"
+        let oldTitle = String(inputBox.value);
+        inputBox.addEventListener('blur', function() {
+            const newTitle = String(inputBox.value); // 获取输入框的值
+            if (oldTitle === newTitle){
+                return 
+            }
+            oldTitle = newTitle
+
+            // 修改kdb的名字
+            fetch(`${window.location.protocol}//${window.location.host}/kdb/change_kdb_title`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                },
+                body: JSON.stringify({ kdb_id: kdb_id, new_title: newTitle })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应错误，状态码: ' + response.status);
+                }
+                return response.json(); // 解析 JSON 数据
+            })
+            .then(data => {
+            })
+            .catch(error => {
+                console.error('Error:', error); // 处理错误
+            });
+                //
+            });
+
+
+
+        const share_type = "{{share}}";
+
+        // 获取单选按钮
+        const radioYes = document.getElementById('radioYes');
+        const radioNo = document.getElementById('radioNo');
+
+        // 根据 type 的值设置单选按钮状态
+        if (share_type === "True") {
+            radioYes.checked = true; // 选中“是”
+        } else {
+            radioNo.checked = true;  // 选中“否”
+        }
+
+        // 获取单选按钮
+        const radioButtons = document.querySelectorAll('input[name="confirm"]');
+
+        // 添加点击事件监听器
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                let share_type = false
+                const selectedValue = event.target.value;
+
+                if (selectedValue === 'yes') {
+                    // 这里可以添加你想要执行的操作
+                    share_type = true
+                } else {
+                    // 这里可以添加你想要执行的操作
+                    share_type = false
+                }
+
+                // 修改share的值
+                fetch(`${window.location.protocol}//${window.location.host}/kdb/change_kdb_share`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                    },
+                    body: JSON.stringify({ kdb_id: kdb_id, share_type: share_type })
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应错误，状态码: ' + response.status);
+                }
+                return response.json(); // 解析 JSON 数据
+                })
+                .then(data => {
+                })
+                .catch(error => {
+                    console.error('Error:', error); // 处理错误
+                });
+                    //
+            });
+        });
+
+
+        // 查看是否可以展示图谱， 是否第一次构建图谱， 是否可以点击知识库查询， 是否可以点击高级知识库查询， 是否有上传任务
+        fetch(`${window.location.protocol}//${window.location.host}/kdb/check_el_pr_res_up`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // 指定请求体格式为 JSON
+            },
+            body: JSON.stringify({ kdb_id: kdb_id, is_from_share: is_from_share})
+        })
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('网络响应错误，状态码: ' + response.status);
+        }
+        return response.json(); // 解析 JSON 数据
+        })
+        .then(data => {
+            // 是否可以展示图谱
+            if (!data.show_graph) {
+                // 修改按钮样式
+                const show_graph_btn = document.getElementById('show_graph_btn');
+                show_graph_btn.classList.add("disabled")
+                show_graph_btn.disabled = true;
+            }
+
+            // 是否第一次构建图谱
+            if (data.build_graph) {
+                // 修改按钮内容
+                const rebuildButton = document.getElementById('rebuild_graph_btn');
+                const buttonText = rebuildButton.querySelector('.button-text');
+                buttonText.textContent = resources['rebuilt_graphrag'];
+            }
+
+            //是否可以点击知识库查询
+            if(!data.rag_search){
+                const RagButton = document.getElementById('rag_qa_btn');
+                RagButton.classList.add("disabled")
+                RagButton.disabled = true;
+
+                const rebuildBtn = document.getElementById('rebuild_btn');
+                rebuildBtn.classList.add("disabled")
+                rebuildBtn.disabled = true;
+
+                const rebuild_graph_btn = document.getElementById('rebuild_graph_btn');
+                rebuild_graph_btn.classList.add("disabled")
+                rebuild_graph_btn.disabled = true;
+            }
+
+            //是否可以点击高级知识库查询 
+            if(!data.graphrag_search){
+                const GraphRagButton = document.getElementById('grapgrag_qa_btn');
+                GraphRagButton.classList.add("disabled")
+                GraphRagButton.disabled = true;
+            }
+            
+            //是否有上传任务
+            if (data.is_uploading) {
+                const upload_spinner = document.getElementById("upload_spinner")
+                const submitBtn = document.getElementById('submit_btn');
+                const buttonText = submitBtn.querySelector(".button-text");
+                buttonText.textContent = resources['analyzing']
+                submitBtn.classList.add("disabled")
+                submitBtn.disabled = true;
+                upload_spinner.style.display = "inline-block";
+
+                const rebuildBtn = document.getElementById('rebuild_btn');
+                rebuildBtn.classList.add("disabled")
+                rebuildBtn.disabled = true;
+
+                const reanalyze_btn = document.getElementById('reanalyze_btn');
+                reanalyze_btn.classList.add("disabled")
+                reanalyze_btn.disabled = true;
+
+                const choice_file_btn = document.getElementById('choice_file_btn');
+                choice_file_btn.classList.add("disabled")
+                choice_file_btn.disabled = true;
+
+                //进行查询
+                uploadProgress(kdb_id)
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); // 处理错误
+        });
+
+
+        // 查看该用户的该kdb是否有正在下载的任务
+        fetch(`${window.location.protocol}//${window.location.host}/graphrag/check_progress`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // 指定请求体格式为 JSON
+            },
+            body: JSON.stringify({ kdb_id: kdb_id, session_id: "" })
+        })
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('网络响应错误，状态码: ' + response.status);
+        }
+        return response.json(); // 解析 JSON 数据
+        })
+        .then(data => {
+            if (data.have_task) {
+                
+                const rebuild_graph_btn = document.getElementById('rebuild_graph_btn');
+
+                rebuild_graph_btn.disabled = true
+                rebuild_graph_btn.classList.add('disabled'); // 添加禁用样式类
+                
+                const stopBtn = document.getElementById('stop_btn');
+                
+                // 进度条显示
+                if (is_from_share === "False") {
+                    stopBtn.style.display = "inline";
+                }
+                
+                //判读是否为以及暂停
+                if (data.is_stop) {
+                    stopBtn.classList.add("disabled")
+                    stopBtn.disabled = true;
+                }
+
+                // 为停止添加点击事件
+                stopBtn.addEventListener('click', function() {   
+                    stopDownload("");
+                });
+            
+                updateProgress("");
+                
+            }            
+        })
+        .catch(error => {
+            console.error('Error:', error); // 处理错误
+        });
+        
+        async function uploadProgress(kdb_id) {
+            try {
+                const requestBody = { kdb_id: kdb_id };  // 查询进度的请求体
+                const response = await fetch(srv_url + '/kdb/upload_check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (JSON.stringify(analyzing_files) !== JSON.stringify(data.saved_files)){
+                    analyzing_files = data.saved_files
+                    refreshFileList()
+                }
+
+                if (!data.no_task) {
+                    // 根据名字展示图表
+                    if (JSON.stringify(finish_file) !== JSON.stringify(data.finish_file)){
+                        finish_file = data.finish_file
+                        refreshFileList()
+                    }
+                    setTimeout(() => uploadProgress(kdb_id), 1000);  // 每秒查询一次
+                } else {
+                    // 展示信息如果是上传完成或者上传失败
+                    if(data.mesaage){
+                        showAlert(data.mesaage)
+                    }
+                    upload_sub_operations()
+                }
+            } catch (error) {
+                upload_sub_operations()
+            }
+        }
+
+        function upload_sub_operations(){
+            // 将正在分析的文件和已经分析完和上传的文件的列表置空
+            analyzing_files = []
+            finish_file = []
+            uploadedFiles = []
+
+            selectedFiles = new Set();
+
+            // 展示文件目录
+            refreshFileList()
+
+            // 做后续的按钮操作
+
+            // 判读是否已经禁用按钮
+            if (submitBtn.disabled) {
+                submitBtn.classList.remove('disabled'); // 移除禁用样式类
+                submitBtn.disabled = false; // Enable the upload button
+
+                upload_spinner.style.display = "none";
+
+                buttonText.textContent = resources['analyzed']
+
+                fileInput.value = ''; // Clear the file input
+                uploadingFilesList.innerHTML = ''; // Clear the uploading files list
+
+                selectedFilesDiv.style.display = 'none'; // 隐藏展示区域
+                
+                if(reanalyze_btn.disabled){
+                    reanalyze_btn_buttonText.textContent = resources["re_anz_btn"]
+                    reanalyze_btn.classList.remove("disabled")
+                    reanalyze_btn.disabled = false;
+                }
+                
+                if(choice_file_btn.disabled){
+                    choice_file_btn.classList.remove("disabled")
+                    choice_file_btn.disabled = false;
+                }
+                if(RagButton.disabled){
+                    // 开启rag_search btn
+                    RagButton.classList.remove("disabled")
+                    RagButton.disabled = false;
+                }
+                if(rebuildBtn.disabled){
+                    // 开启rag_search btn
+                    rebuildBtn.classList.remove("disabled")
+                    rebuildBtn.disabled = false;
+                }
+                if(rebuild_graph_btn.disabled){
+                    // 开启build_graphrag btn
+                    rebuild_graph_btn.classList.remove("disabled")
+                    rebuild_graph_btn.disabled = false;
+                }
+            }
+        }
+
+        let clean_data = false
+
+        // 获取动态更新的元素
+        const selectedClean = document.getElementById("selectedClean");
+
+        function handleChoice(choice) {
+            if(choice === "Yes"){
+                clean_data = true
+                selectedClean.textContent = resources['yes']; // 更新为选择的提示词
+            }else{
+                clean_data = false
+                selectedClean.textContent = resources['no']; // 恢复为默认值
+            }
+            console.log("clean_data",clean_data)
+        }
+
+
+        let prompt_name = ""
+
+        // 获取动态更新的元素
+        const selectedPromptSpan = document.getElementById("selectedPrompt");
+
+        // 模拟提示词选择逻辑
+        function updateSelectedPrompt() {
+            if (prompt_name) {
+                selectedPromptSpan.textContent = prompt_name; // 更新为选择的提示词
+            } else {
+                selectedPromptSpan.textContent = resources['system_default']; // 恢复为默认值
+            }
+        }
+
+        function set_prompt_name(title){
+            prompt_name = title
+        }
+
+        document.getElementById("promptIcon").addEventListener("click", (event) => {
+            // 阻止点击 promptIcon 时冒泡，避免触发外部点击事件
+            event.stopPropagation();
+            const icon = document.getElementById('prompt-button-icon');
+            // 切换旋转状态
+            icon.classList.toggle('rotated');
+            fetchPrompt();
+            togglePromptSubmenu();
+        });
+
+
+        document.getElementById("recover_prompt").addEventListener("click", (event) => {
+            if(prompt_name){
+                // 恢复prompt为系统的
+                set_prompt_name("")
+                updateSelectedPrompt()
+            }else{
+                showAlert(resources['prompt_is_default']+"！", true)
+            }
+          
+        });
+
+
+        document.getElementById("prompt_set").addEventListener("click", (event) => {
+            const prompt_select = document.getElementById("muilt_model_prompt_area");
+            const icon = document.getElementById('prompt-select-icon');
+
+            // 判断 prompt_select 的当前显示状态并切换
+            if (prompt_select.style.display === "none" || prompt_select.style.display === "") {
+                prompt_select.style.display = "block";  // 显示 prompt_select
+            } else {
+                prompt_select.style.display = "none";  // 隐藏 prompt_select
+            }
+
+            // 切换图标的旋转状态
+            icon.classList.toggle('rotated');
+        });
+
+
+        let depth_limit = 1;
+        function submitURL() {
+            const urlInput = document.getElementById("website-url").value;
+            const fileName = document.getElementById("file-name").value;
+            const depthLimit = document.querySelector('.depth-selected').dataset.value;
+            if (!urlInput) {
+                showAlert(resources['spier_address_message']+"！",true);
+                    return;
+            }
+            if (!fileName) {
+                showAlert(resources['spier_name_message']+"！",true);
+                return;
+            }else{
+                let spider_submitBtn = document.getElementById('spider_submit_btn');
+                let spider_spinner = document.getElementById("spider_spinner")
+                spider_submitBtn.classList.add('disabled'); // 添加禁用样式类
+                spider_submitBtn.disabled = true; // Disable the upload button
+                spider_spinner.style.display = "inline-block";
+                // 将字符串分割成数组（使用逗号作为分隔符）
+                let urlList = urlInput.split(",").map(url => url.trim());
+                // 爬取数据
+                fetch(`${window.location.protocol}//${window.location.host}/spider/spider`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                    },
+                    body: JSON.stringify({ kdb_id: kdb_id, urls: urlList, file_name:fileName, depth_limit: depthLimit})
+                })
+                .then(response => {
+                    spider_submitBtn.classList.remove('disabled'); // 添加禁用样式类
+                    spider_spinner.style.display = "none";
+                    spider_submitBtn.disabled = false; // Enable the upload button
+                    refreshFileList();
+                    document.getElementById("website-url").value = "";
+                    document.getElementById("file-name").value = "";
+                    if (!response.ok) {
+                        throw new Error('网络响应错误，状态码: ' + response.status);
+                    }
+                    return response.json(); // 解析 JSON 数据
+                })
+                .then(data => {   
+                    if(data.is_successful){
+                        showAlert(data.message)
+                         // 开启build的rag和graphrag按钮和rag的search
+                        const RagButton = document.getElementById('rag_qa_btn');
+                        if(RagButton.disabled){
+                            // 开启rag_search btn
+                            RagButton.classList.remove("disabled")
+                            RagButton.disabled = false;
+                        }
+                        const rebuildBtn = document.getElementById('rebuild_btn');
+                        if(rebuildBtn.disabled){
+                            // 开启buile_rag btn
+                            rebuildBtn.classList.remove("disabled")
+                            rebuildBtn.disabled = false;
+                        }
+                        const rebuild_graph_btn = document.getElementById('rebuild_graph_btn');
+                        if(rebuild_graph_btn.disabled){
+                            // 开启build_graphrag btn
+                            rebuild_graph_btn.classList.remove("disabled")
+                            rebuild_graph_btn.disabled = false;
+                        }                 
+                    }else{
+                        showAlert(data.message,true)
+                    }
+                   
+                })
+                .catch(error => {
+                    console.error('Error:', error); // 处理错误
+                });
+            }
+        }
+
+        let re_anz_file_names = []
+
+        function reanalyze(){
+            if(re_anz_file_names.length > 0){
+                upload_spinner.style.display = "inline-block";
+
+                submitBtn.classList.add('disabled'); // 移除禁用样式类
+                submitBtn.disabled = true; // Enable the upload button
+
+                rean_buttonText.textContent = resources["analyzing"]
+                reanalyze_btn.disabled = true; // Enable the upload button
+                reanalyze_btn.classList.add('disabled'); // 移除禁用样式类
+
+                choice_file_btn.classList.add('disabled'); // 移除禁用样式类
+                choice_file_btn.disabled = true; // Enable the upload button
+
+                // 禁用移除按钮和清除按钮
+                let choice_clean_btn = document.getElementById("choice_clean_btn")
+                choice_clean_btn.disabled = true; // Enable the upload button
+                choice_clean_btn.classList.add('disabled');
+
+                // 禁止点击移除文件的按钮
+                document.querySelectorAll('.choice-remove-button').forEach(button => {
+                    button.classList.add("disabled")
+                    button.disabled = true; // 禁用按钮
+                });
+
+                analyzing_files = re_anz_file_names
+                refreshFileList();
+                startAnalyzeFiles(kdb_id, prompt_name, clean_data, re_anz_file_names)
+            }else{
+                showAlert(resources["re_an_mes"] + "!",true)
+            }
+        }
+</script>
+
+<script>
+    // 模拟从 API 获取的文件列表
+    let availableFiles = [];
+
+    // 存储用户选择的文件
+    let selectedFiles = new Set();
+
+    // 打开文件选择浮窗
+    function openFileSelectionModal() {
+        const modal = document.getElementById('file_selection_modal');
+        modal.style.display = 'flex';
+
+        const requestBody = { kdb_id: kdb_id }; // 创建一个包含 kdb_id 的对象
+
+        fetch(`${srv_url}/kdb/files`, {
+            method: 'POST',
+            credentials: 'include', // 发送 cookie
+            headers: {
+                'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+            },
+            body: JSON.stringify(requestBody) // 将对象转为 JSON 字符串
+        })
+        .then(response => response.json())
+        .then(files => {
+            availableFiles = files
+            renderFileList();
+        })
+        
+    }
+
+    // 关闭文件选择浮窗
+    function closeFileSelectionModal() {
+        const modal = document.getElementById('file_selection_modal');
+        modal.style.display = 'none';
+    }
+
+    // 渲染文件列表
+    function renderFileList() {
+        const fileListDiv = document.getElementById('file_list');
+        fileListDiv.innerHTML = ''; // 清空列表内容
+
+        availableFiles.forEach((fileName) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'choice-file-item';
+            fileItem.textContent = fileName;
+
+            // 如果文件已在已选列表中，标记为已选
+            if (selectedFiles.has(fileName)) {
+                fileItem.classList.add('selected');
+            }
+
+            // 点击选择文件
+            fileItem.onclick = () => {
+                if (selectedFiles.has(fileName)) {
+                    // 如果已经选中，取消选择
+                    selectedFiles.delete(fileName);
+                    fileItem.classList.remove('selected');
+                } else {
+                    // 如果未选中，添加到选择文件列表
+                    selectedFiles.add(fileName);
+                    fileItem.classList.add('selected');
+                }
+            };
+
+            fileListDiv.appendChild(fileItem);
+        });
+    }
+
+    // 确认文件选择
+    function confirmFileSelection() {
+        const selectedFileList = Array.from(selectedFiles);
+
+        if (selectedFileList.length === 0) {
+            alert("您尚未选择任何文件！");
+            return;
+        }
+
+        // 隐藏文件选择浮窗
+        closeFileSelectionModal();
+
+        // 展示已选择的文件
+        const selectedFilesDiv = document.getElementById('selected_files_display');
+        selectedFilesDiv.innerHTML = `
+            <button type="button" id="choice_clean_btn" class="clear-button" onclick="clearAllSelectedFiles()">${resources['re_an_clean']}</button>
+        `; // 重置为清除按钮
+        selectedFilesDiv.style.display = 'block';
+
+        selectedFileList.forEach((fileName) => {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'choice-selected-file';
+            fileDiv.textContent = fileName;
+
+            // 创建移除按钮
+            const removeButton = document.createElement('button');
+            removeButton.className = 'choice-remove-button';
+            removeButton.textContent = '移除';
+
+            // 移除按钮点击事件
+            removeButton.onclick = () => {
+                selectedFiles.delete(fileName);
+                fileDiv.remove();
+                re_anz_file_names = Array.from(selectedFiles);
+
+                console.log("移除后剩余文件：", Array.from(selectedFiles));
+
+                // 如果没有选择文件了，隐藏展示区域
+                if (selectedFiles.size === 0) {
+                    selectedFilesDiv.style.display = 'none';
+                }
+            };
+
+            fileDiv.appendChild(removeButton);
+            selectedFilesDiv.appendChild(fileDiv);
+        });
+        re_anz_file_names = selectedFileList
+    }
+
+    // 清除全部选择的文件
+    function clearAllSelectedFiles() {
+            selectedFiles.clear(); // 清空选择的文件列表
+            re_anz_file_names = []
+            const selectedFilesDiv = document.getElementById('selected_files_display');
+            selectedFilesDiv.style.display = 'none'; // 隐藏展示区域
+            console.log("已清除全部选择的文件");
+        }
+</script>
+
+<script>
+
+    // 切换 depth-options 的显示状态
+    function toggleDepthOptions(event) {
+       event.stopPropagation();
+        const depthOptions = document.getElementById("depth-options");
+    
+        // 切换 depth-options 的显示状态
+        depthOptions.style.display = depthOptions.style.display === 'block' ? 'none' : 'block';
+    }
+    
+    // 处理点击选项的事件
+    document.querySelectorAll('.depth-option').forEach(option => {
+        option.addEventListener('click', function() {
+             event.stopPropagation();
+            const selected = document.querySelector('.depth-selected');
+            const depthOptions = document.getElementById("depth-options");
+            selected.textContent = this.textContent;
+            selected.dataset.value = this.dataset.value;
+
+            // 选择后关闭 depth-options 菜单
+            depthOptions.style.display = "none";
+        });
+    });
+    
+    // 点击页面其他区域时关闭 depth-options
+    document.addEventListener('click', function(event) {
+        const depthSelect = document.getElementById("depth-limit");
+        const depthOptions = document.getElementById("depth-options");
+        const button = document.getElementById('recover_prompt');
+        const icon = document.getElementById('prompt-button-icon');
+
+        // 如果点击区域不是 depth-select 内部，关闭 depth-options
+        if (!depthSelect.contains(event.target)) {
+            depthOptions.style.display = "none";
+        }
+
+        // 如果点击的不是按钮本身和图标，则恢复图标原型
+        if (!button.contains(event.target)) {
+            icon.classList.remove('rotated');
+        }
+    });
+    
+</script>
+
+    
+<script>
+
+    function listenertochatbox(btn_id,mode){
+        document.getElementById(btn_id).addEventListener('click', function() {
+
+            // 准备发送的JSON数据
+            const data = {
+                message: ""
+            };
+
+            // 使用fetch API提交数据到服务器
+            fetch(`${window.location.protocol}//${window.location.host}/conversation`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = `${window.location.protocol}//${window.location.host}/index/${data.session_id}?mode=${mode}&kdb_id=${kdb_id}`
+            })
+            .catch((error) => {
+                alert('消息发送失败！');
+            });
+        });
+    }
+
+    listenertochatbox("grapgrag_qa_btn", "graphrag")
+    listenertochatbox("rag_qa_btn", "faq")
+
+</script>
+
+<script>
+    // 切换 submenu 显示状态
+    function togglePromptSubmenu() {
+        const submenuPrompt = document.getElementById("promptSubmenu");
+
+        // 如果 submenu 当前是隐藏的，则显示它，反之则隐藏
+        if (submenuPrompt.style.display === "none" || submenuPrompt.style.display === "") {
+            submenuPrompt.style.display = "flex";  // 显示
+        } else {
+            submenuPrompt.style.display = "none";  // 隐藏
+        }
+    }
+
+    document.addEventListener("click", (event) => {
+            const submenuPrompt = document.getElementById("promptSubmenu");
+            const promptIcon = document.getElementById("promptIcon");
+
+            // 如果点击的是 submenu 或 promptIcon 以外的区域，隐藏 submenu
+            if (!submenuPrompt.contains(event.target) && event.target !== promptIcon) {
+                submenuPrompt.style.display = "none";
+            }
+        });
+
+    function fetchPrompt() {
+        const submenuPrompt = document.getElementById('promptSubmenu');
+        submenuPrompt.innerHTML = "";
+        const url = `${window.location.protocol}//${window.location.host}/prompt/get_user_prompt`;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("请求失败");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                // 如果 user 和 share 都为空，显示提示
+                if ((!data.user_info || data.user_info.length === 0)) {
+                    alert("当前没有提示词，请先创建");
+                    const submenuPrompt = document.getElementById('promptSubmenu');
+                    submenuPrompt.style.display = 'none'; // 隐藏菜单
+                    return; // 终止后续处理
+                }
+
+                // 创建 User 子菜单
+                if (data.user_info) {
+                    const userPromptSubmenu = document.createElement('div');
+                    userPromptSubmenu.className = 'promptSubmenu';
+
+                    data.user_info.forEach(item => {
+                        const menuItem = document.createElement('div');
+                        menuItem.textContent = item.title; // 显示 title
+                        menuItem.style.display = 'flex';
+                        menuItem.style.justifyContent = 'flex-start';
+                        menuItem.dataset.id = `user-${item.id}`;
+                        menuItem.onclick = (event) => {
+                            event.preventDefault();
+                            set_prompt_name(item.title);
+                            submenuPrompt.style.display = "none"; // 隐藏菜单
+                            updateSelectedPrompt();
+
+                        };
+                        menuItem.className = 'Prompt-item'; // 添加样式类
+                        userPromptSubmenu.appendChild(menuItem);
+                    });
+                    submenuPrompt.appendChild(userPromptSubmenu);
+                }
+            } else {
+                showAlert(resources['get_ptompt_content'] + "!",true);
+            }
+        })
+        .catch(error => {
+            console.error("请求失败:", error);
+        });
+    }
+</script>
+
+{% if 'share' not in permissions %}
+<script>
+    document.getElementById("kdb_share_choose_area").style.display = "none";
+</script>
+{% endif %}
+
+{% if 'graphrag' not in permissions %}
+<script>
+    document.getElementById("muilt_model_prompt_area").style.display = "none";
+    document.getElementById("rebuild_graph_btn").style.display = "none";
+    document.getElementById("prompt_set").style.display = "none";
+    // 如果来自share 则可以 否则不可以
+    if (!is_from_share){
+        document.getElementById("show_graph_btn").style.display = "none";
+        document.getElementById("grapgrag_qa_btn").style.display = "none";
+    }
+</script>
+{% endif %}
+
+<script>
+    const permissions = "{{permissions}}"
+
+    let allowedExtensions = []
+
+    // 准备发送的JSON数据
+    const data = {
+        permissions: permissions
+    };
+
+    // 使用fetch API提交数据到服务器
+    fetch(`${window.location.protocol}//${window.location.host}/kdb/get_allowedExtensions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        allowedExtensions = data.allowedExtensions
+    })
+    .catch((error) => {
+        alert('消息发送失败！');
+    });
+</script>
+</body>
+</html>

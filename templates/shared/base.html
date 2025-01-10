@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <script src="/static/bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/layui/layui.js"></script>
+    <style>
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+    {% block title %}
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    {% endblock %}
+
+
+    {% block scripts %}
+    {% endblock %}
+
+
+</body>
+</html>
