@@ -38,7 +38,7 @@ For scenarios where users lack corresponding documents, OpenKAG supports web cra
 ### Online Experience
 
 Try our online demo:  
-[https://chat.haifeng.ai:8012](https://chat.haifeng.ai:8012)
+[https://chat.llmincloud.com:8010](https://chat.llmincloud.com:8010)
 
 OpenKAG is developed by Haifeng AI and appincloud, and uses numerous open-source software. Special thanks to these contributors.
 
