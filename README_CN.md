@@ -25,7 +25,7 @@
 
 ### 在线体验
 点击进入我们的在线demo
-https://chat.haifeng.ai:8012
+https://chat.llmincloud.com:8010
 
 OpenKAG由海风大模型/云中致用开发，使用数字人技术及许多开源软件，特此鸣谢。
 
