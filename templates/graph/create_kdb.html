@@ -36,7 +36,7 @@
                 <div class="button-container">
                     <button type="submit" id="submit_btn" class="rounded-button">
                         <svg t="1730352829646" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M491.52 165.888V532.48c0 12.288 8.192 20.48 20.48 20.48s20.48-8.192 20.48-20.48v-370.688l110.592 108.544c8.192 8.192 20.48 8.192 28.672 0 8.192-8.192 8.192-20.48 0-28.672l-139.264-135.168c0-2.048-2.048-6.144-4.096-8.192-4.096-4.096-10.24-6.144-16.384-6.144-6.144 0-12.288 2.048-16.384 6.144-2.048 2.048-4.096 4.096-4.096 8.192l-139.264 135.168c-8.192 8.192-8.192 20.48 0 28.672 8.192 8.192 20.48 8.192 28.672 0l110.592-104.448z m-219.136 262.144c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-102.4v40.96h4.096v-40.96c-67.584 0-122.88 55.296-122.88 122.88v307.2c0 67.584 55.296 122.88 122.88 122.88h675.84c67.584 0 122.88-55.296 122.88-122.88v-307.2c0-67.584-55.296-122.88-122.88-122.88h-96.256c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h96.256c45.056 0 81.92 36.864 81.92 81.92v307.2c0 45.056-36.864 81.92-81.92 81.92h-675.84c-45.056 0-81.92-36.864-81.92-81.92v-307.2c0-45.056 36.864-81.92 81.92-81.92v-40.96h-4.096v40.96h102.4z m116.736 278.528c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h245.76c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-245.76z" fill="#32373B" p-id="4449"></path>
+                            <path d="M491.52 165.888V532.48c0 12.288 8.192 20.48 20.48 20.48s20.48-8.192 20.48-20.48v-370.688l110.592 108.544c8.192 8.192 20.48 8.192 28.672 0 8.192-8.192 8.192-20.48 0-28.672l-139.264-135.168c0-2.048-2.048-6.144-4.096-8.192-4.096-4.096-10.24-6.144-16.384-6.144-6.144 0-12.288 2.048-16.384 6.144-2.048 2.048-4.096 4.096-4.096 8.192l-139.264 135.168c-8.192 8.192-8.192 20.48 0 28.672 8.192 8.192 20.48 8.192 28.672 0l110.592-104.448z m-219.136 262.144c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-102.4v40.96h4.096v-40.96c-67.584 0-122.88 55.296-122.88 122.88v307.2c0 67.584 55.296 122.88 122.88 122.88h675.84c67.584 0 122.88-55.296 122.88-122.88v-307.2c0-67.584-55.296-122.88-122.88-122.88h-96.256c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h96.256c45.056 0 81.92 36.864 81.92 81.92v307.2c0 45.056-36.864 81.92-81.92 81.92h-675.84c-45.056 0-81.92-36.864-81.92-81.92v-307.2c0-45.056 36.864-81.92 81.92-81.92v-40.96h-4.096v40.96h102.4z m116.736 278.528c-12.288 0-20.48 8.192-20.48 20.48s8.192 20.48 20.48 20.48h245.76c12.288 0 20.48-8.192 20.48-20.48s-8.192-20.48-20.48-20.48h-245.76z"></path>
                         </svg>
                             <span class="button-text" data-short-text>{{resources['analyzed']}}</span>
                     </button>
@@ -44,7 +44,7 @@
 
                     <button type="submit" id="prompt_set" class="rounded-button">
                         <svg id="prompt-select-icon" t="1732516065596" class="button-icon-only-img" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z" fill="#444444" p-id="3286"></path>
+                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z"></path>
                         </svg>
                     </button>
 
@@ -59,14 +59,24 @@
                 <div class="container" id="reanalyze_container">
                     <button type="submit" id="reanalyze_btn" class="rounded-button" onclick="reanalyze()">
                         <svg t="1733816622417" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M192 128a64 64 0 0 0-64 64v640a64 64 0 0 0 64 64h192a32 32 0 0 0 0-64H192V192h640v232a32 32 0 0 0 64 0V192a64 64 0 0 0-64-64H192z m128 320a32 32 0 0 0 0 64h192a32 32 0 0 0 0-64H320z m-32-128a32 32 0 0 1 32-32h384a32 32 0 0 1 0 64H320a32 32 0 0 1-32-32zM704 480a32 32 0 0 0 0 64 160 160 0 1 1-156.8 192H640a32 32 0 0 0 0-64H512a32 32 0 0 0-32 32A224 224 0 1 0 704 480z" fill="#000000" p-id="8924"></path>
+                            <path d="M192 128a64 64 0 0 0-64 64v640a64 64 0 0 0 64 64h192a32 32 0 0 0 0-64H192V192h640v232a32 32 0 0 0 64 0V192a64 64 0 0 0-64-64H192z m128 320a32 32 0 0 0 0 64h192a32 32 0 0 0 0-64H320z m-32-128a32 32 0 0 1 32-32h384a32 32 0 0 1 0 64H320a32 32 0 0 1-32-32zM704 480a32 32 0 0 0 0 64 160 160 0 1 1-156.8 192H640a32 32 0 0 0 0-64H512a32 32 0 0 0-32 32A224 224 0 1 0 704 480z"></path>
                         </svg>    
                             <span class="button-text" data-short-text>{{resources['re_anz_btn']}}</span>
                     </button>
 
+                    <div id="re_analyzed_all_mes" class="choice-modal-overlay">
+                        <div class="choice-modal">
+                            <p>{{resources['rean_all_mes']}}</p>
+                            <div style="margin-top: 5%;">
+                                <button id="rean_all__yes" class="choice-rounded-button">{{resources['yes']}}</button>
+                                <button id="rean_all_no" class="choice-rounded-button" style="background-color: gray;">{{resources['no']}}</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" id="choice_file_btn" class="rounded-button" onclick="openFileSelectionModal()" style="margin-top: 10px">
                         <svg t="1733816536713" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M640 528h-88v-88c0-22.092-17.908-40-40-40s-40 17.908-40 40v88h-88c-22.092 0-40 17.908-40 40 0 22.091 17.908 40 40 40h88v88c0 22.091 17.908 40 40 40s40-17.909 40-40v-88h88c22.092 0 40-17.909 40-40 0-22.092-17.908-40-40-40z" fill="#333333" p-id="7925"></path><path d="M768 208H595.349a223.478 223.478 0 0 1-147.964-56 223.473 223.473 0 0 0-147.964-56H256C149.961 96 64 181.961 64 288v448c0 106.038 85.961 192 192 192h512c106.039 0 192-85.962 192-192V400c0-106.039-85.961-192-192-192z m112 528c0 61.757-50.243 112-112 112H256c-61.757 0-112-50.243-112-112V288c0-61.758 50.243-112 112-112h43.421a143.372 143.372 0 0 1 94.995 35.953A303.263 303.263 0 0 0 595.349 288H768c61.757 0 112 50.242 112 112v336z" fill="#333333" p-id="7926"></path>
+                            <path d="M640 528h-88v-88c0-22.092-17.908-40-40-40s-40 17.908-40 40v88h-88c-22.092 0-40 17.908-40 40 0 22.091 17.908 40 40 40h88v88c0 22.091 17.908 40 40 40s40-17.909 40-40v-88h88c22.092 0 40-17.909 40-40 0-22.092-17.908-40-40-40z"></path><path d="M768 208H595.349a223.478 223.478 0 0 1-147.964-56 223.473 223.473 0 0 0-147.964-56H256C149.961 96 64 181.961 64 288v448c0 106.038 85.961 192 192 192h512c106.039 0 192-85.962 192-192V400c0-106.039-85.961-192-192-192z m112 528c0 61.757-50.243 112-112 112H256c-61.757 0-112-50.243-112-112V288c0-61.758 50.243-112 112-112h43.421a143.372 143.372 0 0 1 94.995 35.953A303.263 303.263 0 0 0 595.349 288H768c61.757 0 112 50.242 112 112v336z"></path>
                         </svg>    
                             <span class="button-text" data-short-text>{{resources['choice_file']}}</span>
                     </button>
@@ -81,31 +91,32 @@
                     <!-- 文件选择浮窗 -->
                     <div id="file_selection_modal" class="choice-modal-overlay">
                         <div class="choice-modal">
-                            <h3>选择文件</h3>
+                            <h3>{{resources['choice_file']}}</h3>
                             <div id="file_list" class="choice-file-list"></div>
                             <button type="button" class="choice-rounded-button" onclick="confirmFileSelection()">{{resources['choice_sub']}}</button>
                             <button type="button" class="choice-rounded-button" style="background-color: gray;" onclick="closeFileSelectionModal()">{{resources['choice_can']}}</button>
                         </div>
                     </div>
                 </div>
+                <div id="if_muilt_model_area">
+                    <h2>{{resources['if_muilt']}}</h2>
+                    <div class="container" id="if_muilt_model_container">
+                        <h2>{{resources['selscted']}}: <span id="selectedClean"></span></h2>
 
-                <h2>{{resources['data_clean']}}</h2>
-                <div class="container" id="data_clean_container">
-                    <h2>{{resources['selscted']}}: <span id="selectedClean">{{resources['no']}}</span></h2>
-
-                    <div class="sp-container" id="data_clean_container">
-                        <button type="submit" id="clean_data_yes" class="rounded-button" onclick="handleChoice('Yes')">
-                            <svg t="1733292284955" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                                <path d="M936.753 234.01c12.145-12.84 32.398-13.402 45.237-1.257 12.711 12.024 13.39 31.994 1.618 44.85l-0.361 0.387-548.695 580.05c-0.305 0.322-0.615 0.64-0.93 0.955-18.557 18.558-48.53 18.743-67.316 0.557l-0.566-0.557L57.373 550.627c-12.497-12.496-12.497-32.758 0-45.254C69.744 493 89.726 492.877 102.25 505l0.377 0.372 296.735 296.734L936.753 234.01z" fill="#000000" p-id="19929"></path>
-                            </svg>    
-                                <span class="button-text" data-short-text>{{resources['yes']}}</span>
-                        </button>
-                        <button type="submit" id="clean_data_no" class="rounded-button" onclick="handleChoice('No')">
-                            <svg t="1733291490919" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                                <path d="M557.3 512l329.3-329.4a32 32 0 1 0-45.2-45.2L512 466.7 182.6 137.4a32 32 0 1 0-45.2 45.2L466.7 512 137.4 841.4a31.9 31.9 0 0 0 0 45.2 31.9 31.9 0 0 0 45.2 0L512 557.3l329.4 329.3a31.9 31.9 0 0 0 45.2 0 31.9 31.9 0 0 0 0-45.2z" fill="#333333" p-id="14253"></path>
-                            </svg>    
-                                <span class="button-text" data-short-text>{{resources['no']}}</span>
-                        </button>
+                        <div class="sp-container" id="if_muilt_model_container">
+                            <button type="submit" id="if_muilt_model_yes" class="rounded-button" onclick="handleChoice('Yes')">
+                                <svg t="1733292284955" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                                    <path d="M936.753 234.01c12.145-12.84 32.398-13.402 45.237-1.257 12.711 12.024 13.39 31.994 1.618 44.85l-0.361 0.387-548.695 580.05c-0.305 0.322-0.615 0.64-0.93 0.955-18.557 18.558-48.53 18.743-67.316 0.557l-0.566-0.557L57.373 550.627c-12.497-12.496-12.497-32.758 0-45.254C69.744 493 89.726 492.877 102.25 505l0.377 0.372 296.735 296.734L936.753 234.01z"></path>
+                                </svg>    
+                                    <span class="button-text" data-short-text>{{resources['yes']}}</span>
+                            </button>
+                            <button type="submit" id="if_muilt_model_no" class="rounded-button" onclick="handleChoice('No')">
+                                <svg t="1733291490919" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                                    <path d="M557.3 512l329.3-329.4a32 32 0 1 0-45.2-45.2L512 466.7 182.6 137.4a32 32 0 1 0-45.2 45.2L466.7 512 137.4 841.4a31.9 31.9 0 0 0 0 45.2 31.9 31.9 0 0 0 45.2 0L512 557.3l329.4 329.3a31.9 31.9 0 0 0 45.2 0 31.9 31.9 0 0 0 0-45.2z"></path>
+                                </svg>    
+                                    <span class="button-text" data-short-text>{{resources['no']}}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -116,14 +127,14 @@
 
                     <button type="submit" id="recover_prompt" class="rounded-button">
                         <svg t="1732756698132" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M129.9 741.836a16 16 0 0 1-8-13.856V296.02a16 16 0 0 1 8-13.856l374.088-215.98a16 16 0 0 1 16 0l374.088 215.98a16 16 0 0 1 8 13.856V448h-70.088V325.988l-320-186-320 186v372L448 846.792v78.7l-318.1-183.656z" fill="#091E40" fill-opacity=".9" p-id="10190"></path><path d="M662.996 448A164.004 164.004 0 0 0 348 512a163.996 163.996 0 0 0 100 150.996v-84.908A92 92 0 1 1 578.092 448h84.904zM791.64 523.308a8 8 0 0 0-0.084-11.312l-34.188-33.692a7.996 7.996 0 0 0-11.312 0.08l-169.452 171.94a8.004 8.004 0 0 0 0 11.232l175.064 177.636 39.888-39.308a8 8 0 0 0 0.084-11.312l-97.204-98.632H792c57.436 0 104 46.564 104 104 0 57.44-46.564 104-104 104h-224a8 8 0 0 0-8 8v48a8 8 0 0 0 8 8h224c92.784 0 168-75.216 168-168s-75.216-168-168-168h-101.508l101.148-102.632z" fill="#091E40" fill-opacity=".9" p-id="10191"></path>
+                            <path d="M129.9 741.836a16 16 0 0 1-8-13.856V296.02a16 16 0 0 1 8-13.856l374.088-215.98a16 16 0 0 1 16 0l374.088 215.98a16 16 0 0 1 8 13.856V448h-70.088V325.988l-320-186-320 186v372L448 846.792v78.7l-318.1-183.656z"></path><path d="M662.996 448A164.004 164.004 0 0 0 348 512a163.996 163.996 0 0 0 100 150.996v-84.908A92 92 0 1 1 578.092 448h84.904zM791.64 523.308a8 8 0 0 0-0.084-11.312l-34.188-33.692a7.996 7.996 0 0 0-11.312 0.08l-169.452 171.94a8.004 8.004 0 0 0 0 11.232l175.064 177.636 39.888-39.308a8 8 0 0 0 0.084-11.312l-97.204-98.632H792c57.436 0 104 46.564 104 104 0 57.44-46.564 104-104 104h-224a8 8 0 0 0-8 8v48a8 8 0 0 0 8 8h224c92.784 0 168-75.216 168-168s-75.216-168-168-168h-101.508l101.148-102.632z"></path>
                         </svg>    
                             <span class="button-text" data-short-text>{{resources['system_default']}}</span>
                     </button>
 
                     <button type="submit" id="promptIcon" class="rounded-button" style="margin-top: 10px">
                         <svg id="prompt-button-icon" t="1732516065596" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z" fill="#444444" p-id="3286"></path>
+                            <path d="M490.666667 601.6L797.866667 298.666667l59.733333 59.733333-302.933333 302.933333-59.733334 64-59.733333-59.733333L128 358.4 187.733333 298.666667l302.933334 302.933333z"></path>
                         </svg>
                             <span class="button-text" data-short-text>{{resources['prompt']}}</span>
                     </button>
@@ -135,16 +146,29 @@
 
         <div id="spider_file_area">
             <h2>{{resources['address_spider']}}</h2>
-            <div class="container" id="spider_files_container">
+            <div class="spider-container" id="spider_files_container">
                 <!-- 添加网址输入框 -->
-                <input type="url" id="website-url" placeholder="{{resources['enter_address_spider']}}" style="width: 100%;">
-
-                <br><br>
-
+                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px; margin-left: 5%; margin-top: 5%;">
+                    {{resources['enter_address_spider']}}
+                </div>
+                <p id="website-url"
+                   class="url"
+                   contenteditable="true"
+                   style="width: 90%; min-height: 20px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; resize: none; overflow: hidden; color: #000; margin-left: 5%; margin-right: 5%;">
+                </p>
+                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px; margin-left: 5%; margin-top: 5%;">
+                    {{resources['enter_name_spider']}}
+                </div>
                 <!-- 文件名输入框 -->
-                <input type="text" id="file-name" placeholder="{{resources['enter_name_spider']}}" style="width: 100%;">
-                <br><br>
-                    <label for="depth-limit">{{resources['depth_spider']}}:</label>
+                <!-- <input type="text" id="file-name" style="width: 90%; height: 30px; font-size: 15px; margin-left: 5%; margin-right: 5%; background-color: #f8f8f8; border: 1px solid #ccc;"> -->
+                <p id="file-name"
+                   class="url"
+                   contenteditable="true"
+                   style="width: 90%; min-height: 20px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; resize: none; overflow: hidden; color: #000; margin-left: 5%; margin-right: 5%;">
+                </p>
+                <br>
+                <div style="display: flex; align-items: center;">
+                    <label for="depth-limit" style="margin-left: 5%;">{{resources['depth_spider']}}:</label>
                     <div class="depth-select" id="depth-limit" onclick="toggleDepthOptions(event)">
                         <div class="depth-selected">1</div>
                         <div class="depth-options" id="depth-options">
@@ -154,11 +178,12 @@
                             <div class="depth-option" data-value="4">4</div>
                         </div>
                     </div>
+                </div>
                 <div class="button-container" style="margin-top: 10px">
                     <!-- 提交按钮 -->
-                    <button type="submit" id="spider_submit_btn" class="rounded-button" onclick="submitURL()">
+                    <button type="submit" id="spider_submit_btn" class="rounded-button" onclick="submitURL()" style="margin-left: 5%; margin-bottom: 5%;">
                         <svg t="1730884849480" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
-                            <path d="M658.64 369.685l42.426 42.426-207.251 207.25-42.426-42.425z" fill="#1D1D1D" p-id="2404"></path><path d="M482 618.8c-7.7 0-15.4-2.9-21.2-8.8l-113-113c-11.7-11.7-11.7-30.7 0-42.4s30.7-11.7 42.4 0l113 113c11.7 11.7 11.7 30.7 0 42.4-5.8 5.9-13.5 8.8-21.2 8.8z" fill="#1D1D1D" p-id="2405"></path><path d="M493.4 940.5c-59.8 0-117.8-11.7-172.4-34.8-52.8-22.3-100.1-54.2-140.8-94.9-40.7-40.7-72.6-88-94.9-140.8-23.1-54.6-34.8-112.6-34.8-172.4 0-59.8 11.7-117.8 34.8-172.4 22.3-52.8 54.2-100.1 94.9-140.8 40.7-40.7 88-72.6 140.8-94.9 54.6-23.1 112.6-34.8 172.4-34.8 48.9 0 97 7.9 142.9 23.6L617 135.1c-39.7-13.5-81.2-20.4-123.5-20.4-211.2 0-383 171.8-383 383s171.8 383 383 383 383-171.8 383-383c0-37.9-5.5-75.3-16.4-111.2l57.4-17.4c12.6 41.6 19 84.8 19 128.6 0 59.8-11.7 117.8-34.8 172.4-22.3 52.8-54.2 100.1-94.9 140.8-40.7 40.7-88 72.6-140.8 94.9-54.8 23-112.9 34.7-172.6 34.7z" fill="#1D1D1D" p-id="2406"></path>
+                            <path d="M658.64 369.685l42.426 42.426-207.251 207.25-42.426-42.425z"></path><path d="M482 618.8c-7.7 0-15.4-2.9-21.2-8.8l-113-113c-11.7-11.7-11.7-30.7 0-42.4s30.7-11.7 42.4 0l113 113c11.7 11.7 11.7 30.7 0 42.4-5.8 5.9-13.5 8.8-21.2 8.8z"></path><path d="M493.4 940.5c-59.8 0-117.8-11.7-172.4-34.8-52.8-22.3-100.1-54.2-140.8-94.9-40.7-40.7-72.6-88-94.9-140.8-23.1-54.6-34.8-112.6-34.8-172.4 0-59.8 11.7-117.8 34.8-172.4 22.3-52.8 54.2-100.1 94.9-140.8 40.7-40.7 88-72.6 140.8-94.9 54.6-23.1 112.6-34.8 172.4-34.8 48.9 0 97 7.9 142.9 23.6L617 135.1c-39.7-13.5-81.2-20.4-123.5-20.4-211.2 0-383 171.8-383 383s171.8 383 383 383 383-171.8 383-383c0-37.9-5.5-75.3-16.4-111.2l57.4-17.4c12.6 41.6 19 84.8 19 128.6 0 59.8-11.7 117.8-34.8 172.4-22.3 52.8-54.2 100.1-94.9 140.8-40.7 40.7-88 72.6-140.8 94.9-54.8 23-112.9 34.7-172.6 34.7z"></path>
                         </svg>
                             <span class="button-text" data-short-text>{{resources['sumbit']}}</span>
                     </button>
@@ -166,12 +191,38 @@
                 </div>
             </div>
         </div>
+
+        <div id="analyze_address_area">
+            <h2>{{resources['an_address']}}</h2>
+            <div class="spider-container" id="analyze_address_container">
+                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px; margin-left: 5%; margin-top: 5%;">
+                    {{resources['folder_ad']}}
+                </div>
+                <p id="folder_address"
+                   class="url"
+                   contenteditable="true"
+                   style="width: 90%; min-height: 20px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; resize: none; overflow: hidden; color: #000; margin-left: 5%; margin-right: 5%;">
+                </p>
+
+                <div class="button-container" style="margin-top: 10px">
+                    <!-- 提交按钮 -->
+                    <button type="submit" id="analyze_address_btn" class="rounded-button" onclick="analyzed_folder()" style="margin-left: 5%; margin-bottom: 5%;">
+                        <svg t="1730884849480" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-short-text>
+                            <path d="M658.64 369.685l42.426 42.426-207.251 207.25-42.426-42.425z"></path><path d="M482 618.8c-7.7 0-15.4-2.9-21.2-8.8l-113-113c-11.7-11.7-11.7-30.7 0-42.4s30.7-11.7 42.4 0l113 113c11.7 11.7 11.7 30.7 0 42.4-5.8 5.9-13.5 8.8-21.2 8.8z"></path><path d="M493.4 940.5c-59.8 0-117.8-11.7-172.4-34.8-52.8-22.3-100.1-54.2-140.8-94.9-40.7-40.7-72.6-88-94.9-140.8-23.1-54.6-34.8-112.6-34.8-172.4 0-59.8 11.7-117.8 34.8-172.4 22.3-52.8 54.2-100.1 94.9-140.8 40.7-40.7 88-72.6 140.8-94.9 54.6-23.1 112.6-34.8 172.4-34.8 48.9 0 97 7.9 142.9 23.6L617 135.1c-39.7-13.5-81.2-20.4-123.5-20.4-211.2 0-383 171.8-383 383s171.8 383 383 383 383-171.8 383-383c0-37.9-5.5-75.3-16.4-111.2l57.4-17.4c12.6 41.6 19 84.8 19 128.6 0 59.8-11.7 117.8-34.8 172.4-22.3 52.8-54.2 100.1-94.9 140.8-40.7 40.7-88 72.6-140.8 94.9-54.8 23-112.9 34.7-172.6 34.7z"></path>
+                        </svg>
+                            <span class="button-text" data-short-text>{{resources['sumbit']}}</span>
+                    </button>
+                    <div id="analyze_address_spinner" class="spinner" upload_small></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Main Content -->
     <div id="main_content", class="main-content">
         <div class="container" id="kdb_title_share_container">
-            <div class="info-content-left">
+            <div>
                 <div style="display: inline-block; margin-left: 30px;", id = "kdb_name_area">
                     <label for="inputBox">{{resources['kdb_name']}}：</label>
                     <input type="text" id="inputBox" class="input_box" placeholder="{{ value }}" value="{{ value }}">
@@ -192,24 +243,47 @@
         </div>
 
         <div class="info-content-left">
-            <div id="container" style="display: flex; align-items: center;">
-                <h2>{{resources['file_cloud']}}</h2>
-                <div id="upload_spinner" class="spinner" upload_small></div>
-            </div>
-            <div class="container" id="existing_files_container">
-                <ul id="existing_files" class="file-list"></ul>
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+                <div id="upload_file_area" style="flex: 1; margin-right: 10px;">
+                    <div id="container" style="display: flex; align-items: center;">
+                        <h2>{{resources['file_cloud']}}</h2>
+                        <div id="upload_spinner" class="spinner" style="margin-bottom: 0px;" upload_small></div>
+                    </div>
+                    <div class="container" id="existing_files_container">
+                        <ul id="existing_files" class="file-list"></ul>
+                    </div>
+                </div>
+                
+                <div id="res_file_area" style="flex: 1; margin-left: 10px;">
+                    <div id="container" style="display: flex; align-items: center;">
+                        <h2>{{resources['res_files']}}</h2>
+                    </div>
+                    <div class="container" id="analyzed_files_container">
+                        <ul id="analyzed_files" class="file-list"></ul>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="info-content-middle">
+
+          <!-- 模态窗口 -->
+        <div class="modal-overlay" id="modal-overlay">
+            <div class="modal" id="modal">
+                <h2>{{resources['file_content']}}</h2>
+                <pre id="res-file-content" style="text-align: left; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 5px;"></pre>
+                <button class="res-close-btn" id="res-close-btn">{{resources['close']}}</button>
+            </div>
+        </div>
+
+        <div id="buile_show_area" class="info-content-middle">
 
             <div id="rebuild_btn_area" class="button-container">
                 <button id="rebuild_btn" class="rounded-button">
                     <!-- 嵌入 SVG 代码 -->
                     <svg t="1730342212855" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M161.85396729 546.01169434H529.44189453v250.29118652H161.85396729z" fill="#BA0C00" p-id="4998"></path>
-                      <path d="M427.40681152 338.01710205H459.67431641V529.44189453h-32.26750489zM223.33664551 705.6050293c7.41280518 7.84885254 18.31398926 13.0814209 30.52331543 13.0814209s22.67446289-4.796521 30.52331543-12.64537354l0.43604736-0.43604736c7.84885254-7.84885254 12.64537354-18.75003662 12.64537354-30.9593628s-4.796521-23.11051025-12.64537354-30.52331543c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.52331543 12.64537353s-13.0814209 18.75003662-13.0814209 30.52331543 4.796521 22.23841553 12.20932617 30.08726807l0.87209473 0.87209473z" fill="#000000" p-id="4999"></path>
-                      <path d="M902.6984375 773.62841797L744.84929199 187.14471436l-182.70384521 47.96520996-0.87209473-11.77327881H127.84227295v607.85002441h439.09969482l-0.43604736-361.48326416 99.85484619 367.15187988 236.3376709-63.22686767z m-571.2220459 9.15699463H176.67957764V271.73790283h154.3607666l0.43604736 511.04750977z m181.83175049 0H362.87180176V271.73790283h150.43634033v511.04750977z m266.86098633-173.11080323l1.30814209 0.87209473c9.15699463 10.02908936 14.82561035 22.67446289 14.82561035 37.06402588 0 14.82561035-6.10466309 28.34307861-15.69770508 37.93612061-9.59304199 9.59304199-23.11051025 15.69770508-37.9361206 15.69770507s-28.34307861-6.10466309-37.50007325-15.69770507c-10.02908936-9.59304199-16.13375244-23.11051025-16.13375244-37.93612061 0-14.82561035 6.10466309-28.34307861 16.13375244-37.93612061 9.59304199-9.59304199 23.11051025-15.69770508 37.50007325-15.69770507s27.90703125 6.10466309 37.50007324 15.69770507z m-108.1397461-289.09940185l49.70939942 185.32012939-30.52331543 8.28489991L641.50606689 328.86010742l30.52331543-8.2848999z" fill="#000000" p-id="5000"></path><path d="M436.56380615 718.6864502c12.20932617 0 22.67446289-5.23256836 30.9593628-13.0814209s13.0814209-18.75003662 13.08142089-30.9593628c0-11.33723145-4.796521-22.23841553-11.7732788-30.08726806l-0.87209473-0.43604737c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.9593628 12.64537353s-12.64537354 18.75003662-12.64537353 30.52331543c0 12.20932617 4.796521 23.11051025 12.64537353 30.9593628 7.84885254 7.84885254 18.75003662 13.0814209 30.52331543 13.0814209zM235.10992432 338.01710205h31.83145752V529.44189453h-31.83145752z" fill="#000000" p-id="5001"></path>
+                      <path d="M161.85396729 546.01169434H529.44189453v250.29118652H161.85396729z"></path>
+                      <path d="M427.40681152 338.01710205H459.67431641V529.44189453h-32.26750489zM223.33664551 705.6050293c7.41280518 7.84885254 18.31398926 13.0814209 30.52331543 13.0814209s22.67446289-4.796521 30.52331543-12.64537354l0.43604736-0.43604736c7.84885254-7.84885254 12.64537354-18.75003662 12.64537354-30.9593628s-4.796521-23.11051025-12.64537354-30.52331543c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.52331543 12.64537353s-13.0814209 18.75003662-13.0814209 30.52331543 4.796521 22.23841553 12.20932617 30.08726807l0.87209473 0.87209473z"></path>
+                      <path d="M902.6984375 773.62841797L744.84929199 187.14471436l-182.70384521 47.96520996-0.87209473-11.77327881H127.84227295v607.85002441h439.09969482l-0.43604736-361.48326416 99.85484619 367.15187988 236.3376709-63.22686767z m-571.2220459 9.15699463H176.67957764V271.73790283h154.3607666l0.43604736 511.04750977z m181.83175049 0H362.87180176V271.73790283h150.43634033v511.04750977z m266.86098633-173.11080323l1.30814209 0.87209473c9.15699463 10.02908936 14.82561035 22.67446289 14.82561035 37.06402588 0 14.82561035-6.10466309 28.34307861-15.69770508 37.93612061-9.59304199 9.59304199-23.11051025 15.69770508-37.9361206 15.69770507s-28.34307861-6.10466309-37.50007325-15.69770507c-10.02908936-9.59304199-16.13375244-23.11051025-16.13375244-37.93612061 0-14.82561035 6.10466309-28.34307861 16.13375244-37.93612061 9.59304199-9.59304199 23.11051025-15.69770508 37.50007325-15.69770507s27.90703125 6.10466309 37.50007324 15.69770507z m-108.1397461-289.09940185l49.70939942 185.32012939-30.52331543 8.28489991L641.50606689 328.86010742l30.52331543-8.2848999z"></path><path d="M436.56380615 718.6864502c12.20932617 0 22.67446289-5.23256836 30.9593628-13.0814209s13.0814209-18.75003662 13.08142089-30.9593628c0-11.33723145-4.796521-22.23841553-11.7732788-30.08726806l-0.87209473-0.43604737c-7.84885254-7.84885254-18.75003662-12.64537354-30.95936279-12.64537353-11.77327881 0-22.67446289 4.796521-30.9593628 12.64537353s-12.64537354 18.75003662-12.64537353 30.52331543c0 12.20932617 4.796521 23.11051025 12.64537353 30.9593628 7.84885254 7.84885254 18.75003662 13.0814209 30.52331543 13.0814209zM235.10992432 338.01710205h31.83145752V529.44189453h-31.83145752z"></path>
                     </svg>
                     <span class="button-text">{{resources['rebuilt_rag']}}</span>
                 </button>
@@ -251,8 +325,8 @@
             <button id="rag_qa_btn" class="rounded-button">
                 <!-- 嵌入 SVG 代码 -->
                 <svg t="1730343470254" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z" fill="#333333" p-id="2329"></path>
-                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z" fill="#333333" p-id="2330"></path>
+                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z"></path>
+                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z"></path>
                 </svg>
                 <span class="button-text">{{resources['rag_search']}}</span>
             </button>
@@ -262,8 +336,8 @@
             <button id="grapgrag_qa_btn" class="rounded-button">
                 <!-- 嵌入 SVG 代码 -->
                 <svg t="1730343470254" class="button-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z" fill="#333333" p-id="2329"></path>
-                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z" fill="#333333" p-id="2330"></path>
+                    <path d="M768 234.666667a42.666667 42.666667 0 0 1 38.912 25.173333l123.861333 275.2a41.685333 41.685333 0 0 1 0.768 1.706667l67.370667 149.76a42.666667 42.666667 0 1 1-77.824 34.986666l-56.448-125.44h-193.28l-56.448 125.44a42.666667 42.666667 0 1 1-77.824-34.986666l67.370667-149.717334a41.813333 41.813333 0 0 1 0.768-1.706666l27.861333-61.909334 96-213.333333A42.666667 42.666667 0 0 1 768 234.666667z m-58.24 276.053333h116.48L768 381.354667l-58.24 129.450666z m224.725333 48.768a42.538667 42.538667 0 0 0-0.512-15.018667zM277.333333 298.666667a170.666667 170.666667 0 1 0 0 341.333333 170.666667 170.666667 0 0 0 0-341.333333z m-256 170.666666a256 256 0 1 1 512 0 256 256 0 0 1-512 0z"></path>
+                    <path d="M310.357333 546.688a42.666667 42.666667 0 0 1 60.288-1.706667l132.650667 125.568a42.666667 42.666667 0 1 1-58.666667 61.994667l-132.608-125.568a42.666667 42.666667 0 0 1-1.706666-60.330667z"></path>
                 </svg>
                 <span class="button-text">{{resources['graphrag_search']}}</span>
             </button>
@@ -274,7 +348,7 @@
             <div id="progressBarContainer">
                 <div id="progressBar">0%</div>
             </div>
-            <div id="graph_spinner" class="spinner"></div>
+            <div id="graph_spinner" class="spinner"  style="margin-top: 5%;"></div>
             <button type="button" id="stop_btn" class="stop-btn">{{resources['stop']}}</button>
         </div>
 
@@ -300,10 +374,34 @@
     <script>
         // 将 resources 传递为全局变量
         const resources = {{ resources | tojson }};
-        let analyzing_files = [];
-        let finish_file = []
-        // 上传的文件
-        let uploadedFiles = [];
+        const permissions = {{ permissions | tojson }};
+
+    </script>
+    
+    <script>
+        function get_permissions(permissions,if_use_muilt){
+            // 准备发送的JSON数据
+            const data = {
+                permissions: permissions,
+                if_use_muilt: if_use_muilt
+            };
+
+            // 使用fetch API提交数据到服务器
+            fetch(`${window.location.protocol}//${window.location.host}/kdb/get_allowedExtensions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                allowedExtensions = data.allowedExtensions
+            })
+            .catch((error) => {
+                console.log("error")
+            });
+        }
     </script>
     <script>
         let submitBtn = document.getElementById('submit_btn');
@@ -325,6 +423,8 @@
         let spinner = document.getElementById("spinner");
         let uploadingFilesList = document.getElementById('uploading_files');
         let existingFilesList = document.getElementById('existing_files');
+        let analyzed_files = document.getElementById('analyzed_files');
+
         let uploadStatus = document.getElementById('upload_status'); // Status indicator
 
         let dropArea = document.getElementById('drop_area');
@@ -347,13 +447,49 @@
         let isChartVisible = false;
 
         let rean_buttonText = reanalyze_btn.querySelector(".button-text");
+        // 存储用户选择的文件
+        let selectedFiles = new Set();
+        let re_anz_file_names = []
+
+        let if_use_muilt = permissions.includes("multimodal");
+        // 获取 <span> 元素
+        let selectedCleanSpan = document.getElementById("selectedClean");
+
+        let allowedExtensions = []
+
+        // 根据 if_use_muilt 的值设置 span 的默认值
+        if (if_use_muilt) {
+        selectedCleanSpan.textContent = resources['yes'];  // 如果有 "multimodal" 权限，设置为这个值
+        } else {
+        selectedCleanSpan.textContent = resources['no'];  // 如果没有 "multimodal" 权限，设置为这个值
+        }
+
+        get_permissions(permissions, if_use_muilt)
+        
+        let prompt_name = ""
+        let oldTitle = String(inputBox.value);
+        let depth_limit = 1;
+        let availableFiles = [];
+
+        // 模态窗口和相关元素
+        let modalOverlay = document.getElementById('modal-overlay');
+        let fileContentElement = document.getElementById('res-file-content');
+        let closeButton = document.getElementById('res-close-btn');
+
+        let analyzing_files = [];
+        let finish_file = []
+        // 上传的文件
+        let uploadedFiles = [];
+
+        // 已经存在的文件
+        let exitst_file_upload = []
+
+        let now_dir = []
     </script>
     <script src="../../static/js/kdb.js"></script>
     <script src="../../static/js/sgrath.js"></script>
     <script src="../../static/js/jquery.min.js"></script>
     <script src="../../static/js/echarts.js"></script>
-
-
     <script>
         // 获取单选按钮
         const backButtons = document.getElementById("back_showkdb")
@@ -381,7 +517,8 @@
 
             const rebuild_btn_area = document.getElementById("rebuild_btn_area")
             const rebuild_graph_btn_area = document.getElementById("rebuild_graph_btn_area")
-
+            const analyze_address_area = document.getElementById("analyze_address_area")
+            const res_file_area = document.getElementById("res_file_area")            
 
             inputBox.disabled = true;   // 禁用输入框
             kdb_share_choose_area.style.display = "none";
@@ -395,11 +532,13 @@
 
             rebuild_btn_area.style.display = "none";
             rebuild_graph_btn_area.style.display = "none";
+            analyze_address_area.style.display = "none";
+            res_file_area.style.display = "none";
+            document.getElementById("upload_file_area").style.marginRight = "0px"
         }
 
 
         const kdb_id = "{{kdb_id}}"
-        let oldTitle = String(inputBox.value);
         inputBox.addEventListener('blur', function() {
             const newTitle = String(inputBox.value); // 获取输入框的值
             if (oldTitle === newTitle){
@@ -506,14 +645,6 @@
                 const show_graph_btn = document.getElementById('show_graph_btn');
                 show_graph_btn.classList.add("disabled")
                 show_graph_btn.disabled = true;
-            }
-
-            // 是否第一次构建图谱
-            if (data.build_graph) {
-                // 修改按钮内容
-                const rebuildButton = document.getElementById('rebuild_graph_btn');
-                const buttonText = rebuildButton.querySelector('.button-text');
-                buttonText.textContent = resources['rebuilt_graphrag'];
             }
 
             //是否可以点击知识库查询
@@ -640,6 +771,12 @@
                     if (JSON.stringify(finish_file) !== JSON.stringify(data.finish_file)){
                         finish_file = data.finish_file
                         refreshFileList()
+                        refreshResFileList();
+                    }else{
+                        if(data.is_emb){
+                            display_showAlert("is_embing")
+                            showAlert(data.message,false,false,"is_embing")
+                        }
                     }
                     setTimeout(() => uploadProgress(kdb_id), 1000);  // 每秒查询一次
                 } else {
@@ -655,6 +792,7 @@
         }
 
         function upload_sub_operations(){
+            display_showAlert("is_embing")
             // 将正在分析的文件和已经分析完和上传的文件的列表置空
             analyzing_files = []
             finish_file = []
@@ -662,8 +800,11 @@
 
             selectedFiles = new Set();
 
+            re_anz_file_names = []
+
             // 展示文件目录
-            refreshFileList()
+            refreshFileList();
+            refreshResFileList();
 
             // 做后续的按钮操作
 
@@ -709,24 +850,20 @@
             }
         }
 
-        let clean_data = false
-
         // 获取动态更新的元素
         const selectedClean = document.getElementById("selectedClean");
 
         function handleChoice(choice) {
             if(choice === "Yes"){
-                clean_data = true
+                if_use_muilt = true
                 selectedClean.textContent = resources['yes']; // 更新为选择的提示词
             }else{
-                clean_data = false
+                if_use_muilt = false
                 selectedClean.textContent = resources['no']; // 恢复为默认值
             }
-            console.log("clean_data",clean_data)
+            get_permissions(permissions, if_use_muilt)
+            console.log("if_use_muilt",if_use_muilt)
         }
-
-
-        let prompt_name = ""
 
         // 获取动态更新的元素
         const selectedPromptSpan = document.getElementById("selectedPrompt");
@@ -747,11 +884,7 @@
         document.getElementById("promptIcon").addEventListener("click", (event) => {
             // 阻止点击 promptIcon 时冒泡，避免触发外部点击事件
             event.stopPropagation();
-            const icon = document.getElementById('prompt-button-icon');
-            // 切换旋转状态
-            icon.classList.toggle('rotated');
             fetchPrompt();
-            togglePromptSubmenu();
         });
 
 
@@ -783,10 +916,9 @@
         });
 
 
-        let depth_limit = 1;
         function submitURL() {
-            const urlInput = document.getElementById("website-url").value;
-            const fileName = document.getElementById("file-name").value;
+            const urlInput = document.getElementById("website-url").innerText.trim();
+            const fileName = document.getElementById("file-name").innerText.trim();
             const depthLimit = document.querySelector('.depth-selected').dataset.value;
             if (!urlInput) {
                 showAlert(resources['spier_address_message']+"！",true);
@@ -816,6 +948,8 @@
                     spider_spinner.style.display = "none";
                     spider_submitBtn.disabled = false; // Enable the upload button
                     refreshFileList();
+                    refreshResFileList();
+
                     document.getElementById("website-url").value = "";
                     document.getElementById("file-name").value = "";
                     if (!response.ok) {
@@ -823,9 +957,10 @@
                     }
                     return response.json(); // 解析 JSON 数据
                 })
-                .then(data => {   
+                .then(data => {
                     if(data.is_successful){
-                        showAlert(data.message)
+
+                        showAlert(resources['spider_s_mes']+"！")
                          // 开启build的rag和graphrag按钮和rag的search
                         const RagButton = document.getElementById('rag_qa_btn');
                         if(RagButton.disabled){
@@ -846,7 +981,7 @@
                             rebuild_graph_btn.disabled = false;
                         }                 
                     }else{
-                        showAlert(data.message,true)
+                        showAlert(resources['spider_uns_mes']+"！",true)
                     }
                    
                 })
@@ -856,48 +991,106 @@
             }
         }
 
-        let re_anz_file_names = []
+        
+        function analyzed_folder(){
+            const address= document.getElementById("folder_address").innerText.trim();
+            if (!address) {
+                showAlert(resources['folder_address_message']+"！",true);
+                    return;
+            }else{
+                let analyze_address_btn = document.getElementById("analyze_address_btn")
+                let analyze_address_spinner = document.getElementById("analyze_address_spinner")
+                analyze_address_btn.classList.add('disabled'); // 添加禁用样式类
+                analyze_address_btn.disabled = true; // Disable the upload button
+                analyze_address_spinner.style.display = "inline-block";
+
+                // 爬取数据
+                fetch(`${window.location.protocol}//${window.location.host}/kdb/analyze_files_ad`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // 指定请求体格式为 JSON
+                    },
+                    body: JSON.stringify({ kdb_id: kdb_id, address: address, if_use_muilt:if_use_muilt})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("分析的结果是",data)
+                    analyze_address_spinner.style.display = "none";
+                    analyze_address_btn.classList.remove('disabled'); // 添加禁用样式类
+                    analyze_address_btn.disabled = false; // Disable the upload button
+                    refreshResFileList();
+                    showAlert(data.message)
+                })
+            }
+        }
+
+        // 当点击“是”按钮时的操作
+        rean_all__yes.addEventListener('click', function() {
+            const requestBody = { kdb_id: kdb_id }; // 创建一个包含 kdb_id 的对象
+            fetch(`${window.location.protocol}//${window.location.host}/kdb/files`, {
+                method: 'POST',
+                credentials: 'include', // 发送 cookie
+                headers: {
+                    'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                },
+                body: JSON.stringify(requestBody) // 将对象转为 JSON 字符串
+            })
+            .then(response => response.json())
+            .then(files => {
+                re_analyzed_all_mes.style.display = 'none';
+                analyzing_files_disabled()
+                analyzing_files = files
+                refreshFileList();
+                startAnalyzeFiles(kdb_id, prompt_name, if_use_muilt, files)
+            });
+        });
+
+        // 当点击“否”按钮时的操作
+        rean_all_no.addEventListener('click', function() {
+            re_analyzed_all_mes.style.display = 'none';
+            showAlert(resources["re_an_mes"] + "!",true)
+        });
+
+        function analyzing_files_disabled(){
+            upload_spinner.style.display = "inline-block";
+
+            submitBtn.classList.add('disabled'); // 移除禁用样式类
+            submitBtn.disabled = true; // Enable the upload button
+
+            rean_buttonText.textContent = resources["analyzing"]
+            reanalyze_btn.disabled = true; // Enable the upload button
+            reanalyze_btn.classList.add('disabled'); // 移除禁用样式类
+
+            choice_file_btn.classList.add('disabled'); // 移除禁用样式类
+            choice_file_btn.disabled = true; // Enable the upload button
+
+            // 禁用移除按钮和清除按钮
+            let choice_clean_btn = document.getElementById("choice_clean_btn")
+            choice_clean_btn.disabled = true; // Enable the upload button
+            choice_clean_btn.classList.add('disabled');
+
+            // 禁止点击移除文件的按钮
+            document.querySelectorAll('.choice-remove-button').forEach(button => {
+                button.classList.add("disabled")
+                button.disabled = true; // 禁用按钮
+            });
+        }
 
         function reanalyze(){
             if(re_anz_file_names.length > 0){
-                upload_spinner.style.display = "inline-block";
-
-                submitBtn.classList.add('disabled'); // 移除禁用样式类
-                submitBtn.disabled = true; // Enable the upload button
-
-                rean_buttonText.textContent = resources["analyzing"]
-                reanalyze_btn.disabled = true; // Enable the upload button
-                reanalyze_btn.classList.add('disabled'); // 移除禁用样式类
-
-                choice_file_btn.classList.add('disabled'); // 移除禁用样式类
-                choice_file_btn.disabled = true; // Enable the upload button
-
-                // 禁用移除按钮和清除按钮
-                let choice_clean_btn = document.getElementById("choice_clean_btn")
-                choice_clean_btn.disabled = true; // Enable the upload button
-                choice_clean_btn.classList.add('disabled');
-
-                // 禁止点击移除文件的按钮
-                document.querySelectorAll('.choice-remove-button').forEach(button => {
-                    button.classList.add("disabled")
-                    button.disabled = true; // 禁用按钮
-                });
-
+                analyzing_files_disabled()
                 analyzing_files = re_anz_file_names
                 refreshFileList();
-                startAnalyzeFiles(kdb_id, prompt_name, clean_data, re_anz_file_names)
+                startAnalyzeFiles(kdb_id, prompt_name, if_use_muilt, re_anz_file_names)
             }else{
-                showAlert(resources["re_an_mes"] + "!",true)
+                // 展示一个是否是重建全部文件
+                re_analyzed_all_mes.style.display = 'flex';
             }
         }
 </script>
 
 <script>
     // 模拟从 API 获取的文件列表
-    let availableFiles = [];
-
-    // 存储用户选择的文件
-    let selectedFiles = new Set();
 
     // 打开文件选择浮窗
     function openFileSelectionModal() {
@@ -965,7 +1158,7 @@
         const selectedFileList = Array.from(selectedFiles);
 
         if (selectedFileList.length === 0) {
-            alert("您尚未选择任何文件！");
+            showAlert(resources["re_an_er"]);
             return;
         }
 
@@ -995,8 +1188,6 @@
                 fileDiv.remove();
                 re_anz_file_names = Array.from(selectedFiles);
 
-                console.log("移除后剩余文件：", Array.from(selectedFiles));
-
                 // 如果没有选择文件了，隐藏展示区域
                 if (selectedFiles.size === 0) {
                     selectedFilesDiv.style.display = 'none';
@@ -1020,14 +1211,24 @@
 </script>
 
 <script>
+    //spider_name
+    document.getElementById('file-name').addEventListener('input', function () {
+        this.style.height = 'auto'; // 先重置高度
+        this.style.height = this.scrollHeight + 'px'; // 根据内容调整高度
+    });
 
+    //spider!!!!!
+    document.getElementById('website-url').addEventListener('input', function () {
+        this.style.height = 'auto'; // 先重置高度
+        this.style.height = this.scrollHeight + 'px'; // 根据内容调整高度
+    });
     // 切换 depth-options 的显示状态
     function toggleDepthOptions(event) {
        event.stopPropagation();
         const depthOptions = document.getElementById("depth-options");
     
         // 切换 depth-options 的显示状态
-        depthOptions.style.display = depthOptions.style.display === 'block' ? 'none' : 'block';
+        depthOptions.style.display = depthOptions.style.display === 'flex' ? 'none' : 'flex';
     }
     
     // 处理点击选项的事件
@@ -1072,7 +1273,7 @@
 
             // 准备发送的JSON数据
             const data = {
-                message: ""
+                create_session_id: true
             };
 
             // 使用fetch API提交数据到服务器
@@ -1101,7 +1302,12 @@
 <script>
     // 切换 submenu 显示状态
     function togglePromptSubmenu() {
+        const promptIcon = document.getElementById("promptIcon")
+        const rect = promptIcon.getBoundingClientRect();
+
         const submenuPrompt = document.getElementById("promptSubmenu");
+        submenuPrompt.style.top = `${rect.top + window.scrollY}px`; // 菜单顶部位置 = 按钮顶部位置 + 偏移 + 页面垂直滚动位移
+        submenuPrompt.style.left = `${rect.right + 5 + window.scrollX}px`; // 菜单左边位置 = 按钮右边位置 + 偏移 + 页面水平滚动位移
 
         // 如果 submenu 当前是隐藏的，则显示它，反之则隐藏
         if (submenuPrompt.style.display === "none" || submenuPrompt.style.display === "") {
@@ -1139,15 +1345,11 @@
             return response.json();
         })
         .then(data => {
-            if (data) {
-                // 如果 user 和 share 都为空，显示提示
-                if ((!data.user_info || data.user_info.length === 0)) {
-                    alert("当前没有提示词，请先创建");
-                    const submenuPrompt = document.getElementById('promptSubmenu');
-                    submenuPrompt.style.display = 'none'; // 隐藏菜单
-                    return; // 终止后续处理
-                }
-
+            if (data.user_info && Object.keys(data.user_info).length !== 0) {
+                const icon = document.getElementById('prompt-button-icon');
+                // 切换旋转状态
+                icon.classList.toggle('rotated');
+                togglePromptSubmenu();
                 // 创建 User 子菜单
                 if (data.user_info) {
                     const userPromptSubmenu = document.createElement('div');
@@ -1171,7 +1373,7 @@
                     });
                     submenuPrompt.appendChild(userPromptSubmenu);
                 }
-            } else {
+            }else {
                 showAlert(resources['get_ptompt_content'] + "!",true);
             }
         })
@@ -1181,50 +1383,53 @@
     }
 </script>
 
+
 {% if 'share' not in permissions %}
 <script>
     document.getElementById("kdb_share_choose_area").style.display = "none";
 </script>
 {% endif %}
 
+{% if 'address' not in permissions %}
+<script>
+    document.getElementById("analyze_address_area").style.display = "none";
+</script>
+{% endif %}
+
 {% if 'graphrag' not in permissions %}
 <script>
+
+    function updateLayout() {
+        const buile_show_area = document.getElementById("buile_show_area");
+
+        // 获取所有按钮
+        const buttons = buile_show_area.querySelectorAll("button.rounded-button");
+
+        const visibleEnabledButtons = Array.from(buttons).filter(button => button.style.display !== "none" && !button.disabled);
+        console.log("按钮是",visibleEnabledButtons)
+        // 判断是否只剩下一个未禁用且 `display` 不为 `none` 的按钮
+        if (visibleEnabledButtons.length === 1) {
+            buile_show_area.style.gap = 0;
+        } else {
+            console.log("未禁用且未隐藏的按钮数量不为 1");
+        }
+    }
+
     document.getElementById("muilt_model_prompt_area").style.display = "none";
     document.getElementById("rebuild_graph_btn").style.display = "none";
+    document.getElementById("show_graph_btn").style.display = "none";
+    document.getElementById("grapgrag_qa_btn").style.display = "none";
     document.getElementById("prompt_set").style.display = "none";
     // 如果来自share 则可以 否则不可以
     if (!is_from_share){
         document.getElementById("show_graph_btn").style.display = "none";
         document.getElementById("grapgrag_qa_btn").style.display = "none";
     }
+    
+    // 调用函数进行初始化
+    updateLayout();
 </script>
 {% endif %}
 
-<script>
-    const permissions = "{{permissions}}"
-
-    let allowedExtensions = []
-
-    // 准备发送的JSON数据
-    const data = {
-        permissions: permissions
-    };
-
-    // 使用fetch API提交数据到服务器
-    fetch(`${window.location.protocol}//${window.location.host}/kdb/get_allowedExtensions`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(data => {
-        allowedExtensions = data.allowedExtensions
-    })
-    .catch((error) => {
-        alert('消息发送失败！');
-    });
-</script>
 </body>
 </html>

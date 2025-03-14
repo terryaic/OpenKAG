@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources['node_title']}}</title>
+    <link rel="stylesheet" href="/static/css/flatpickr.min.css">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #back_origin {
+            display: flex;
+            align-items: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 16px;
+            outline: none;
+            color: #000000;
+            font-weight: 300; /* 设置为 300，字体会显得较细 */
+        }
+
+        #back_origin img {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus, button:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .action-buttons button {
+            background-color: #2ecc71;
+            margin: 5px;
+            color: white;
+        }
+
+        .action-buttons button:hover {
+            background-color: #27ae60;
+        }
+
+        .chat-records {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 8px;
+        }
+
+        /* 仅显示滑块，不显示轨道 */
+        .chat-records::-webkit-scrollbar-track {
+            background: transparent; /* 轨道透明 */
+        }
+
+        .chat-records::-webkit-scrollbar {
+            width: 8px; /* 滚动条的宽度 */
+        }
+
+        .chat-records::-webkit-scrollbar-thumb {
+            background: #d5d5d5;
+            border-radius: 10px; /* 滑块的圆角 */
+        }
+
+        .chat-records::-webkit-scrollbar-thumb:hover {
+            background: #a5a1a1; /* 悬停时的背景颜色 */
+        }
+
+        .record {
+            display: flex;                /* 使用 flexbox 布局，方便后续扩展 */
+            align-items: center;          /* 垂直居中内容 */
+            justify-content: space-between; /* 使内容左右分布 */
+            padding: 8px 12px;            /* 为内边距增加左右的间距，使内容更舒适 */
+            font-size: 16px;              /* 字体大小 */
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.1s ease, transform 0.1s ease; /* 添加 transform 动效 */
+            box-sizing: border-box;       /* 确保 padding 和 border 不影响元素宽度 */
+        }
+
+        .record:hover {
+            background-color: #ecf0f1;    /* 鼠标悬停时的背景颜色 */
+            transform: scale(1.02);        /* 鼠标悬停时轻微放大，增强交互效果 */
+        }
+
+        .record:focus {
+            outline: none;                /* 去除默认的 focus 边框 */
+            background-color: #ecf0f1;    /* 聚焦时同样背景色变化 */
+        }
+
+        .record:active {
+            background-color: #d5dbdb;    /* 按下时的背景色 */
+        }
+
+
+        .selected {
+            background-color: #0bd30b !important;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+        }
+
+        /* Improve button group layout */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button type="button" id="back_origin">
+            <img id="icon" class="icon" alt="icon" src="/static/images/back.png">
+            {{resources['return']}}
+        </button>
+
+        <h1>{{resources['export_history']}}</h1>
+
+        <div>
+            <label for="title">{{resources['session_title']}}:</label>
+            <input type="text" id="title" placeholder="{{resources['session_title_mes']}}"/>
+        
+            <label for="start-date">{{resources['start_date']}}:</label>
+            <input type="date" id="start-date" placeholder="{{resources['start_date_mes']}}" />
+        
+            <label for="end-date">{{resources['end_date']}}:</label>
+            <input type="date" id="end-date" placeholder="{{resources['end_date_mes']}}" />
+            
+            <button onclick="exportAll()">{{resources['export_all']}}</button>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="filterAndExport()">{{resources['filter_record']}}</button>
+            <button onclick="resetFilters()">{{resources['reset_filter']}}</button>
+            <button onclick="cleanSelect()">{{resources['clean_select']}}</button>
+            <button onclick="selectAll()">{{resources['select_all']}}</button>
+            <button onclick="exportSelect()">{{resources['export_select']}}</button>
+        </div>
+
+        <h2>{{resources['history']}}</h2>
+        <div class="chat-records">
+            <div class="record">{{resources['history_show']}}...</div>
+        </div>
+    </div>
+</body>
+<script src="/static/js/flatpickr.js"></script>
+<script src="/static/js/flatpickr_zh.js"></script>
+<script>
+    const resources = {{ resources | tojson }};
+</script>
+<script>
+    // 初始化两个日期输入框
+    flatpickr("#start-date, #end-date", {
+        dateFormat: resources.date_input, // 设置日期格式为 "yyyy年mm月dd日"
+        locale: resources.date_language // 使用简体中文本地化
+    });
+</script>
+<script>
+    const backButtons = document.getElementById("back_origin")
+
+    backButtons.addEventListener("click", function(){
+        // 进行重定向
+        const url = `${window.location.protocol}//${window.location.host}/`;
+        window.location.href = url;
+    });
+
+    let currentHistory = []
+    // 存储已选择的聊天记录 ID
+    let selectedRecords = new Set();
+
+    // 显示聊天记录
+    function displayFilteredRecords(records) {
+        const chatRecordsDiv = document.querySelector(".chat-records");
+        chatRecordsDiv.innerHTML = "";  // 清空当前记录显示
+
+        if (records.length === 0) {
+            console.log("历史记录的长度为0")
+            chatRecordsDiv.innerHTML = "<div class='record'>没有找到符合条件的记录</div>";
+            return;
+        }
+
+        records.forEach(record => {
+            if (record.title === "" && resources?.extra_info) {
+                return 
+            }
+            const div = document.createElement("div");
+            div.classList.add("record");
+            div.id = record.session_id
+
+            if(record.title === ""){
+                div.textContent = `${record.create_time} : ${resources.extra_info} -> ${record.extra_info}`;
+            }else{
+                div.textContent = `${record.create_time} : ${record.title}`;
+            }
+
+            // 添加点击事件，点击时选中/取消选中
+            div.addEventListener('click', () => {
+                if (selectedRecords.has(record.session_id)) {
+                    selectedRecords.delete(record.session_id); // 如果已经选中，则取消选中
+                    div.classList.remove('selected');
+                } else {
+                    selectedRecords.add(record.session_id); // 如果没有选中，则加入到 set 中
+                    div.classList.add('selected');
+                }
+            });
+
+            chatRecordsDiv.appendChild(div);
+        });
+    }
+
+    // 发送获取请求
+    fetch(`/get_session_info`, {
+        method: 'POST',
+        credentials: 'include', // 发送 cookie
+        headers: {
+            'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        currentHistory = result;
+        displayFilteredRecords(currentHistory);  // 初始化显示所有记录
+    })
+    
+
+    // 保存历史记录的数组
+    const history = [];
+
+    // 根据筛选条件导出和显示聊天记录
+    function filterAndExport() {
+        const titleFilter = document.getElementById("title").value;
+        const startDateStr = document.getElementById("start-date").value;
+        const startDate = flatpickr.parseDate(startDateStr, resources.date_input); // 使用与你设置的格式一致的格式
+
+        const endDateStr = document.getElementById("end-date").value;
+        const endDate = flatpickr.parseDate(endDateStr, resources.date_input); // 使用与你设置的格式一致的格式
+
+
+        if (!(titleFilter || startDate || endDate)){
+            console.log("没有选择筛选条件")
+            return
+        }
+
+        // 根据输入的条件筛选聊天记录
+        const filteredRecords = currentHistory.filter(record => {
+            let isValid = true;
+
+            // 检查 title 是否符合条件
+            if (titleFilter && !record.title.includes(titleFilter)) {
+                isValid = false;  // 如果 title 不包含筛选的内容，则不符合条件
+            }
+
+            if (startDate && new Date(record.create_time) < startDate) {
+                isValid = false;  // 如果记录时间早于开始时间，则不符合条件
+            }
+
+            if (endDate && new Date(record.create_time) > endDate) {
+                isValid = false;  // 如果记录时间晚于结束时间，则不符合条件
+            }
+
+            return isValid;  // 返回过滤结果
+        });
+
+        // 下面是示例代码，可以根据需要解开注释调用显示和导出方法
+        displayFilteredRecords(filteredRecords);  // 显示筛选后的记录
+    }
+
+    // 导出聊天记录为文本文件
+    function exportChatRecords(records) {
+        const textContent = records.map(record => `${record.timestamp} - ${record.user}: ${record.message}`).join("\n");
+
+        // 创建一个 Blob 对象并生成下载链接
+        const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "chat_records.txt";
+
+        // 触发下载
+        link.click();
+    }
+
+    // 保存历史记录
+    function saveHistory(records) {
+        // 将当前记录添加到历史记录
+        history.push(...records);
+
+        // 更新历史记录显示
+        updateHistoryDisplay();
+    }
+
+    // 更新历史记录显示
+    function updateHistoryDisplay() {
+        const historyContentDiv = document.getElementById("history-content");
+        historyContentDiv.innerHTML = "";  // 清空当前内容
+
+        if (history.length === 0) {
+            historyContentDiv.innerHTML = "<div>没有历史记录</div>";
+            return;
+        }
+
+        history.forEach(record => {
+            const div = document.createElement("div");
+            div.classList.add("record");
+            div.textContent = `${record.timestamp} - ${record.user}: ${record.message}`;
+            historyContentDiv.appendChild(div);
+        });
+    }
+
+    function fetch_expose_session(session_id_list){
+        // 使用选中的记录 ID 来构建请求体
+        const requestBody = {
+            session_list: session_id_list// 把 Set 转换成数组
+        };
+
+        // 发送 POST 请求到后端
+        fetch(`/export_session_context`, {
+            method: 'POST',
+            credentials: 'include', // 发送 cookie
+            headers: {
+                'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+            },
+            body: JSON.stringify(requestBody)  // 将请求体转为 JSON 字符串
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("导出失败");
+            }
+            return response.blob();  // 将响应转换为 Blob
+        })
+        .then(blob => {
+            // 创建一个临时的 URL
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chat_hisroty.json';  // 设置下载的文件名
+            document.body.appendChild(a);
+            a.click();  // 触发下载
+            a.remove();  // 移除临时链接
+            window.URL.revokeObjectURL(url);  // 释放 URL 对象
+            cleanSelect();  // 清除选中的记录
+        })
+        .catch(error => {
+            // 错误处理
+            console.error("导出失败:", error);
+        });
+    }
+
+    function exportAll(){
+        // 更新所有记录的选中样式
+        const allRecords = new Set();
+        currentHistory.forEach(record => {
+            // console.log("聊天选中的是",record)
+            allRecords.add(record.session_id);  // 加入 session_id
+        });
+        console.log("全部记录已选中", [...allRecords]);
+
+        if ([...allRecords].length === 0) {
+            return
+        }
+
+        fetch_expose_session([...allRecords])
+    }
+
+    // 全部选中
+    function selectAll() {
+        // 更新所有记录的选中样式
+        const records = document.querySelectorAll('.record');
+        records.forEach(record => {
+            record.classList.add('selected');
+            selectedRecords.add(record.id);
+        });
+
+        console.log("全部记录已选中", [...selectedRecords]);
+    }
+
+    function exportSelect(){
+        console.log("选中的记录 ID：", [...selectedRecords]);
+
+        if ([...selectedRecords].length === 0) {
+            console.log("请选择文档")
+            return
+        }
+
+        fetch_expose_session([...selectedRecords])
+        
+    }
+
+    function cleanSelect(){
+        // 清空选中的记录 Set
+        selectedRecords.clear();
+
+        // 去除所有记录的 'selected' 类，取消所有选中的样式
+        const records = document.querySelectorAll('.record');
+        records.forEach(record => {
+            record.classList.remove('selected');
+        });
+
+        console.log("已清除所有选择");
+    }
+
+    // 重置筛选条件，展示所有记录
+    function resetFilters() {
+        document.getElementById("title").value = "";
+        document.getElementById("start-date").value = "";
+        document.getElementById("end-date").value = "";
+        cleanSelect()
+        displayFilteredRecords(currentHistory);  // 显示所有记录
+    }
+</script>
+
+</html>

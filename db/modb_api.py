@@ -128,6 +128,143 @@ async def get_context_sessionid(session_id, in_reverse=True):
 
     return allres
 
+
+import json
+
+async def insert_session_file_upload(data, session_id):
+    # 准备 context 数据
+    from datetime import datetime
+    current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    context = {
+        "text": [{"filename": file['filename'], "filetype": file['filetype'], "filesize": file['filesize']} for file in data],  # 根据传入的文件列表构建
+        "text_type": "file",
+        "language": None,
+        "role": "user"
+    }
+    #第一个文件的时间，如果有，其实就是没有使用现在时间，可选择新加参数data
+    date = next((file.get("date") for file in data if "date" in file), current_date)
+    # 插入数据到 MongoDB
+    if DB_DEFAULT == "mongo":
+        collection = db['history']
+        # 构建要插入的文档,如果需要kdbid，在index.py的/conversation修改
+        document = {
+            "session_id": session_id,  # 使用传入的 session_id
+            "date": date,
+            "kdb_id": None,  # kdb_id 可能为 None
+            "context": context
+        }
+        print("已插入file记录：", document)
+        await collection.insert_one(document)
+
+    # 插入数据到 SQLite
+    if DB_DEFAULT == "sqlite":
+        # 确保数据库连接和表存在
+        await database.connect()
+        await database.execute(CREATE_TABLE_SQLITE)  # 确保表存在
+
+        # 将 context 字典转为 JSON 字符串
+        context_json = json.dumps(context)
+
+        # 获取第一个文件的 kdb_id，若没有则为 None，现在sql没有kdbid列
+        #kdb_id = next((file.get("kdb_id") for file in data if "kdb_id" in file), None)
+
+        # 插入数据到 SQLite
+        query = """
+            INSERT INTO history (session_id, date, context) 
+            VALUES (:session_id, :date, :context)
+        """
+        await database.execute(query, {
+            "session_id": session_id,  # 使用传入的 session_id
+            "date": date,  # 使用文件列表中获取的 date
+            "context": context_json  # 将 context 存储为 JSON 字符串
+        })
+
+        # 断开数据库连接
+        await database.disconnect()
+
+
+#给onmessage显示用的
+async def get_file_record(session_id):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 查询操作
+        collection = db['history']
+        # 查询符合条件的记录，按日期升序排序
+        result = await collection.find_one(
+            {"session_id": session_id, "context.text_type": "file"},  # 查询条件
+            sort=[("date", 1)]  # 按日期升序排序
+        )
+        # 如果找到结果，返回 context['text'] 列表
+        if result and "context" in result and "text" in result["context"]:
+            return result["context"]["text"]
+        return None
+
+    elif DB_DEFAULT == "sqlite":
+        # SQLite 查询操作
+        await database.connect()
+
+        query = """
+        SELECT context 
+        FROM history 
+        WHERE session_id = :session_id 
+          AND json_extract(context, '$.text_type') = 'file' 
+        ORDER BY date ASC
+        LIMIT 1;
+        """
+        params = {"session_id": session_id}
+        result = await database.fetch_one(query, params)
+        await database.disconnect()
+
+        # 如果找到结果，解析 context 并返回 context['text']
+        if result:
+            context = json.loads(result["context"])
+            if "text" in context:
+                return context["text"]
+        return None
+    
+
+async def get_all_file_record(session_id):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 查询操作
+        collection = db['history']
+        # 查询符合条件的记录，按日期升序排序
+        result = await collection.find(
+            {"session_id": session_id, "context.text_type": "file"},  # 查询条件
+            sort=[("date", 1)]  # 按日期升序排序
+        ).to_list(length=None)
+        # 如果找到结果，返回 context['text'] 列表
+        file = []
+        if result:
+            for info in result:
+                file.append(info["context"]["text"])
+        return file
+
+    elif DB_DEFAULT == "sqlite":
+        # SQLite 查询操作
+        await database.connect()
+
+        query = """
+        SELECT context 
+        FROM history 
+        WHERE session_id = :session_id 
+        AND json_extract(context, '$.text_type') = 'file' 
+        ORDER BY date ASC;
+        """
+        params = {"session_id": session_id}
+        result = await database.fetch_all(query, params)
+        await database.disconnect()
+
+        # 如果找到结果，解析 context 并返回 context['text']
+        if result:
+            print("获取的结果是",result)
+            all_texts = []  # 用于保存所有找到的 text
+            for record in result:
+                context = json.loads(record["context"])  # 解析每条记录的 context
+                if "text" in context:
+                    all_texts.append(context["text"])  # 将 text 添加到列表中
+            return all_texts if all_texts else []  # 如果有找到 text，则返回，否则返回 None
+        return []  # 没有找到任何结果时返回 None
+
+
 # async def show_all():
 #     uri = f"mongodb://{MONGODB_HOST}:{MONGODB_PORT}/"
 #

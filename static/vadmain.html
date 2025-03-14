@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center; 
+      margin: 20px;
+    }
+    canvas {
+      width: 100%;
+      height: 300px;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="audioContainer"></div>
+  <audio id="audioElement" src="/static/js/vad-main/vad_example.wav" controls></audio>
+  <script src="/static/js/vad-main/dict/ort.js"></script>
+  <script src="/static/js/vad-main/dict1/bundle.min.js"></script>
+  <script src="/static/js/vad-main/vad.js"></script>
+</body>
+</html>

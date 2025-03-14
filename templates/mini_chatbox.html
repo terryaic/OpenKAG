@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources['haifeng']}}</title>
+    <link rel="stylesheet" href="/static/css/chat.css">
+    <link rel="stylesheet" href="/static/css/chat_graph.css">
+    <link rel="stylesheet" href="/static/css/btn.css">
+    <link rel="stylesheet" href="/static/css/input_box.css">
+    <link rel="stylesheet" href="/static/css/katex.min.css">
+    <script src="/static/js/papaparse.min.js"></script>
+    <script src="/static/js/marked.min.js"></script>
+    <script src="/static/js/mermaid.min.js"></script>
+    <script src="/static/js/katex.min.js"></script>
+    <script src="/static/js/auto-render.min.js"></script>
+    <script>
+        function fill_text(text){
+            let input = document.getElementById('userInput');
+            input.textContent = text;
+            document.getElementById('sendButton').click()
+        }
+    </script>
+
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; height: 98vh;">
+        <div id="chat-box" style="flex: 8;"></div>
+
+        <div id="input-container" class="form-container" style="flex: 1;">
+            <form id="message-form" style="width: 700px;">
+                <div id="userInputContainer" class="input-box" style="margin-right: 30%;">
+                    <p id="userInput" contenteditable="true" data-placeholder="{{resources['sendEnter']}}" style="padding-top:5px"></p>
+                    <div class="button-div" style="display: flex; justify-content: flex-end; align-items: center; width: 100%; margin-top: 5px; right: 15px;">                    <div class="right-buttons" style="margin-right: 10px;">
+                        <button id="sendButton" type="submit" btn-type="send">
+                            <svg t="1733282301774" class="send-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z"></path>
+                                <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z"></path>
+                            </svg>
+                        </button>
+
+                        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">
+                            <svg t="1733475459563" class="record-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                <path d="M486.4 972.8v-128.9728A332.8 332.8 0 0 1 179.2 512a25.6 25.6 0 0 1 51.2 0 281.6 281.6 0 0 0 563.2 0 25.6 25.6 0 1 1 51.2 0 332.8 332.8 0 0 1-307.2 331.8272V972.8h153.6a25.6 25.6 0 1 1 0 51.2h-358.4a25.6 25.6 0 1 1 0-51.2h153.6zM512 51.2a153.6 153.6 0 0 0-153.6 153.6v307.2a153.6 153.6 0 0 0 307.2 0V204.8a153.6 153.6 0 0 0-153.6-153.6z m0-51.2a204.8 204.8 0 0 1 204.8 204.8v307.2a204.8 204.8 0 1 1-409.6 0V204.8a204.8 204.8 0 0 1 204.8-204.8z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    </div>
+            </div>
+            </form>
+            <button id="scriptButton" style="display: none;">{{resources['scriptButton']}}</button>
+        </div>
+
+        <!-- 模态窗口 -->
+        <div class="node-modal-overlay" id="node-modal-overlay">
+            <div class="node-show" id="node_modal">
+                <h2>{{resources['node_title']}}</h2>
+                <pre id="node-content" class="node-file-content" style="text-align: left; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 5px;"></pre>
+                <button class="node-close-btn" id="node-close-btn">关闭</button>
+            </div>
+        </div>
+
+        <!-- 弹窗容器 -->
+        <div id="popup" class="top-popup">
+            <span id="popup-message">这是一个错误信息！</span>
+            <button class="popup-close-btn" onclick="closePopup()">
+                <svg class="popup-close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+
+    <script>
+        // 将 resources 传递为全局变量
+        let historyList = {{ history_list|tojson|safe }};
+
+        const resources = {{ resources | tojson }};
+        let session_id = {{ session_id | tojson }}
+        let current_input_height = 0
+        let current_file_height = 0
+        const rag_node = false
+    </script>
+
+    <script src="/static/js/scripts.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/echarts.js"></script>
+    <script src="/static/js/input_text.js"></script>
+    <script src="/static/js/webs.js"></script>
+
+    <script>
+        let origin_user_input_height = document.getElementById("userInput").offsetHeight;
+        const chatBox = document.getElementById("chat-box")
+        // 监听窗口的滚动事件
+        window.addEventListener('scroll', function() {
+            // 计算网页的总滚动高度
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+
+            // 设置 chat-box 的 scrollTop 为网页的 scrollTop
+            chatBox.scrollTop = scrollTop;
+        });
+
+        function convertToHTML(inputText) {
+            let outputHTML = '';
+
+            const format = detectFormat(inputText);
+            if (format === 'csv') {
+                outputHTML = convertCSVToTable(inputText);
+            } else if (format === 'markdown') {
+                outputHTML = convertMarkdownToHTML(inputText);
+            } else {
+                outputHTML = `<pre class="code-block">${inputText}</pre>`;
+            }
+
+            //document.getElementById('outputHTML').innerHTML = outputHTML;
+            return outputHTML;
+        }
+
+        function detectFormat(text) {
+            // Simple checks for CSV
+            const csvPattern = /(?:[^,]*,){2,}/; // At least 2 commas in a line
+            const lines = text.split('\n');
+
+            if (lines.every(line => csvPattern.test(line.trim()) || line.trim() === '')) {
+                return 'csv';
+            }
+
+            // Simple checks for Markdown
+            const mdPattern = /(^# .+|^## .+|^### .+|^[-*] .+|^\|.+\|$)/m;
+            if (mdPattern.test(text)) {
+                return 'markdown';
+            }
+
+            return 'unknown';
+        }
+
+        function convertCSVToHTML(csvText) {
+            const parsedData = Papa.parse(csvText, { delimiter:',', header: true });
+            const data = parsedData.data;
+            /*var data = []
+            const rows = cvsText.split("\n")
+            Object.values(rows).forEach(row => {
+                data.push(row.split(","))
+            });*/
+            let html = '<table><thead><tr>';
+
+            // Add table headers
+            if (data.length > 0) {
+                Object.keys(data[0]).forEach(header => {
+                    html += `<th>${header}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                // Add table rows
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                });
+            }
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function convertMarkdownToHTML(mdText) {
+            return marked.parse(mdText);
+        }
+        function convertCSVToTable(csvInput) {
+            // 清空之前的表格内容
+            innerHTML = '<table>';
+
+            // 分割CSV行
+            const rows = csvInput.split('\n');
+
+            // 处理CSV行
+            rows.forEach((row, index) => {
+                innerHTML += '<tr>';
+                const columns = row.split(',');
+
+                columns.forEach(column => {
+                    index === 0 ? innerHTML +='<th>' : innerHTML += '<td>';
+                    innerHTML += column.trim();
+                    index === 0 ? innerHTML +='</th>' : innerHTML += '</td>';
+                });
+                innerHTML += '</tr>';
+            });
+
+            // 将表格添加到容器中
+            innerHTML +='</table>'
+            return innerHTML
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('message-form').addEventListener('submit', function(event) {
+                    event.preventDefault(); // 阻止表单的默认提交行为
+                    checkToken();
+            });
+        });
+
+        async function checkToken() {
+            try {
+                const response = await fetch('/check-token', {
+                    method: 'GET',
+                    credentials: 'include', // 确保发送 Cookies
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Token is valid:", data.message);
+                } else {
+                    console.warn("Token has expired or is invalid.");
+                    // 在这里处理 Token 过期的逻辑，例如跳转到登录页
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error("Error checking token:", error);
+            }
+        }
+    </script>
+    <script>set_session_id("{{session_id}}");set_language();setup("ws");set_mode("faq");setup_tts(false);set_kdb_id("{{kdb_id}}");setCodeBlockCB(convertToHTML);set_prompt_name("");displayHistory(historyList)</script>
+</body>
+</html>

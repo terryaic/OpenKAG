@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div style="display:flex; flex-direction: column; width:100%">
+<div id="right_bar" style="display:flex; flex-direction: column; width:100%">
 
     {% include 'menubar.html' %}
     {% include 'userbutton.html'  %}
@@ -10,19 +10,66 @@
     <link rel="stylesheet" href="/static/css/chat_graph.css">
     <link rel="stylesheet" href="/static/css/btn.css">
     <link rel="stylesheet" href="/static/css/input_box.css">
+    <link rel="stylesheet" href="/static/css/katex.min.css">
 
     <script src="/static/js/papaparse.min.js"></script>
     <script src="/static/js/marked.min.js"></script>
     <script src="/static/js/mermaid.min.js"></script>
+    <script src="/static/js/katex.min.js"></script>
+    <script src="/static/js/auto-render.min.js"></script>
 
     <script>
         function fill_text(text){
-            let input = document.getElementById('message-input');
-            input.value = text;
-            document.getElementById('send-button').click()
+            let input = document.getElementById('userInput');
+            input.textContent = text;
+            document.getElementById('sendButton').click()
         }
     </script>
-    <div id="chat-box"></div>
+    <div style="display: flex; flex-direction: column; height: 92.9vh; margin-top: 8px;">
+        <div id="chat-box" style="flex: 8.5;"></div>
+
+        <div id="input-container" class="form-container" style="flex: 1.5;">
+            <form id="message-form" style="width: 700px;">
+                <div id="userInputContainer" class="input-box" style="margin-right: 30%;">
+                    <div id="filediv" class="fileshowdiv"></div>
+                    <p id="userInput" contenteditable="true" data-placeholder="{{resources['sendEnter']}}" style="padding-top:5px"></p>
+                    <div class="button-div" style=" display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 5px;">
+                        <button id="uploadfile" class="upload-file-btn" style="margin-left: 10px;">
+                            <svg class="upload-icon" t="1735871099935" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4280" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                <path d="M1024 645.248v330.752a48 48 0 0 1-48 48H48a48 48 0 0 1-48-48v-330.752a48 48 0 0 1 96 0V928h832v-282.752a48 48 0 0 1 96 0zM246.912 381.76L464.768 163.84v593.472a48 48 0 0 0 96 0V163.904l217.856 217.92a48 48 0 1 0 67.904-67.904L546.752 14.08a47.936 47.936 0 0 0-67.904 0L179.072 313.856a48 48 0 0 0 67.84 67.904z"></path>
+                            </svg>
+                        </button>
+                        <input type="file" id="fileInput" style="display:none;" multiple />
+
+                        <div class="right-buttons" style="margin-right: 10px;">
+                            <button id="sendButton" type="submit" btn-type="send">
+                                <svg t="1733282301774" class="send-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                    <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z"></path>
+                                    <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z"></path>
+                                </svg>
+                            </button>
+                            <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">
+                                <svg t="1733475459563" class="record-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                    <path d="M486.4 972.8v-128.9728A332.8 332.8 0 0 1 179.2 512a25.6 25.6 0 0 1 51.2 0 281.6 281.6 0 0 0 563.2 0 25.6 25.6 0 1 1 51.2 0 332.8 332.8 0 0 1-307.2 331.8272V972.8h153.6a25.6 25.6 0 1 1 0 51.2h-358.4a25.6 25.6 0 1 1 0-51.2h153.6zM512 51.2a153.6 153.6 0 0 0-153.6 153.6v307.2a153.6 153.6 0 0 0 307.2 0V204.8a153.6 153.6 0 0 0-153.6-153.6z m0-51.2a204.8 204.8 0 0 1 204.8 204.8v307.2a204.8 204.8 0 1 1-409.6 0V204.8a204.8 204.8 0 0 1 204.8-204.8z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <button id="scriptButton" style="visibility: hidden;">{{resources['scriptButton']}}</button>
+        </div>
+    </div>
+
+    <!-- 模态窗口 -->
+    <div class="node-modal-overlay" id="node-modal-overlay">
+        <div class="node-show" id="node_modal">
+            <h2>{{resources['node_title']}}</h2>
+            <pre id="node-content" class="node-file-content" style="text-align: left; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 5px;"></pre>
+            <button class="node-close-btn" id="node-close-btn">关闭</button>
+        </div>
+    </div>
+
     <script>
 
     // 监听窗口的滚动事件
@@ -126,56 +173,93 @@
         }
 
     </script>
-    <div class="form-container">
-        <form id="message-form" style="margin-right: 15%;">
-            <div class="input-box">
-                <input type="text" id="message-input" name="message" placeholder="{{resources['sendEnter']}}">
-                <button id="send-button" type="submit">
-                    <svg t="1733282301774" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
-                        <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z" fill="#FFFFFF"></path>
-                        <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z" fill="#FFFFFF"></path>
-                    </svg>
-                </button>
 
-                <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">
-                    <svg t="1733475459563" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
-                        <path d="M486.4 972.8v-128.9728A332.8 332.8 0 0 1 179.2 512a25.6 25.6 0 0 1 51.2 0 281.6 281.6 0 0 0 563.2 0 25.6 25.6 0 1 1 51.2 0 332.8 332.8 0 0 1-307.2 331.8272V972.8h153.6a25.6 25.6 0 1 1 0 51.2h-358.4a25.6 25.6 0 1 1 0-51.2h153.6zM512 51.2a153.6 153.6 0 0 0-153.6 153.6v307.2a153.6 153.6 0 0 0 307.2 0V204.8a153.6 153.6 0 0 0-153.6-153.6z m0-51.2a204.8 204.8 0 0 1 204.8 204.8v307.2a204.8 204.8 0 1 1-409.6 0V204.8a204.8 204.8 0 0 1 204.8-204.8z" fill="#000000" p-id="2413"></path>
-                    </svg>
-                </button>
-            </div>
-        </form>
-        <button id="scriptButton" style="visibility: hidden;">{{resources['scriptButton']}}</button>
-    </div>
     <!-- 悬浮窗 -->
     <div id="imageModal" class="modal">
         <span id="closeModal" class="close">&times;</span>
         <img id="modalImage" class="modal-content" alt="Zoomed Image">
         <div id="caption"></div>
     </div>
+
+    <!-- 弹窗容器 -->
+    <div id="popup" class="top-popup">
+        <span id="popup-message">这是一个错误信息！</span>
+        <button class="popup-close-btn" onclick="closePopup()">
+            <svg class="popup-close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
     <script>
         // 将 resources 传递为全局变量
         const resources = {{ resources | tojson }};
+        var permissions = {{ permissions | tojson }};
+        let session_id = "{{session_id}}";
     </script>
     <script src="/static/js/scripts.js"></script>
     <script src="/static/js/sgrath.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/echarts.js"></script>
+
     <script>
        let historyList = {{ history_list|tojson|safe }};
-
    </script>
+    <script>
+        const uploadFileBtn = document.getElementById("uploadfile")
+        if("{{mode}}" === "faq" || "{{mode}}" === "graphrag"){
+            uploadFileBtn.classList.add('disabled');
+            uploadFileBtn.disabled = true;
+        }
 
+        if (!permissions.includes("uploadfile")) {
+            const uploadFileBtn = document.getElementById("uploadfile")
+            uploadFileBtn.classList.add('disabled');
+            uploadFileBtn.disabled = true;
+        }
 
+        if (!permissions.includes("index")) {
+            const sendButton = document.getElementById("sendButton")
+            sendButton.disabled = true;
+
+            const recordButton = document.getElementById("recordButton")
+            recordButton.disabled = true;
+        }
+
+        document.getElementById('uploadfile').addEventListener('click', function(event) {
+            event.preventDefault();  // 防止其他默认行为（如果有的话）
+            checkToken();
+            // 获取隐藏的文件输入框
+            const fileInput = document.getElementById('fileInput');
+            // 触发文件输入框的点击事件
+            fileInput.click();
+        });
+    
+    </script>
+    <script>
+        let origin_user_input_height = document.getElementById("userInput").offsetHeight;
+        let current_input_height = 0
+        let current_file_height = 0
+        const rag_node = true
+    </script>
+    <script src="/static/js/file_info.js"></script>
+    <script src="/static/js/upload_file.js"></script>
+    <script src="/static/js/input_text.js"></script>
     <script src="/static/js/webs.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('message-form').addEventListener('submit', function(event) {
                     event.preventDefault(); // 阻止表单的默认提交行为
-                });
+                    checkToken();
+            });
         });
 
         var text_to_send = "{{ text_to_send }}"
+        var file_to_send = {{ file_to_send | safe or '[]' }};
+        if (!file_to_send) {
+            file_to_send = [];  // 如果是无效的，设为默认空列表
+        }
         function send_in_q(){
             if (socket_status==='connected'){
                 if (text_to_send){
@@ -186,23 +270,68 @@
                         //加载圈
                         showGraphLoadingSpinner()
                         createMessageContainer(if_graphrag=true);
+                    }else if("{{mode}}" == "faq"){
+                        //加载圈
+                        createMessageContainer(if_graphrag=false,if_faq=true);
                     }else{
                         createMessageContainer();
                     }
+                    checkToken();
+                    addFilesToChatBox(file_to_send);
                     send_text(text_to_send);
-                    // console.log("")
                 }
             }else{
                 setTimeout(send_in_q, 1000);
                 return;
             }
         };
+
         send_in_q();
 
+        localStorage.setItem('selectedConversationId', session_id);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                const selectedConversationId = localStorage.getItem('selectedConversationId');// 假设选中的 ID
+                const conversationList = document.getElementById('conversationList');
+
+                if (conversationList) {
+                    // 获取所有 <li> 元素
+                    const listItems = conversationList.querySelectorAll('li');
+                    listItems.forEach((item) => {
+                        const itemId = item.getAttribute('data-id');
+                        if (itemId === selectedConversationId) {
+                            item.style.backgroundColor = "#e0e0e0"; // 选中状态颜色
+                        }
+                    });
+                } else {
+                    console.error("未找到 conversationList");
+                }
+            }, 20); // 延迟 100ms 执行
+        });
 
 
+        async function checkToken() {
+            try {
+                const response = await fetch('/check-token', {
+                    method: 'GET',
+                    credentials: 'include', // 确保发送 Cookies
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Token is valid:", data.message);
+                } else {
+                    console.warn("Token has expired or is invalid.");
+                    // 在这里处理 Token 过期的逻辑，例如跳转到登录页
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error("Error checking token:", error);
+            }
+        }
     </script>
-<script>set_session_id("{{session_id}}");set_language();setup("ws");set_mode("{{mode}}");setup_tts(false);set_kdb_id("{{kdb_id}}");setCodeBlockCB(convertToHTML);set_prompt_name("{{prompt_name}}");displayHistory(historyList)</script>
+    <script>set_session_id("{{session_id}}");set_language();setup("ws");set_mode("{{mode}}");setup_tts(false);set_kdb_id("{{kdb_id}}");setCodeBlockCB(convertToHTML);set_prompt_name("{{prompt_name}}");displayHistory(historyList)</script>
 
 {% endblock %}
 

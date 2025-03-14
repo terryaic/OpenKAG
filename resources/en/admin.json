@@ -3,5 +3,7 @@
     "user": "Users:",
     "search": "Search user here",
     "confirmed": "Sure you want to change the user role to",
-    "dataTypeError": "data type error"
+    "dataTypeError": "data type error",
+    "disabled_mes":"Are you sure you want to disable this user?",
+    "unlocked_mes":"Are you sure to unblock this user?"
 }

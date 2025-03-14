@@ -13,25 +13,17 @@ if DB_DEFAULT == "mongo":
     db = client[DBNAME]
 
 elif DB_DEFAULT == "sqlite":
-    db_dir = os.path.dirname(db_path)
-    if db_dir and not os.path.exists(db_dir):
-        os.makedirs(db_dir)
-
     # 连接数据库并创建表
-    try:
-        db = sqlite3.connect(db_path, check_same_thread= False)
-        db.row_factory = sqlite3.Row
-        cursor = db.cursor()
-        cursor.execute("""
+    from .init_db import execute_sql
+    sql_query ="""
             CREATE TABLE IF NOT EXISTS share_kdb_info (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                share_type TEXT,
-                information TEXT
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_type TEXT,
+            information TEXT
             );
-        """)
-        db.commit()
-    except sqlite3.OperationalError as e:
-        print(f"Error initializing SQLite database: {e}")
+        """
+    # 调用 execute_sql 函数执行 SQL 语句
+    execute_sql(sql_query, None)
 
 
 def get_share_exist():
@@ -42,21 +34,12 @@ def get_share_exist():
             return result
         return result.get("information")
 
-
-
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-
-        # 使用参数化查询来传入 user_id
-        cursor.execute("""
+        sql_query = """
             SELECT * FROM share_kdb_info WHERE share_type = ?;
-        """, ("share",))
-
-        db.commit()
-
-        # 获取查询结果
-        row = cursor.fetchone()
+        """
+        params = ("share",)
+        row = execute_sql(sql_query, params, True)
 
         if not row:
             return None
@@ -80,24 +63,14 @@ def create_share_info():
         return db.share.insert_one(record).inserted_id
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-
-         # 将包含字典的数组转换为 JSON 格式的字符串
-        information_json = json.dumps(record['information'])
-
-        # 插入数据
-        cursor.execute("""
-            INSERT INTO share_kdb_info (share_type, information)
+        sql_query = """
+           INSERT INTO share_kdb_info (share_type, information)
             VALUES (?, ?);
-        """, (record['share_type'], information_json))
+        """
 
-        # 提交事务
-        db.commit()
-
-        # 获取插入的记录的 ID
-        share_type = cursor.lastrowid
-        
+        params = (record['share_type'],json.dumps(record['information']))
+        share_type = execute_sql(sql_query, params)
+    
         return share_type
 
 def add_kdb(info):
@@ -108,15 +81,6 @@ def add_kdb(info):
                 "date": kdb_date, "source": 0, "share": False,
                 "user_id": user_id}
     """
-    # record = {
-    #     "address":address,
-    #     "kdb_id": kdb_id, 
-    #     "title": title,
-    #     "date": date, 
-    #     "source": source, 
-    #     "share": share,
-    #     "user_id": user_id
-    # }
     if DB_DEFAULT == "mongo":
         # MongoDB 插入数据
         result = db.share.update_one(
@@ -126,15 +90,11 @@ def add_kdb(info):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-
-        cursor.execute("""
+        sql_query = """
             SELECT information FROM share_kdb_info WHERE share_type = ?;
-        """, ("share",))
-
-        # 获取查询结果
-        row = cursor.fetchone()
+        """
+        params = ("share",)
+        row = execute_sql(sql_query, params, True)
 
         # 如果该用户已经有 information 字段，则更新该字段
         if row:
@@ -147,15 +107,13 @@ def add_kdb(info):
         # 将更新后的信息转为 JSON 字符串
         updated_information = json.dumps(existing_information)
 
-        # 更新 information 字段
-        cursor.execute("""
-            UPDATE share_kdb_info
-            SET information = ?
-            WHERE share_type = ?;
-        """, (updated_information, "share"))
+        sql_query = """
+            UPDATE share_kdb_info SET information = ? WHERE share_type = ?;
+        """
+        params = (updated_information,"share")
+        row = execute_sql(sql_query, params)
 
-        db.commit()
-        return cursor.lastrowid
+        return row
 
 def delete_kdb(kdb_id):
     if DB_DEFAULT == "mongo":
@@ -167,33 +125,68 @@ def delete_kdb(kdb_id):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 查询出目标数据
-        cursor.execute("""
-            SELECT information 
-            FROM share_kdb_info 
-            WHERE share_type = 'share';
-        """)
-        row = cursor.fetchone()
-
+        sql_query = """
+            SELECT information FROM share_kdb_info WHERE share_type = 'share';
+        """
+        row = execute_sql(sql_query, None, True)
+       
         if row:
             information = json.loads(row[0])  # 将 JSON 数据解析成 Python 列表
             # 删除匹配的 kdb_id 的对象
             information = [item for item in information if item.get("kdb_id") != kdb_id]
             
-            # 将修改后的信息更新回数据库
-            cursor.execute("""
-                UPDATE share_kdb_info 
-                SET information = json(?) 
-                WHERE share_type = 'share';
-            """, (json.dumps(information),))
-
-            db.commit()
-            return True
+            sql_query = """
+                UPDATE share_kdb_info SET information = json(?) WHERE share_type = 'share';
+            """
+            row = execute_sql(sql_query, (json.dumps(information),), True)
+            
+            if row:
+                return True
+            else:
+                return False
         else:
             print("未找到匹配的数据。")
             return False
+        
+
+def delete_muilt_kdb(kdb_id_list):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 删除数据
+        result = db.share.update_one(
+            {"share_type": "share"},  # 匹配文档条件
+            {"$pull": {"information": {"kdb_id": {"$in": kdb_id_list}}}}  # 批量删除数组中符合条件的元素
+        )
+        return result.modified_count  # 返回被修改的文档数量
+
+    elif DB_DEFAULT == "sqlite":
+        # 查询 share_type = 'share' 的数据
+        sql_query = """
+            SELECT information FROM share_kdb_info WHERE share_type = 'share';
+        """
+        row = execute_sql(sql_query, None, True)
+        
+        if row:
+            # 将 JSON 数据解析成 Python 列表
+            information = json.loads(row[0])  
+
+            # 删除匹配 kdb_id_list 中的对象
+            information = [item for item in information if item.get("kdb_id") not in kdb_id_list]
+            
+            # 更新信息到数据库
+            sql_query = """
+                UPDATE share_kdb_info SET information = json(?) WHERE share_type = 'share';
+            """
+            updated_rows = execute_sql(sql_query, (json.dumps(information),), True)
+            
+            # 判断更新是否成功
+            if updated_rows:
+                return True
+            else:
+                return False
+        else:
+            print("未找到匹配的数据。")
+            return False
+        
 
 def change_kdb_title(kdb_id, new_title):
     if DB_DEFAULT == "mongo":
@@ -213,10 +206,10 @@ def change_kdb_title(kdb_id, new_title):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("SELECT information FROM share_kdb_info WHERE share_type = 'share';")
-        row = cursor.fetchone()
+        sql_query = """
+            SELECT information FROM share_kdb_info WHERE share_type = 'share';
+        """
+        row = execute_sql(sql_query, None, True)
 
         if row:
             # 解析 information 字段的 JSON 数据
@@ -230,17 +223,16 @@ def change_kdb_title(kdb_id, new_title):
             
             # 将更新后的信息转换为 JSON 字符串
             updated_information = json.dumps(information)
+
+            sql_query = """
+                 UPDATE share_kdb_info SET information = ? WHERE share_type = 'share';
+            """
+            row = execute_sql(sql_query, (updated_information,), True)
             
-            # 更新数据库中的 information 字段
-            cursor.execute("""
-                UPDATE share_kdb_info
-                SET information = ?
-                WHERE share_type = 'share';
-            """, (updated_information,))
-            
-            # 提交事务
-            db.commit()
-            return True
+            if row:
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -262,15 +254,10 @@ def change_kdb_source(kdb_id, new_source):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 1. 从数据库中提取 information 字段
-        cursor.execute("""
-            SELECT information
-            FROM share_kdb_info
-            WHERE share_type = 'share';
-        """)
-        row = cursor.fetchone()
+        sql_query = """
+            SELECT information FROM share_kdb_info WHERE share_type = 'share';
+        """
+        row = execute_sql(sql_query, None, True)
 
         # 2. 检查是否存在结果
         if row:
@@ -283,14 +270,15 @@ def change_kdb_source(kdb_id, new_source):
                     break
             
             # 4. 将更新后的 JSON 数据写回数据库
-            cursor.execute("""
-                UPDATE share_kdb_info
-                SET information = ?
-                WHERE share_type = 'share';
-            """, (json.dumps(information),))  # 转回 JSON 字符串
-            db.commit()
-            print("修改了共享文件的source")
-            return True
+            sql_query = """
+                UPDATE share_kdb_info SET information = ? WHERE share_type = 'share';
+            """
+            row = execute_sql(sql_query, (json.dumps(information),), True)
+           
+            if row:
+                return True
+            else:
+                return False
 
         print("未找到匹配的共享文件")
         return False
@@ -320,9 +308,7 @@ def get_kdb_id():
             return kdb_id
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
+        sql_query = """
             SELECT 
                 json_extract(arr.value, '$.title') AS title,
                 json_extract(arr.value, '$.kdb_id') AS kdb_id,
@@ -330,11 +316,10 @@ def get_kdb_id():
             FROM share_kdb_info, 
             json_each(share_kdb_info.information) AS arr
             WHERE share_kdb_info.share_type = ?;
-        """, ("share",))
+        """
+        params = ("share",)
+        kdb_info = execute_sql(sql_query, params)
 
-        db.commit()
-        
-        kdb_info = cursor.fetchall()
         # 直接将查询结果转换为字典格式
         titles = [{"title": row[0], "kdb_id": row[1], "share": row[2]} for row in kdb_info]
         return titles
@@ -360,22 +345,17 @@ def get_kdb_address(kdb_id):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        
-        # 查询所有包含分享类型 'share' 的数据，并从 'information' 字段中提取包含 'kdb_id' 和 'address' 的 JSON 对象
-        cursor.execute("""
+        sql_query = """
             SELECT 
                 json_extract(arr.value, '$.kdb_id') AS kdb_id,
                 json_extract(arr.value, '$.address') AS address
             FROM share_kdb_info, 
             json_each(share_kdb_info.information) AS arr
             WHERE share_kdb_info.share_type = ?
-        """, ("share",))
-
-        db.commit()
-
-        kdb_info = cursor.fetchall()
+        """
+        
+        params = ("share",)
+        kdb_info = execute_sql(sql_query, params)
         
         # 查找指定的 kdb_id 的地址
         for row in kdb_info:

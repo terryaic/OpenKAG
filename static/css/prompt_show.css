@@ -6,15 +6,42 @@
 }
 
 .prompt-container {
-    position: relative; /* 让子菜单基于容器定位 */
-    flex-direction: column;
-    display: none; /* 控制容器尺寸 */
+    display: none; /* 初始隐藏 */
+    position: absolute; /* 绝对定位 */
+    flex-direction: column; /* 垂直排列子菜单项 */
     background-color: white; /* 背景颜色 */
     border-radius: 10px; /* 圆角 */
-    padding:10px;
+    padding: 10px; /* 内边距 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     box-sizing: border-box; /* 确保内边距不影响容器的总宽高 */
+    margin-top: 5px; /* 距离顶部的距离 */
+    z-index: 15; /* 确保容器显示在其他元素之上 */
+    width: 250px; /* 容器宽度，可根据需要调整 */
+    max-height: 300px; /* 最大高度 */
+    overflow-y: auto; /* 允许垂直滚动 */
+    max-width: 216px;
+    left: 19.4%;
 }
+
+/* 仅显示滑块，不显示轨道 */
+.prompt-container::-webkit-scrollbar-track {
+    background: transparent; /* 轨道透明 */
+}
+
+.prompt-container::-webkit-scrollbar {
+    width: 8px; /* 滚动条的宽度 */
+}
+
+.prompt-container::-webkit-scrollbar-thumb {
+    background: #d5d5d5;
+    border-radius: 10px; /* 滑块的圆角 */
+}
+
+.prompt-container::-webkit-scrollbar-thumb:hover {
+    background: #a5a1a1; /* 悬停时的背景颜色 */
+}
+
+
 .promptSubmenu {
     display: flex;
     flex-direction: column;
@@ -23,6 +50,7 @@
     z-index: 15;
     padding:0px;
 }
+
 .Prompt-item strong {
     display: block;
     border: 2px ;
@@ -35,8 +63,8 @@
 
 }
 .Prompt-item {
-    padding:5px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    padding-left: 15px;
     /* 每个分类之间有空隙 */
 }
 .Prompt-item:hover {

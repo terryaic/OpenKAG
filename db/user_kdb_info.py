@@ -13,26 +13,16 @@ if DB_DEFAULT == "mongo":
     db = client[DBNAME]
 
 elif DB_DEFAULT == "sqlite":
-    db_dir = os.path.dirname(db_path)
-    if db_dir and not os.path.exists(db_dir):
-        os.makedirs(db_dir)
-
-    # 连接数据库并创建表
-    try:
-        db = sqlite3.connect(db_path, check_same_thread= False)
-        # 设置 row_factory 为 sqlite3.Row 以便返回字典格式的查询结果
-        db.row_factory = sqlite3.Row
-        cursor = db.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS user_kdb_info (
+    from .init_db import execute_sql
+    sql_query ="""
+             CREATE TABLE IF NOT EXISTS user_kdb_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT NOT NULL,
                 information TEXT
             );
-        """)
-        db.commit()
-    except sqlite3.OperationalError as e:
-        print(f"Error initializing SQLite database: {e}")
+        """
+    # 调用 execute_sql 函数执行 SQL 语句
+    execute_sql(sql_query, None)
 
 
 def get_user_exist(user_id):
@@ -44,18 +34,11 @@ def get_user_exist(user_id):
         return result.get("information")
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-
-        # 使用参数化查询来传入 user_id
-        cursor.execute("""
-            SELECT * FROM user_kdb_info WHERE user_id = ?;
-        """, (user_id,))
-
-        db.commit()
-
-        # 获取查询结果
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT * FROM user_kdb_info WHERE user_id = ?;
+            """
+        params = (user_id,)
+        row = execute_sql(sql_query, params, True)
 
         if not row:
             return None
@@ -83,20 +66,14 @@ def get_user_kdb(user_id, kdb_id):
         return result["information"][0]
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT info.value AS information
-            FROM user_kdb_info,
-                json_each(user_kdb_info.information) AS info
-            WHERE user_kdb_info.user_id = ?
-            AND json_extract(info.value, '$.kdb_id') = ?
-        """, (user_id, kdb_id))
-
-        db.commit()
-
-        # 获取所有匹配的记录
-        rows = cursor.fetchall()
+        sql_query ="""
+                SELECT info.value AS information FROM user_kdb_info,
+                    json_each(user_kdb_info.information) AS info
+                WHERE user_kdb_info.user_id = ?
+                AND json_extract(info.value, '$.kdb_id') = ?
+            """
+        params = (user_id,kdb_id)
+        rows = execute_sql(sql_query, params)
 
         # 解析并输出所有匹配的信息
         if rows:
@@ -126,25 +103,15 @@ def create_user_info(user_id):
         return db.user.insert_one(record).inserted_id
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-
-        # 将包含字典的数组转换为 JSON 格式的字符串
         information_json = json.dumps(record['information'])
 
-        # 插入数据
-        cursor.execute("""
-            INSERT INTO user_kdb_info (user_id, information)
-            VALUES (?, ?);
-        """, (record['user_id'], information_json))
+        sql_query ="""
+                INSERT INTO user_kdb_info (user_id, information) VALUES (?, ?);
+            """
+        params = (record['user_id'], information_json)
+        result = execute_sql(sql_query, params)
 
-        # 提交事务
-        db.commit()
-
-        # 获取插入的记录的 ID
-        user_id = cursor.lastrowid
-        
-        return user_id
+        return result
 
 
 def add_user_kdb(address, kdb_id, title, date, source, share, user_id, doc):
@@ -174,16 +141,11 @@ def add_user_kdb(address, kdb_id, title, date, source, share, user_id, doc):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-        # 假设 record 是字典，使用 json.dumps() 转换为 JSON 格式
-        # 查询现有的 information 字段值
-        cursor.execute("""
-            SELECT information FROM user_kdb_info WHERE user_id = ?;
-        """, (user_id,))
-
-        # 获取查询结果
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?;
+            """
+        params = (user_id,)
+        row = execute_sql(sql_query, params, True)
 
         # 如果该用户已经有 information 字段，则更新该字段
         if row:
@@ -197,16 +159,13 @@ def add_user_kdb(address, kdb_id, title, date, source, share, user_id, doc):
         # 将更新后的信息转为 JSON 字符串
         updated_information = json.dumps(existing_information)
 
-        # 更新 information 字段
-        cursor.execute("""
-            UPDATE user_kdb_info
-            SET information = ?
-            WHERE user_id = ?;
-        """, (updated_information, user_id))
+        sql_query ="""
+                UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+            """
+        params = (updated_information, user_id)
+        row = execute_sql(sql_query, params, True)
 
-        # 提交事务
-        db.commit()
-        return cursor.lastrowid
+        return row
 
 
 def get_share_type(user_id, kdb_id):
@@ -232,21 +191,16 @@ def get_share_type(user_id, kdb_id):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        # 使用 JSON 查询提取指定 kdb_id 的 share 字段
-
-        cursor.execute("""
-            SELECT json_extract(info.value, '$.share')
-            FROM user_kdb_info,
-            json_each(user_kdb_info.information) AS info
-            WHERE user_id = ? 
-            AND json_extract(info.value, '$.kdb_id') = ?;
-        """, (user_id, kdb_id))
-
-        db.commit()
-
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT json_extract(info.value, '$.share')
+                FROM user_kdb_info,
+                json_each(user_kdb_info.information) AS info
+                WHERE user_id = ? 
+                AND json_extract(info.value, '$.kdb_id') = ?;
+            """
+        params = (user_id, kdb_id)
+        row = execute_sql(sql_query, params, True)
+        
         if row:
             share_value = bool(row[0])
             return share_value
@@ -277,18 +231,53 @@ def get_kdb_title(kdb_id):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT json_extract(arr.value, '$.title') AS title
+        sql_query ="""
+                SELECT json_extract(arr.value, '$.title') AS title
             FROM user_kdb_info,
             json_each(user_kdb_info.information) AS arr
             WHERE json_extract(arr.value, '$.kdb_id') = ?;
-        """, (kdb_id,))
+            """
+        params = (kdb_id, )
+        row = execute_sql(sql_query, params, True)
 
-        db.commit()
+        if row:
+            return row[0]  # 返回匹配的 title
+        else:
+            print("没有title")
+            return None  # 如果没有匹配的 kdb_id，返回 None
+        
 
-        row = cursor.fetchone()
+def get_user_id(kdb_id):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 查询数据
+        # info = db.user.find({"information.kdb_id": kdb_id})
+        result = db.user.find_one(
+            {
+                "information": {
+                    "$elemMatch": {"kdb_id": kdb_id}
+                }
+            },
+            {
+                "information.$": 1  # 使用 `$` 只返回匹配的 `information` 数组中的一个元素
+            }
+        )
+        if result and "information" in result:
+            user_id = result["information"][0].get("user_id")
+            return user_id
+        else:
+            print("No matching information found.")
+            return False
+
+    elif DB_DEFAULT == "sqlite":
+        sql_query ="""
+                SELECT json_extract(arr.value, '$.user_id') AS user_id
+            FROM user_kdb_info,
+            json_each(user_kdb_info.information) AS arr
+            WHERE json_extract(arr.value, '$.kdb_id') = ?;
+            """
+        params = (kdb_id, )
+        row = execute_sql(sql_query, params, True)
+
         if row:
             return row[0]  # 返回匹配的 title
         else:
@@ -320,21 +309,18 @@ def get_kdb_id(user_id):
             return kdb_id
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT 
+        sql_query ="""
+                SELECT 
                 json_extract(arr.value, '$.title') AS title,
                 json_extract(arr.value, '$.kdb_id') AS kdb_id,
                 json_extract(arr.value, '$.share') AS share
-            FROM user_kdb_info, 
-            json_each(user_kdb_info.information) AS arr
-            WHERE user_kdb_info.user_id = ?;
-        """, (user_id,))
+                FROM user_kdb_info, 
+                json_each(user_kdb_info.information) AS arr
+                WHERE user_kdb_info.user_id = ?;
+            """
+        params = (user_id, )
+        kdb_info = execute_sql(sql_query, params)
 
-        db.commit()
-        
-        kdb_info = cursor.fetchall()
         # 直接将查询结果转换为字典格式
         titles = [{"title": row[0], "kdb_id": row[1], "share": row[2]} for row in kdb_info]
         return titles
@@ -350,11 +336,11 @@ def delete_kdb(user_id, kdb_id):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 获取当前 user_id 对应的 information 数据
-        cursor.execute("SELECT information FROM user_kdb_info WHERE user_id = ?", (user_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?
+            """
+        params = (user_id, )
+        row = execute_sql(sql_query, params, True)
 
         if row:
             # 解析 information 字段的 JSON 数据
@@ -365,17 +351,56 @@ def delete_kdb(user_id, kdb_id):
             
             # 将修改后的数组转换回 JSON 字符串
             updated_information = json.dumps(information)
+
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (updated_information, user_id)
+            row = execute_sql(sql_query, params)
+            if row:
+                return True
+            else:
+                return False
+        else:
+            print(f"No data found for user_id {user_id}.")
+            return False
+        
+
+def delete_muilt_kdb(user_id, kdb_id_list):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 删除数据
+        result = db.user.update_one(
+            {"user_id": user_id},  # 查找 user_id 为 123 的文档
+            {"$pull": {"information": {"kdb_id": {"$in": kdb_id_list}}}}  # 从数组中删除多个符合条件的元素
+        )
+        return result.modified_count  # 返回修改的文档数
+
+    elif DB_DEFAULT == "sqlite":
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?
+            """
+        params = (user_id, )
+        row = execute_sql(sql_query, params, True)
+
+        if row:
+            # 解析 information 字段的 JSON 数据
+            information = json.loads(row[0])  # 假设是一个列表
             
-            # 更新数据库中的 information 字段
-            cursor.execute("""
-                UPDATE user_kdb_info
-                SET information = ?
-                WHERE user_id = ?;
-            """, (updated_information, user_id))
+            # 删除信息数组中 kdb_id 匹配的元素
+            information = [item for item in information if item.get('kdb_id') not in kdb_id_list]
             
-            # 提交事务
-            db.commit()
-            return True
+            # 将修改后的数组转换回 JSON 字符串
+            updated_information = json.dumps(information)
+
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (updated_information, user_id)
+            row = execute_sql(sql_query, params)
+            if row:
+                return True
+            else:
+                return False
         else:
             print(f"No data found for user_id {user_id}.")
             return False
@@ -399,11 +424,11 @@ def change_kdb_title(user_id, kdb_id, new_title):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 获取指定 user_id 的 information 数据
-        cursor.execute("SELECT information FROM user_kdb_info WHERE user_id = ?", (user_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?
+            """
+        params = (user_id, )
+        row = execute_sql(sql_query, params, True)
 
         if row:
             # 解析 information 字段的 JSON 数据
@@ -417,17 +442,17 @@ def change_kdb_title(user_id, kdb_id, new_title):
             
             # 将更新后的信息转换为 JSON 字符串
             updated_information = json.dumps(information)
+
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (updated_information, user_id)
+            row = execute_sql(sql_query, params)
             
-            # 更新数据库中的 information 字段
-            cursor.execute("""
-                UPDATE user_kdb_info
-                SET information = ?
-                WHERE user_id = ?;
-            """, (updated_information, user_id))
-            
-            # 提交事务
-            db.commit()
-            return True
+            if row:
+                return True
+            else:
+                return False
         else:
             print(f"No data found for user_id {user_id}.")
             return False
@@ -451,10 +476,11 @@ def change_kdb_share(user_id, kdb_id, share_type):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("SELECT information FROM user_kdb_info WHERE user_id = ?", (user_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?;
+            """
+        params = (user_id,)
+        row = execute_sql(sql_query, params, True)
 
         if row:
             # 解析 information 字段的 JSON 数据
@@ -468,17 +494,17 @@ def change_kdb_share(user_id, kdb_id, share_type):
             
             # 将更新后的信息转换为 JSON 字符串
             updated_information = json.dumps(information)
-            
-            # 更新数据库中的 information 字段
-            cursor.execute("""
-                UPDATE user_kdb_info
-                SET information = ?
-                WHERE user_id = ?;
-            """, (updated_information, user_id))
-            
-            # 提交事务
-            db.commit()
-            return True
+
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (updated_information, user_id)
+            row = execute_sql(sql_query, params)
+
+            if row:
+                return True
+            else:
+                return False
         else:
             print(f"No data found for user_id {user_id}.")
             return False
@@ -509,15 +535,11 @@ def change_kdb_source(user_id, kdb_id, new_source):
         return {"message": "Update successful", "modified_count": result.modified_count}
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 首先，提取现有的 `information` 列表
-        cursor.execute("""
-            SELECT information
-            FROM user_kdb_info
-            WHERE user_id = ?;
-        """, (user_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                 SELECT information FROM user_kdb_info WHERE user_id = ?;
+            """
+        params = (user_id,)
+        row = execute_sql(sql_query, params, True)
 
         if row:
             information = json.loads(row[0])  # 将 JSON 解析为 Python 数据结构
@@ -527,15 +549,18 @@ def change_kdb_source(user_id, kdb_id, new_source):
                     item["source"] = item.get("source", 0) + new_source  # 增加 `source` 的值
                     break
             
-            # 将更新后的 `information` 写回数据库
-            cursor.execute("""
-                UPDATE user_kdb_info
-                SET information = ?
-                WHERE user_id = ?;
-            """, (json.dumps(information), user_id))  # 将 Python 数据结构转为 JSON 格式
-            db.commit()
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (json.dumps(information), user_id)
+            row = execute_sql(sql_query, params)
 
-            return True
+            if row:
+                return True
+            else:
+                return False
+        else:
+            return False
         
 
 def change_kdb_doc(user_id, kdb_id, new_doc):
@@ -556,15 +581,11 @@ def change_kdb_doc(user_id, kdb_id, new_doc):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        # 首先，提取现有的 `information` 列表
-        cursor.execute("""
-            SELECT information
-            FROM user_kdb_info
-            WHERE user_id = ?;
-        """, (user_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT information FROM user_kdb_info WHERE user_id = ?;
+            """
+        params = (user_id, )
+        row = execute_sql(sql_query, params, True)
 
         if row:
             information = json.loads(row[0])  # 将 JSON 解析为 Python 数据结构
@@ -574,15 +595,18 @@ def change_kdb_doc(user_id, kdb_id, new_doc):
                     item["num_doc"] = item.get("num_doc", 0) + new_doc  # 增加 `source` 的值
                     break
             
-            # 将更新后的 `information` 写回数据库
-            cursor.execute("""
-                UPDATE user_kdb_info
-                SET information = ?
-                WHERE user_id = ?;
-            """, (json.dumps(information), user_id))  # 将 Python 数据结构转为 JSON 格式
-            db.commit()
+            sql_query ="""
+                    UPDATE user_kdb_info SET information = ? WHERE user_id = ?;
+                """
+            params = (json.dumps(information), user_id)
+            row = execute_sql(sql_query, params, True)
 
-            return True
+            if row:
+                return True
+            else:
+                return False
+        else:
+            return False
         
 
 def get_kdb_doc(kdb_id):
@@ -607,18 +631,15 @@ def get_kdb_doc(kdb_id):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT json_extract(arr.value, '$.num_doc') AS num_doc
-            FROM user_kdb_info,
-            json_each(user_kdb_info.information) AS arr
-            WHERE json_extract(arr.value, '$.kdb_id') = ?;
-        """, (kdb_id,))
+        sql_query ="""
+                SELECT json_extract(arr.value, '$.num_doc') AS num_doc
+                FROM user_kdb_info,
+                json_each(user_kdb_info.information) AS arr
+                WHERE json_extract(arr.value, '$.kdb_id') = ?;
+            """
+        params = (kdb_id,)
+        row = execute_sql(sql_query, params, True)
 
-        db.commit()
-
-        row = cursor.fetchone()
         if row:
             return row[0]  # 返回匹配的 title
         else:

@@ -39,10 +39,10 @@ print(f"配置文件的地址 {def_set_yaml} 和 {def_set_env}")
 def user_set_path(user_id, kdb_id_list):
     print("用户名字：",user_id)
     if len(kdb_id_list) != 0:
+        paths = []
         for kdb_id in kdb_id_list:
-            path = []
-            path.append(os.path.join(current_directory, "stores", "default", user_id, kdb_id, "db_files"))
-        return path
+            paths.append(os.path.join(current_directory, "stores", "default", user_id, kdb_id, "db_files"))
+        return paths
     else:
         return False
 

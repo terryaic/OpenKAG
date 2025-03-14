@@ -10,5 +10,10 @@
     "delete_kdb":"你确定要删除这个知识库吗",
     "yes":"删除",
     "no":"取消",
-    "title":"知识库展示"
+    "title":"知识库展示",
+    "choice_kdb":"选择知识库",
+    "choice_sub":"确认",
+    "choice_can":"返回",
+    "choice_rm":"清除",
+    "de_er":"您尚未选择任何知识库！"
 }

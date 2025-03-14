@@ -9,13 +9,16 @@ class KDBManager():
     def __init__(self):
         self.kdb_pool = {}
 
-    def create_or_get_rag(self, kdb_id, prompt=None):
+    async def create_or_get_rag(self, kdb_id, prompt=None):
         if kdb_id not in self.kdb_pool.keys():
             print("init kdb id:%s"%kdb_id)
             rpath = user_kdb_mgdb.get_address(kdb_id=kdb_id)['address']
-            dbpath = os.path.join(rpath, "milvus.db")
+            #dbpath = os.path.join(rpath, "milvus.db")
+            dbpath = None
             fpath = os.path.join(rpath,"res_files")
-            adrag = AdvancedRAG(dbpath, fpath, prompt=prompt)
+            storage_dir = os.path.join(rpath,"storage")
+            adrag = AdvancedRAG()
+            await adrag.init(dbpath, fpath, storage_dir, prompt=prompt)
             self.kdb_pool[kdb_id] = adrag
         else:
             adrag = self.kdb_pool[kdb_id]
@@ -46,5 +49,6 @@ def kdbm_monitor(expired_time):
         time.sleep(10)
 
 def start_kdbm_monitor(expired_time):
-    kdbm_thread = threading.Thread(target=kdbm_monitor, args=(expired_time,))
-    kdbm_thread.start()
+    if expired_time > 0:
+        kdbm_thread = threading.Thread(target=kdbm_monitor, args=(expired_time,))
+        kdbm_thread.start()

@@ -165,3 +165,12 @@ h1 {
 .cancel-btn:hover {
     background-color: #a89e9e; /* 设置鼠标悬停时的背景颜色 */
 }
+
+.show-delete-img{
+    margin-left: 3%; /* 左边距 */
+    width: 25px; /* 图片宽度 */
+    height: auto; /* 自动调整高度 */
+    object-fit: fill; /* 拉伸图片以适配大小 */
+    cursor: pointer; /* 鼠标悬停显示手型 */
+    transition: transform 0.3s ease; /* 添加平滑过渡效果 */
+}

@@ -12,23 +12,16 @@ if DB_DEFAULT == "mongo":
     db = client[DBNAME]
 
 elif DB_DEFAULT == "sqlite":
-    db_dir = os.path.dirname(db_path)
-    if db_dir and not os.path.exists(db_dir):
-        os.makedirs(db_dir)
-
     # 连接数据库并创建表
-    try:
-        db = sqlite3.connect(db_path, check_same_thread=False)
-        cursor = db.cursor()
-        cursor.execute("""
+    from .init_db import execute_sql
+    sql_query ="""
             CREATE TABLE IF NOT EXISTS kdb (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                data JSON  -- 使用 JSON 类型存储整个 JSON 对象
-            )
-        """)
-        db.commit()
-    except sqlite3.OperationalError as e:
-        print(f"Error initializing SQLite database: {e}")
+                data JSON 
+            );
+        """
+    # 调用 execute_sql 函数执行 SQL 语句
+    execute_sql(sql_query, None)
 
 
 def add_address_kdb(address, kdb_id):
@@ -41,14 +34,13 @@ def add_address_kdb(address, kdb_id):
         return db.kdb.insert_one(record).inserted_id
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-        cursor.execute("""
-            INSERT INTO kdb (data)
-            VALUES (json_insert('{}', '$.address', ?, '$.kdb_id', ?))
-        """, (address, kdb_id))
-        db.commit()
-        return cursor.lastrowid
+        sql_query ="""
+                INSERT INTO kdb (data) VALUES (json_insert('{}', '$.address', ?, '$.kdb_id', ?))
+            """
+        params = (address, kdb_id)
+        result = execute_sql(sql_query, params)
+
+        return result
 
 
 def get_address(kdb_id):
@@ -57,10 +49,12 @@ def get_address(kdb_id):
         return db.kdb.find_one({"kdb_id": kdb_id})
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("SELECT data FROM kdb WHERE json_extract (data, '$.kdb_id')= ?", (kdb_id,))
-        row = cursor.fetchone()
+        sql_query ="""
+                SELECT data FROM kdb WHERE json_extract (data, '$.kdb_id')= ?
+            """
+        params = (kdb_id, )
+        row = execute_sql(sql_query, params, True)
+
         return json.loads(row[0]) if row else None
 
 
@@ -72,8 +66,35 @@ def delete_kdb(kdb_id):
         return True
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("DELETE FROM kdb WHERE json_extract(data, '$.kdb_id') = ?", (kdb_id,))
-        db.commit()
+        sql_query ="""
+                DELETE FROM kdb WHERE json_extract(data, '$.kdb_id') = ?
+            """
+        params = (kdb_id, )
+        result = execute_sql(sql_query, params)
+       
+        return True
+
+
+def delete_muilt_kdb(kdb_id_list):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 删除数据
+        result = db.kdb.delete_many({"kdb_id": {"$in": kdb_id_list}})
+        return result.deleted_count  # 返回删除的文档数量
+
+    elif DB_DEFAULT == "sqlite":
+        # 动态生成占位符
+        placeholders = ', '.join(['?'] * len(kdb_id_list))
+
+        # 构造 SQL 查询
+        sql_query = f"""
+            DELETE FROM kdb
+            WHERE json_extract(data, '$.kdb_id') IN ({placeholders});
+        """
+
+        # 将 kdb_id_list 转换为元组形式，以便传入 SQL 查询
+        params = tuple(kdb_id_list)  # tuple 形式的参数用于 IN 子句
+
+        # 调用 execute_sql 执行删除操作
+        result = execute_sql(sql_query, params)
+
         return True

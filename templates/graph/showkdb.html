@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{resources['title']}}</title>
     <link rel="stylesheet" href="/static/css/show_card.css">
-
+    <link rel="stylesheet" href="/static/css/choice_box.css">
     </style>
 </head>
 <body>
@@ -15,9 +15,19 @@
             {{resources['return']}}
         </button>
     </div>
+    <!-- 文件选择浮窗 -->
+    <div id="file_selection_modal" class="choice-modal-overlay">
+        <div class="choice-modal">
+            <h3>{{resources['choice_kdb']}}</h3>
+            <div id="file_list" class="choice-file-list"></div>
+            <button type="button" class="choice-rounded-button" onclick="confirmFileSelection()">{{resources['choice_sub']}}</button>
+            <button type="button" class="choice-rounded-button" style="background-color: rgb(214, 12, 12);" onclick="clearAllSelectedFiles()">{{resources['choice_rm']}}</button>
+            <button type="button" class="choice-rounded-button" style="background-color: gray;" onclick="closeFileSelectionModal()">{{resources['choice_can']}}</button>
+        </div>
+    </div>
     <div style="display: flex; align-items: center; margin-left: 30px;">
         <h1>{{resources['personal_kdb_list_show']}}</h1>
-        
+        <img src="/static/images/delete2.png" alt="一键删除" class="show-delete-img" id="delete_kdb_muil" onclick="openFileSelectionModal()">
     </div>
 
     <div class="container" id="card-container">
@@ -43,6 +53,7 @@
     </div>
 
     <script>
+
         let notebooks = []; // 初始化笔记本数组
 
         // 发送 POST 请求
@@ -148,6 +159,7 @@
             if(if_share){
                 if (share_notebooks.length > 0) { // 检查 notebooks 数组是否为空
                 share_notebooks.forEach(notebook => {
+                    console.log("share：",notebook)
                     if (notebook.kdb_id && notebook.title && notebook.date && notebook.source !== undefined && notebook.share !== undefined) {
                         createShareCard(notebook.user_id, notebook.kdb_id, notebook.title, notebook.date, notebook.source, notebook.share); // 这里用 notebook.source
                     } else {
@@ -358,6 +370,121 @@
             const url = `${window.location.protocol}//${window.location.host}/`;
             window.location.href = url;
         });
+        
+
+        let availableFiles = [];
+        let selectedFiles = new Set();
+
+        // 打开文件选择浮窗
+        function openFileSelectionModal() {
+            const modal = document.getElementById('file_selection_modal');
+            modal.style.display = 'flex';
+
+            fetch(`${window.location.protocol}//${window.location.host}/kdb/get_kdb`, {
+                method: 'POST',
+                credentials: 'include', // 发送 cookie
+                headers: {
+                    'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                }
+            })
+            .then(response => response.json())
+            .then(files => {
+                console.log("kdbs的信息：",files.user_info)
+                availableFiles = files.user_info
+                renderFileList()
+            })
+            
+        }
+
+        // 关闭文件选择浮窗
+        function closeFileSelectionModal() {
+            const modal = document.getElementById('file_selection_modal');
+            modal.style.display = 'none';
+        }
+
+        // 渲染文件列表
+        function renderFileList() {
+            const fileListDiv = document.getElementById('file_list');
+            fileListDiv.innerHTML = ''; // 清空列表内容
+
+            availableFiles.forEach((infos) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'choice-file-item';
+                fileItem.textContent = infos.title;
+
+                // 如果文件已在已选列表中，标记为已选
+                if (selectedFiles.has(infos.kdb_id)) {
+                    fileItem.classList.add('selected');
+                }
+
+                // 点击选择文件
+                fileItem.onclick = () => {
+                    if (selectedFiles.has(infos.kdb_id)) {
+                        // 如果已经选中，取消选择
+                        selectedFiles.delete(infos.kdb_id);
+                        fileItem.classList.remove('selected');
+                    } else {
+                        // 如果未选中，添加到选择文件列表
+                        selectedFiles.add(infos.kdb_id);
+                        fileItem.classList.add('selected');
+                    }
+                };
+
+                fileListDiv.appendChild(fileItem);
+            });
+        }
+
+        // 确认文件选择
+        function confirmFileSelection() {
+            const selectedFileList = Array.from(selectedFiles);
+
+            if (selectedFileList.length === 0) {
+                alert("{{resources['de_er']}}");
+                return;
+            }
+
+            console.log("选取的kdb:",selectedFileList)
+
+            // 准备发送的JSON数据
+            const data = {
+                kdb_id_list: selectedFileList
+            };
+
+            // 发送删除的请求
+            fetch(`${window.location.protocol}//${window.location.host}/kdb/delete_muilt_kdb`, {
+                    method: 'POST',
+                    credentials: 'include', // 发送 cookie
+                    headers: {
+                        'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(files => {
+                    console.log("kdbs的信息：",files.user_info)
+                    // 隐藏文件选择浮窗
+                    closeFileSelectionModal();
+                    // 刷新页面
+                    location.reload();
+                })
+        }
+
+        // 清除全部选择的文件
+        function clearAllSelectedFiles() {
+                selectedFiles.clear(); // 清空选择的文件列表
+                const targetClassName = 'selected';
+
+                // 获取所有具有目标类名的元素
+                const elementsWithClass = document.querySelectorAll(`.${targetClassName}`);
+
+                // 遍历并移除每个元素的目标类名
+                elementsWithClass.forEach(element => {
+                    element.classList.remove(targetClassName);
+                });
+
+                // 清除所有class
+                console.log("已清除全部选择的文件");
+            }
     </script>
 
 </body>

@@ -86,6 +86,26 @@
             padding: 15px;
             background-color: #f9f9f9;
             margin-top: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* 仅显示滑块，不显示轨道 */
+        .prompt-box::-webkit-scrollbar-track {
+            background: transparent; /* 轨道透明 */
+        }
+
+        .prompt-box::-webkit-scrollbar {
+            width: 8px; /* 滚动条的宽度 */
+        }
+
+        .prompt-box::-webkit-scrollbar-thumb {
+            background: #d5d5d5;
+            border-radius: 10px; /* 滑块的圆角 */
+        }
+
+        .prompt-box::-webkit-scrollbar-thumb:hover {
+            background: #a5a1a1; /* 悬停时的背景颜色 */
         }
 
         #promptContent {
@@ -131,7 +151,26 @@
         /* 禁止手动调整大小，并隐藏滚动条 */
         #promptInput {
             resize: none; /* 禁止用户手动调整大小 */
-            overflow: hidden; /* 隐藏滚动条 */
+            overflow-y: auto; /* 隐藏滚动条 */
+            max-height: 400px;
+        }
+
+        /* 仅显示滑块，不显示轨道 */
+        #promptInput::-webkit-scrollbar-track {
+            background: transparent; /* 轨道透明 */
+        }
+
+        #promptInput::-webkit-scrollbar {
+            width: 8px; /* 滚动条的宽度 */
+        }
+
+        #promptInput::-webkit-scrollbar-thumb {
+            background: #d5d5d5;
+            border-radius: 10px; /* 滑块的圆角 */
+        }
+
+        #promptInput::-webkit-scrollbar-thumb:hover {
+            background: #a5a1a1; /* 悬停时的背景颜色 */
         }
 
         .alert {
@@ -338,7 +377,7 @@
                         // 通过 JavaScript 设置 "no" 选项被选中
                         document.getElementById('radioYes').checked = false; // 将 "否" 设置为选中状态
                         document.getElementById('radioNo').checked = true; // 将 "否" 设置为选中状态
-                        showAlert("{{resources['change_prompt_name_mes']}}"+"！")
+                        showAlert("{{resources['change_prompt_name_mes']}}"+"！",true)
                     }
                 })
                 .catch(error => {
@@ -414,7 +453,7 @@
         function submitPrompt() {
             const prompt = document.getElementById('promptInput').value;
             if (prompt.trim() === "") {
-                showAlert("{{resources['save_prompt_use_mes']}}");
+                showAlert("{{resources['save_prompt_use_mes']}}"+" !",true);
                 return;
             }
 

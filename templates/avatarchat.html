@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Chat</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+
+        /* 轮播容器样式 */
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .carousel-button {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            margin: 0 10px;
+            user-select: none;
+        }
+        .carousel-button:focus {
+            outline: none;
+        }
+        /* 用于显示数字人形象的图片 */
+        .carousel-image {
+            width: 100%;
+            max-width: 512px;
+            height: auto;
+        }
+
+        /* Updated Record Button Styles */
+        #recordButton {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3c453c;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        /* Active Recording Style */
+        #recordButton.active {
+            background-color: #b85f12;
+        }
+
+        /* Interruptible Style 
+        #recordButton.interruptible {
+            background-color: #d9534f;
+        }*/
+
+        #instructionText {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .dropdown {
+            width: 80%;
+            max-width: 300px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .dropdown select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            appearance: none;
+            background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="%23000"><path d="M7 10l5 5 5-5z"></path></svg>') no-repeat right 10px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .dropdown select:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
+        @media (max-width: 768px) {
+            #recordButton {
+                width: 80px;
+                height: 80px;
+            }
+
+            #instructionText {
+                font-size: 14px;
+            }
+
+            .dropdown select {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 轮播容器：左右按钮 + 展示数字人形象的 img -->
+    <div class="carousel-container">
+        <!--<button id="prevBtn" class="carousel-button">←</button>-->
+        <img id="liveStream" class="carousel-image" />
+        <!--<button id="nextBtn" class="carousel-button">→</button>-->
+    </div>
+
+    <!-- Moved Record Button to Bottom-Right Corner -->
+    <button id="recordButton">
+        <span id="recordStatus">开始录音</span>
+    </button>
+    <div id="instructionText">点击按钮录音进行对话</div>
+
+    <!-- 其余脚本，保持与你原始代码一致 -->
+    <script src="/static/js/audiorecorder.js"></script>
+    <script src="/static/js/streaming_audio.js"></script>
+    <script>
+        function displayMsg(msg){
+            console.log(msg);
+        }
+    </script>
+    <script>permission_req();set_audio_callback(displayMsg);</script>
+
+    <div class="dropdown">
+        <select id="modeDropdown">
+            <option value="chat">闲聊</option>
+            <option value="faq">问答</option>
+        </select>
+    </div>
+
+    <div id="knowledgeBaseContainer" style="display: none;" class="dropdown">
+        <select id="knowledgeBaseDropdown">
+            <option value="">Loading...</option>
+        </select>
+        <p id="selectedId"></p>
+    </div>
+
+    <script type="module">
+        import { AvatarClient } from '/static/js/avatarclient.js';
+    
+        const client = new AvatarClient(`${window.location.protocol}//${window.location.host}`);
+        const avatar_id = "{{avatar_id}}";
+        client.getAvatar(avatar_id)
+          .then(avatar => {
+            console.log("Avatar:", avatar);
+            avatar.assets.images.forEach(function(item){
+                var url = client.getImageURL(avatar_id, item);
+                console.log(url);
+                update_image_list(url)
+            })
+        })
+          .catch(err => console.error(err));
+        set_client(client);
+    </script>
+
+    <script>
+        // =========== 示例：如果你有多张数字人形象（可来自后端/云端/WebSocket等） ===========
+        // 这里为了演示，先模拟一些 base64 或者网络图片URL
+        // 实际使用时，你可以把下面数组替换成真实获取到的图片（比如 websocket.onmessage 返回的多张形象列表）
+        let imageList = [
+        ];
+
+        var avatar_client;
+        var my_avatar_id = "{{avatar_id}}";
+        function set_client(client){
+            avatar_client = client;
+        }
+
+        function update_image_list(image){
+            imageList.push(image);
+            showImage(currentIndex);
+        }
+
+        let currentIndex = 0;
+        
+        // 显示指定索引的图片
+        function showImage(index) {
+            const liveStreamImage = document.getElementById("liveStream");
+            liveStreamImage.src = imageList[index];
+        }
+
+        // ======================================
+        //    2. 用于计时 3 秒后调用云端的逻辑
+        // ======================================
+        let inactivityTimer = null;
+
+        // 每次切换图片后，重置一个 3 秒定时器
+        function startInactivityTimer() {
+            // 清除之前的定时器
+            clearTimeout(inactivityTimer);
+            // 3 秒后自动调用云端功能
+            inactivityTimer = setTimeout(() => {
+                callCloudFunction(currentIndex);
+            }, 3000);
+        }
+
+        // 这里是调用云端功能的示例，你可以替换为实际请求/逻辑
+        function callCloudFunction(index) {
+            console.log(`3 秒未操作，开始调用云端功能。当前索引：${index}`);
+            avatar_client.setActiveImage(my_avatar_id, getFileName(imageList[index]))
+            startStreaming();
+        }
+        function getFileName(url) {
+            try {
+                const urlObj = new URL(url);
+                const pathname = urlObj.pathname;
+                const segments = pathname.split('/');
+                // 过滤掉空字符串（例如，结尾的斜杠）
+                const filteredSegments = segments.filter(segment => segment.length > 0);
+                return filteredSegments.pop() || '';
+            } catch (error) {
+                console.error('无效的URL:', error);
+                return '';
+            }
+        }
+        // ======================================
+        //    3. 图片左右切换 + 滑动事件
+        // ======================================
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % imageList.length;
+            showImage(currentIndex);
+            startInactivityTimer();  // 切换后重置定时器
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+            showImage(currentIndex);
+            startInactivityTimer();  // 切换后重置定时器
+        }
+
+        // 初始显示
+        showImage(currentIndex);
+
+        // 绑定左右按钮事件
+        //document.getElementById("nextBtn").addEventListener("click", nextImage);
+        //document.getElementById("prevBtn").addEventListener("click", prevImage);
+
+        var streaming = true;
+        function stopStreaming(){
+            streaming = false;
+        }
+        function startStreaming(){
+            streaming = true;
+        }
+        // =========== WebSocket 依旧保留你原有的逻辑，如果想要使用流式刷新单张图片，可自行整合 ===========
+        function setup_ws(ws_url){
+            const ws = new WebSocket(ws_url);
+            ws.onopen = () => console.log("Connected to server.");
+            ws.onmessage = (event) => {
+                // 如果依旧想实现流式更新当前图片，而非轮播多图
+                if (streaming){
+                    const liveStreamImage = document.getElementById("liveStream");
+                    liveStreamImage.src = "data:image/jpeg;base64," + event.data;
+                }
+                // 也可以将 event.data 放入 imageList 中，再让用户手动切换
+                //console.log('来自服务端的数字人形象数据:', event.data);
+            };
+            ws.onclose = () => {
+                console.log("WebSocket connection closed.");
+            };
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+        }
+
+        let isRecording = false;
+        let isPlaying = false; // Track playback state
+        // Function to manage playback state
+        function setPlaybackState(flag) {
+            isPlaying = flag;
+            const recordButton = document.getElementById('recordButton');
+            if (flag) {
+                //recordButton.classList.add('interruptible');
+                recordButton.textContent = '中断';
+            } else {
+                //recordButton.classList.remove('interruptible');
+                recordButton.textContent = '开始录音';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setup_ws("{{ws_url}}");
+
+            const recordButton = document.getElementById('recordButton');
+            const recordStatus = document.getElementById('recordStatus');
+
+            recordButton.addEventListener('click', () => {
+                if (isPlaying) {
+                    // If currently playing, interrupt the playback
+                    interruptPlayback();
+                } else {
+                    // Toggle recording
+                    isRecording = !isRecording;
+                    recordButton.classList.toggle('active', isRecording);
+                    recordStatus.textContent = isRecording ? '停止录音' : '开始录音';
+
+                    if (isRecording) {
+                        startRecording();
+                    } else {
+                        req_audio();
+                        stopRecording();
+                    }
+                }
+            });
+
+            // 模式选择逻辑
+            const modeDropdown = document.getElementById('modeDropdown');
+            const knowledgeBaseContainer = document.getElementById('knowledgeBaseContainer');
+
+            modeDropdown.addEventListener('change', (e) => {
+                const selectedMode = e.target.value;
+                console.log(`Selected Mode: ${selectedMode}`);
+                
+                if (selectedMode === 'faq') {
+                    knowledgeBaseContainer.style.display = 'block';
+                    set_mode('faq');
+                } else {
+                    knowledgeBaseContainer.style.display = 'none';
+                    set_mode('chat');
+                }
+            });
+
+            // 知识库选择逻辑
+            const dropdown = document.getElementById("knowledgeBaseDropdown");
+            let selectedKnowledgeBaseId = null;
+
+            const apiEndpoint = `${window.location.protocol}//${window.location.host}/kdb/get_share_kdb`;
+
+            function fetchKnowledgeBase() {
+                fetch(apiEndpoint, {method: "POST"})
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        let info = data.share_info;
+                        populateDropdown(info);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        dropdown.innerHTML = '<option value="">Failed to load data</option>';
+                    });
+            }
+
+            function populateDropdown(items) {
+                dropdown.innerHTML = '';
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '选择知识库';
+                dropdown.appendChild(defaultOption);
+
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.kdb_id;
+                    option.textContent = item.title;
+                    dropdown.appendChild(option);
+                });
+            }
+
+            dropdown.addEventListener('change', function() {
+                const selectedId = this.value;
+                selectedKnowledgeBaseId = selectedId;
+                set_kdb_id(selectedId);
+            });
+
+            fetchKnowledgeBase();
+        });
+
+        // Function to interrupt playback
+        function interruptPlayback() {
+            const interruptEndpoint = `${window.location.protocol}//${window.location.host}/stop_audio/{{session_id}}`; // Replace with your actual API endpoint
+            fetch(interruptEndpoint, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                //body: JSON.stringify({ session_id: "{{session_id}}" }) // Adjust payload as needed
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Playback interrupted:', data);
+                setPlaybackState(false);
+            })
+            .catch(error => {
+                console.error('Error interrupting playback:', error);
+            });
+        }
+        
+        // 处理音频播放完成的回调
+        // You need to integrate this with your actual audio playback logic
+        function onPlaybackEnd() {
+            setPlaybackState(false);
+        }
+
+        // =========== 处理录音相关逻辑 ===========
+        async function req_audio() {
+            const formData = new FormData();
+            const url = `${window.location.protocol}//${window.location.host}/streaming_chat/{{session_id}}`;
+            const response = await fetch(url, {
+                method: "POST"
+            });
+            setPlaybackState(true);
+            set_complete_callback(onPlaybackEnd);
+            await playStreamedPCM(response);
+            // Assume playStreamedPCM handles playback and calls onPlaybackEnd when done
+        }
+        
+
+    </script>
+
+    <script>set_session_id("{{session_id}}");set_asr_url(`${window.location.protocol}//${window.location.host}/audiostreamchat`);</script>
+
+    <script>
+        const carouselContainer = document.querySelector('.carousel-container');
+        let startX = 0;
+
+        carouselContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            stopStreaming();
+        });
+
+        carouselContainer.addEventListener('touchend', (e) => {
+            let endX = e.changedTouches[0].clientX;
+            let diff = endX - startX;
+            // 大于 50 表示向右滑动，切到上一张
+            if (diff > 50) {
+                prevImage();
+            }
+            // 小于 -50 表示向左滑动，切到下一张
+            else if (diff < -50) {
+                nextImage();
+            }
+        });
+    </script>
+</body>
+</html>

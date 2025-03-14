@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}  {{resources['haifeng']}}  {% endblock %}</title>
     <link rel="stylesheet" href="/static/css/prompt_show.css">
-
+    <link rel="stylesheet" href="/static/css/sidebar_select.css">
     <style>
         {% block chatbox_styles %}{% endblock %}
         body {
@@ -18,14 +18,33 @@
 
         /* 左侧菜单栏样式 */
         .sidebar {
-            width: 250px;
-            height: 100vh;
+            width: 300px;
+            height: 95.6vh;
             background-color: #f0f0f0;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             transition: transform 0.3s ease-in-out; /* 使用 transform 实现显隐效果 */
             transform: translateX(0); /* 默认显示在屏幕内 */
+        }
+
+        
+        /* 仅显示滑块，不显示轨道 */
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent; /* 轨道透明 */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px; /* 滚动条的宽度 */
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #d5d5d5;
+            border-radius: 10px; /* 滑块的圆角 */
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #a5a1a1; /* 悬停时的背景颜色 */
         }
 
         .sidebar h2 {
@@ -40,15 +59,28 @@
 
         .conversation-list li {
             margin-bottom: 10px;
-            padding: 10px;
             background-color: #fff;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .conversation-list li:hover {
-            background-color: #e0e0e0;
+            background-color: #fbebeb !important;
+        }
+
+        .conversation-list li.selected-menu {
+            background-color: #fbebeb !important;
+        }
+
+        /* 当 li 被选中时，显示按钮 */
+        .conversation-list li.selected .select-btn {
+            display: block;
+        }
+
+        /* 当 li 被选中时，显示按钮 */
+        .conversation-list li.selected-menu .select-btn {
+            display: block;
         }
 
         .main-content {
@@ -134,7 +166,7 @@
             border: 1px solid #ccc;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            z-index: 2000;
             text-align: center; /* 中心对齐文本 */
         }
 
@@ -177,26 +209,111 @@
             background-color: #a89e9e; /* 设置鼠标悬停时的背景颜色 */
         }
 
+        .session_info{
+            display: flex;         /* 使用 Flexbox 来布局 */
+            align-items: center;   /* 垂直方向居中对齐内容 */
+        }
+
+        .session_info:hover .select-btn {
+            display: block; /* 鼠标悬停在 .session_info 上时显示按钮 */
+        }
+
+        .session_context {
+            width: 100%;
+            min-height: 25px;
+            padding: 10px;
+            /* 垂直居中，设置 line-height 为 div 的高度 */
+            line-height: 25px;  /* 这里的值与 div 的高度一致 */
+        }
+
+        .toggleIcon-btn {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;    /* 使按钮内部的内容居中 */
+            align-items: center;     /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            transition: background-color 0.3s; /* 添加背景颜色过渡效果 */
+        }
+
+        .toggleIcon-btn:hover {
+            background-color: #e0e0e0; /* 鼠标悬浮时改变背景颜色 */
+        }
+
+        /* SVG 图标样式 */
+        .Icon-svg {
+            fill: #333;                /* 设置图标的填充颜色 */
+            transition: fill 0.3s;     /* 添加颜色过渡效果 */
+        }
+
+        .toggleIcon-btn:hover .Icon-svg {
+            fill: #555;                /* 鼠标悬浮时改变图标颜色 */
+        }
+
+        .sidebar_close_div {
+            display: flex;              /* 设置为 flex 布局 */
+            justify-content: center;    /* 水平居中 */
+            align-items: center;        /* 垂直居中 */
+            height: 100%;               /* 使容器占满父容器的高度 */
+            margin-top: 5px;
+            margin-left: 4px;
+            gap: 15px;
+        }
+
+        .day-h1 {
+            font-size: 15px; /* 设置字体大小 */
+            font-weight: bold; /* 设置字体加粗 */
+            color: #333; /* 设置字体颜色 */
+            text-align: left; /* 设置文本对齐方式 */
+            margin: 10px 0; /* 设置上下外边距 */
+            background-color: #f1f1f1; /* 设置背景色 */
+            border-radius: 5px; /* 设置圆角 */
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
 
     <!-- 左侧菜单 -->
     <div class="sidebar" id="sidebar">
-        <!--<img src="/static/images/sidebar.png" class="icon" id="toggleIcon" />-->
-        <h2>  {{resources['haifeng']}}</h2>
-        <div style="display: flex;align-content: right; justify-content: right; align-items: right; width:100%">
-            <!-- <div class="lan-container" id="language_select">语言</div> -->
-            <img src="/static/images/prompt.png" class="prompt" id="promptIcon" />
-            <img src="/static/images/edit.png" class="edit" id="editIcon" />
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
+            <!-- 左边第一个图片 -->
+            <button id="toggleIcon" class="toggleIcon-btn">
+                <svg t="1736904076651" class="Icon-svg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15741" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30">
+                    <path d="M853.333333 128c46.933333 0 85.333333 38.4 85.333334 85.333333v597.333334c0 46.933333-38.4 85.333333-85.333334 85.333333H170.666667c-46.933333 0-85.333333-38.4-85.333334-85.333333V213.333333c0-46.933333 38.4-85.333333 85.333334-85.333333h682.666666zM341.333333 213.333333H170.666667v597.333334h170.666666V213.333333z m512 0H426.666667v597.333334h426.666666V213.333333z" p-id="15742"></path>
+                </svg>
+            </button>
+                    
+            <!-- 右边两个图片用一个容器包裹 -->
+            <div style="display: flex; gap: 10px">
+              
+                <button id="promptIcon" class="toggleIcon-btn">
+                    <svg t="1736905237889" class="Icon-svg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="32063" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25">
+                        <path d="M841.142857 36.571429A109.714286 109.714286 0 0 1 950.857143 146.285714v731.428572a109.714286 109.714286 0 0 1-109.714286 109.714285h-658.285714A109.714286 109.714286 0 0 1 73.142857 877.714286V146.285714A109.714286 109.714286 0 0 1 182.857143 36.571429h658.285714z m0 73.142857h-658.285714A36.571429 36.571429 0 0 0 146.285714 146.285714v731.428572a36.571429 36.571429 0 0 0 36.571429 36.571428h658.285714a36.571429 36.571429 0 0 0 36.571429-36.571428V146.285714a36.571429 36.571429 0 0 0-36.571429-36.571428z" p-id="32064"></path>
+                        <path d="M256 256h365.714286v73.142857h-365.714286zM256 694.857143h365.714286v73.142857h-365.714286zM256 475.428571h512v73.142858h-512z" p-id="32065"></path>
+                    </svg>
+                </button>
+
+                <button id="editIcon" class="toggleIcon-btn">
+                    <svg t="1736905297852" class="Icon-svg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="37588" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25">
+                        <path d="M715.167724 829.001841 209.044572 829.001841c-16.346293 0-29.573549-13.227256-29.573549-29.573549 0-16.346293 13.227256-29.572526 29.573549-29.572526l506.123153 0c16.346293 0 29.572526 13.227256 29.572526 29.572526C744.74025 815.775608 731.514017 829.001841 715.167724 829.001841z" p-id="37589"></path>
+                        <path d="M770.125407 982.065935 154.027537 982.065935c-48.923246 0-88.719624-39.797401-88.719624-88.719624L65.307913 130.652665c0-48.923246 39.797401-88.719624 88.719624-88.719624l417.143609 0c16.346293 0 29.572526 13.227256 29.572526 29.572526 0 16.346293-13.227256 29.573549-29.572526 29.573549L154.027537 101.079116c-16.317641 0-29.573549 13.255908-29.573549 29.573549l0 762.693646c0 16.317641 13.255908 29.572526 29.573549 29.572526l616.09787 0c16.317641 0 29.572526-13.254885 29.572526-29.572526L799.697933 657.916301c0-16.346293 13.229303-29.572526 29.573549-29.572526 16.347317 0 29.572526 13.227256 29.572526 29.572526l0 235.43001C858.845031 942.269557 819.049676 982.065935 770.125407 982.065935z" p-id="37590"></path>
+                        <path d="M393.933489 681.482019c-7.826246 0-15.595186-3.146667-21.140483-8.691963-10.04989-10.04989-10.04989-10.04989-4.043083-82.685187l6.439666-76.878948c3.234671-39.073924 27.522844-91.462085 55.276954-119.216195l282.9677-282.995329c33.355689-33.327036 92.0116-33.415041 125.455293-0.029676l95.708805 95.766111c34.597983 34.597983 34.597983 90.856287 0 125.455293L651.60199 615.145172c-27.753087 27.753087-80.141248 52.04126-119.216195 55.304583l-76.878948 6.383384C418.452929 679.922501 397.745305 681.482019 393.933489 681.482019zM776.16189 144.254451c-7.941879 0-15.364943 3.060709-20.909216 8.578376l-282.9677 282.995329c-18.194384 18.225083-36.042891 56.662511-38.150902 82.308611L427.694407 595.014692c-0.722454 8.894577-1.415232 17.358343-2.022053 24.923646 7.567349-0.606821 16.029068-1.300622 24.923646-2.050706l76.878948-6.381337c25.6461-2.137687 64.084551-19.98517 82.308611-38.180578l282.996352-282.939047c11.524474-11.522428 11.524474-30.29498 0-41.818431l-95.767134-95.794763C791.526833 147.31516 784.10377 144.254451 776.16189 144.254451z" p-id="37591"></path>
+                    </svg>
+                </button>
+
+            </div>
         </div>
+        
         <div class="prompt-container" id="promptSubmenu"></div>
-        <ul id="menuList" class="conversation-list">
-        </ul>
+        <h2>  {{resources['haifeng']}}</h2>
+
+        <div id="menuList" class="conversation-list" style="margin-top: 10px">
+        </div>
         <h2>{{resources['session']}}</h2>
-        <ul id="conversationList" class="conversation-list">
-            <!-- 动态生成的会话项将放在这里 -->
-        </ul>
+        <div id="conversationList" class="conversation-list">
+        </div>
     </div>
 
     <!-- 主内容区 
@@ -207,6 +324,19 @@
 {% block content %}{% endblock %}
 
     <script>
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // 获取昨天的年、月、日
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        // 获取7天前的日期
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        let now_menu_li = null
+        let menu = null; // 确保菜单是全局变量
         let uniqueIdCounter = 0;
 
         function generateUniqueId() {
@@ -218,7 +348,6 @@
             event.stopPropagation();
 
             fetchPrompt();
-            togglePromptSubmenu();
         });
 
         // 切换 submenu 显示状态
@@ -262,10 +391,11 @@
             })
             .then(data => {
                 if (data) {
+                    togglePromptSubmenu();
 
                     // 如果 user 和 share 都为空，显示提示
                     if ((!data.user || data.user.length === 0) && (!data.share || data.share.length === 0)) {
-                        alert("{{resources['Noprompt']}}");
+                        showPopup("{{resources['Noprompt']}}");
                         const submenuPrompt = document.getElementById('promptSubmenu');
                         submenuPrompt.style.display = 'none'; // 隐藏菜单
                         return; // 终止后续处理
@@ -285,13 +415,13 @@
                             animationDiv.style.display = 'inline-block'; // 确保动画在右侧显示
                             animationDiv.style.marginLeft = '5px'; // 与文字保持间距
                             animationDiv.innerHTML = `
-                                <svg width="30" height="30" viewBox="0 0 300 300">
+                                <svg width="20" height="20" viewBox="0 0 300 300">
                                     <circle class="circle" cx="150" cy="150" r="130" stroke="#656363" stroke-width="20" fill="none"></circle>
                                     <polyline class="tick" points="100,150 140,200 220,100" stroke="#656363" stroke-width="20" fill="none" stroke-linecap="round"></polyline>
                                 </svg>
                             `;
                             menuItem.style.display = 'flex';
-                            menuItem.style.justifyContent = 'flex-start';
+                            menuItem.style.alignItems = 'center';
                             menuItem.appendChild(animationDiv);
                             menuItem.dataset.id = generateUniqueId();
                             menuItem.onclick = (event) => {
@@ -318,13 +448,13 @@
                             animationDiv.style.display = 'inline-block'; // 确保动画在右侧显示
                             animationDiv.style.marginLeft = '5px'; // 与文字保持间距
                             animationDiv.innerHTML = `
-                                <svg width="30" height="30" viewBox="0 0 300 300">
+                                <svg width="20" height="20" viewBox="0 0 300 300">
                                     <circle class="circle" cx="150" cy="150" r="130" stroke="#656363" stroke-width="20" fill="none"></circle>
                                     <polyline class="tick" points="100,150 140,200 220,100" stroke="#656363" stroke-width="20" fill="none" stroke-linecap="round"></polyline>
                                 </svg>
                             `;
                             menuItem.style.display = 'flex';
-                            menuItem.style.justifyContent = 'flex-start';
+                            menuItem.style.alignItems = 'center';
                             menuItem.appendChild(animationDiv);
                             menuItem.dataset.id = generateUniqueId();
                             menuItem.onclick = (event) => {
@@ -336,8 +466,8 @@
                         });
                         submenuPrompt.appendChild(sharePromptSubmenu);
                     }
-                } else {
-                    alert("{{resources['dataerror']}}");
+                }else {
+                    showPopup("{{resources['dataerror']}}");
                 }
             })
             .catch(error => {
@@ -349,7 +479,6 @@
             set_prompt_name(title);
             const menuItem = document.querySelector(`[data-id="${menuItemId}"]`);// 查找对应的菜单项（根据 id）
             if (!menuItem) {
-                console.error('Menu item not found!');
                 return; // 如果没有找到对应的菜单项，退出函数
             }
 
@@ -371,10 +500,6 @@
                 }, totalAnimationDuration * 1000);
             }
         }
-
-
-
-
 
         // 示例会话数据，实际情况下可以通过API获取
         //var conversations = [];
@@ -403,67 +528,61 @@
 
         get_conversation_list();
 
-        function render_conversations(conversations){
-            // 获取会话列表的ul元素
-            const conversationList = document.getElementById('conversationList');
+        function reset_session_name(session_id) {
+            remove_menu();  // 如果需要移除菜单
+            // 获取带有指定 session_id 的 listItem
+            let listItem = document.querySelector(`li[data-id="${CSS.escape(session_id)}"]`);
+            
+            // 获取用于显示标题的 div 元素
+            let context_div = listItem.querySelector('.session_context');
+            // 获取当前的标题
+            let title = context_div.textContent;
 
-            // 动态生成会话列表项
-            conversations.forEach(conversation => {
-                const listItem = document.createElement('li');
-                listItem.textContent = conversation.title.slice(0,20);
-                listItem.setAttribute('data-id', conversation.id);
-                
-                // 设置 listItem 为 flex container，使内容（标题）和删除按钮在一行上排列
-                listItem.style.display = 'flex';
-                listItem.style.justifyContent = 'space-between';  // 确保标题和按钮分开
-                listItem.style.alignItems = 'center';  // 垂直居中对齐
+            // 获取 select 按钮
+            let select_btn = listItem.querySelector('.select-btn');
+            
+            // 隐藏 context_div 和 select_btn
+            context_div.style.visibility = "hidden";
+            select_btn.style.visibility = "hidden";
+            
+            // 创建一个输入框用于修改标题
+            let input = document.createElement('input');
+            input.type = 'text';  // 设置 input 类型为文本框
+            input.value = title;  // 默认值为当前的标题
+            input.placeholder = "请输入新的标题";  // 提示文字
 
-                // 创建删除按钮 (替换为图片)
-                const deleteButton = document.createElement('img');
-                deleteButton.src = '/static/images/delete2.png';  // 设置图片的路径
-                deleteButton.alt = 'Delete';  // 添加 alt 属性
-                deleteButton.classList.add('delete-btn');  // 添加样式类
+            // 获取 listItem 的位置和尺寸
+            let rect = listItem.getBoundingClientRect();
+            // 获取页面的滚动偏移量
+            let scrollContainer = document.getElementById('sidebar'); // 或者通过 ID 获取，document.getElementById('scroll-container')
 
-                // 删除按钮点击事件
-                deleteButton.addEventListener('click', (event) => {
-                    event.stopPropagation();  // 阻止事件冒泡，防止触发列表项的点击事件
-                    
-                    // 创建和显示背景遮罩层
-                    const overlay = document.createElement('div');
-                    overlay.style.position = 'fixed';
-                    overlay.style.top = '0';
-                    overlay.style.left = '0';
-                    overlay.style.width = '100%';
-                    overlay.style.height = '100%';
-                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                    overlay.style.zIndex = '999';
-                    document.body.appendChild(overlay);
+            // 获取该 div 的滚动偏移量
+            let scrollTop = scrollContainer.scrollTop;
+            let scrollLeft = scrollContainer.scrollLeft;
 
-                    const confirmDeleteBox = document.createElement('div');
-                    confirmDeleteBox.classList.add('confirm-delete');
-                    confirmDeleteBox.innerHTML = `
-                        <p>${"{{resources['delete_info']}}"}</p>
-                        <div class="button-container">
-                            <button id="cancelDeleteBtn" class="cancel-btn">${"{{resources['cancle']}}"}</button>
-                            <button id="confirmDeleteBtn" class="confirm-btn">${"{{resources['delete']}}"}</button>
-                        </div>
-                    `;
-                    document.body.appendChild(confirmDeleteBox);
+            // 设置 input 的位置和尺寸完全与 listItem 相同
+            input.style.position = "absolute";  // 设置为绝对定位
+            input.style.top = `${rect.top + scrollTop + 6}px`;  // 设置 input 顶部位置为 listItem 顶部位置
+            input.style.left = `${rect.left + scrollLeft + 10}px`;  // 设置 input 左边位置为 listItem 左边位置
+            input.style.width = `${rect.width - 28}px`;  // 设置 input 宽度为 listItem 宽度
+            input.style.height = `${rect.height - 17}px`;  // 设置 input 高度为 listItem 高度
+            input.style.fontSize = "14px";
 
-                    // 显示确认框
-                    confirmDeleteBox.style.display = 'block';
+            // 将输入框添加到 listItem 中
+            listItem.appendChild(input);
 
-                    // 确认删除按钮点击事件
-                    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-                    confirmDeleteBtn.addEventListener('click', () => {
+            // 在点击页面其他地方时保存新的标题
+            function saveTitle(event) {
+                // 确保点击的不是输入框本身
+                if (!input.contains(event.target) && event.target !== input) {
+                    let newTitle = input.value.trim();  // 获取用户输入的新标题
+                    if (newTitle !== "" && newTitle !== context_div.textContent) {
                         // 执行删除操作
-                        console.log('Item deleted');
-
                         const data = {
-                            session: conversation.id
+                            session_id: session_id, new_title: newTitle
                         };
                         // 发送获取请求
-                        fetch(`/delete_history`, {
+                        fetch(`/reset_session_name`, {
                             method: 'POST',
                             credentials: 'include', // 发送 cookie
                             headers: {
@@ -473,37 +592,323 @@
                         })
                         .then(response => response.json())
                         .then(result => {
-                            if(result.is_delete){
-                                console.log("成功删除历史记录")
-                                listItem.remove();  // 删除该列表项
-                                // 判断是否是当前的session
-                                const currentUrl = window.location.href;
-                                if (currentUrl.includes(conversation.id)) {
-                                    // 进行重定向
-                                    window.location.href='/';
-                                }
-                            }else{
-                                console.log("删除历史记录失败")
-                            }
-
-                            // 删除确认框和遮罩
-                            document.body.removeChild(overlay); // 移除遮罩层
-                            document.body.removeChild(confirmDeleteBox);
+                            context_div.textContent = newTitle;
                         })
+                        .catch(error => {
+                            // 错误处理
+                            console.error("导出失败:", error);
+                        });
 
-                    });
+                    }
 
-                    // 取消删除按钮点击事件
-                    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-                    cancelDeleteBtn.addEventListener('click', () => {
-                        // 取消删除，隐藏确认框
-                        document.body.removeChild(overlay); // 移除遮罩层
-                        document.body.removeChild(confirmDeleteBox);
-                    });
+                    // 恢复显示 context_div 和 select_btn
+                    context_div.style.visibility = "visible";
+                    select_btn.style.visibility = "visible";
+
+                    // 移除输入框
+                    input.remove();
+
+                    // 移除事件监听器，避免重复处理
+                    document.removeEventListener('click', saveTitle);
+                }
+            }
+
+                // 延迟 100 毫秒再添加点击事件监听器
+                setTimeout(() => {
+                    // 在点击页面其他地方时保存新的标题
+                    document.addEventListener('click', saveTitle);
+                }, 100);  // 延迟时间（单位：毫秒）
+
+            // 阻止点击事件冒泡，避免输入框点击时事件传播到 document
+            input.addEventListener('click', function(event) {
+                event.stopPropagation();  // 阻止事件冒泡
+            });
+        }
+
+        function export_session_history(session_id){
+            // 使用选中的记录 ID 来构建请求体
+            const requestBody = {
+                session_list: [session_id]// 把 Set 转换成数组
+            };
+
+            // 发送 POST 请求到后端
+            fetch(`/export_session_context`, {
+                method: 'POST',
+                credentials: 'include', // 发送 cookie
+                headers: {
+                    'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                },
+                body: JSON.stringify(requestBody)  // 将请求体转为 JSON 字符串
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("导出失败");
+                }
+                return response.blob();  // 将响应转换为 Blob
+            })
+            .then(blob => {
+                // 创建一个临时的 URL
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'chat_hisroty.json';  // 设置下载的文件名
+                document.body.appendChild(a);
+                a.click();  // 触发下载
+                a.remove();  // 移除临时链接
+                window.URL.revokeObjectURL(url);  // 释放 URL 对象
+            })
+            .catch(error => {
+                // 错误处理
+                console.error("导出失败:", error);
+            });
+        }
+
+        function delete_session_history(session_id){
+            // 创建和显示背景遮罩层
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '1500';
+            document.body.appendChild(overlay);
+
+            const confirmDeleteBox = document.createElement('div');
+            confirmDeleteBox.classList.add('confirm-delete');
+            confirmDeleteBox.innerHTML = `
+                <p>${"{{resources['delete_info']}}"}</p>
+                <div class="button-container">
+                    <button id="cancelDeleteBtn" class="cancel-btn">${"{{resources['cancle']}}"}</button>
+                    <button id="confirmDeleteBtn" class="confirm-btn">${"{{resources['delete']}}"}</button>
+                </div>
+            `;
+            document.body.appendChild(confirmDeleteBox);
+
+            // 显示确认框
+            confirmDeleteBox.style.display = 'block';
+
+            // 确认删除按钮点击事件
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.addEventListener('click', () => {
+                // 执行删除操作
+                const data = {
+                    session: session_id
+                };
+                // 发送获取请求
+                fetch(`/delete_history`, {
+                    method: 'POST',
+                    credentials: 'include', // 发送 cookie
+                    headers: {
+                        'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+                    },
+                    body: JSON.stringify(data) // 将对象转为 JSON 字符串s
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if(result.is_delete){
+                        let listItem = document.querySelector(`li[data-id="${CSS.escape(session_id)}"]`);
+                        listItem.remove();  // 删除该列表项
+                        // 判断是否是当前的session
+                        const currentUrl = window.location.href;
+                        if (currentUrl.includes(session_id)) {
+                            // 进行重定向
+                            window.location.href='/';
+                        }
+                    }
+
+                    // 删除确认框和遮罩
+                    document.body.removeChild(overlay); // 移除遮罩层
+                    document.body.removeChild(confirmDeleteBox);
+                })
+
+            });
+
+            // 取消删除按钮点击事件
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            cancelDeleteBtn.addEventListener('click', () => {
+                // 取消删除，隐藏确认框
+                document.body.removeChild(overlay); // 移除遮罩层
+                document.body.removeChild(confirmDeleteBox);
+            });
+        }
+
+        function create_session_menu(session_id, right, bottom){
+            // 创建菜单并添加到页面
+            menu = document.createElement('div');
+            menu.id = "session_select_menu"
+            menu.classList.add('menu');
+
+            // 菜单项now_menu_li
+            let menuItems = [
+            { text: '重命名', action: 'rename' , icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path fill="currentColor" d="M13.2929 4.29291C15.0641 2.52167 17.9359 2.52167 19.7071 4.2929C21.4784 6.06414 21.4784 8.93588 19.7071 10.7071L18.7073 11.7069L11.6135 18.8007C10.8766 19.5376 9.92793 20.0258 8.89999 20.1971L4.16441 20.9864C3.84585 21.0395 3.52127 20.9355 3.29291 20.7071C3.06454 20.4788 2.96053 20.1542 3.01362 19.8356L3.80288 15.1C3.9742 14.0721 4.46243 13.1234 5.19932 12.3865L13.2929 4.29291ZM13 7.41422L6.61353 13.8007C6.1714 14.2428 5.87846 14.8121 5.77567 15.4288L5.21656 18.7835L8.57119 18.2244C9.18795 18.1216 9.75719 17.8286 10.1993 17.3865L16.5858 11L13 7.41422ZM18 9.5858L14.4142 6.00001L14.7071 5.70712C15.6973 4.71693 17.3027 4.71693 18.2929 5.70712C19.2831 6.69731 19.2831 8.30272 18.2929 9.29291L18 9.5858Z" /></svg>' },
+            { text: '删除', action: 'delete' , icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path fill="currentColor" d="M10.5555 4C10.099 4 9.70052 4.30906 9.58693 4.75114L9.29382 5.8919H14.715L14.4219 4.75114C14.3083 4.30906 13.9098 4 13.4533 4H10.5555ZM16.7799 5.8919L16.3589 4.25342C16.0182 2.92719 14.8226 2 13.4533 2H10.5555C9.18616 2 7.99062 2.92719 7.64985 4.25342L7.22886 5.8919H4C3.44772 5.8919 3 6.33961 3 6.8919C3 7.44418 3.44772 7.8919 4 7.8919H4.10069L5.31544 19.3172C5.47763 20.8427 6.76455 22 8.29863 22H15.7014C17.2354 22 18.5224 20.8427 18.6846 19.3172L19.8993 7.8919H20C20.5523 7.8919 21 7.44418 21 6.8919C21 6.33961 20.5523 5.8919 20 5.8919H16.7799ZM17.888 7.8919H6.11196L7.30423 19.1057C7.3583 19.6142 7.78727 20 8.29863 20H15.7014C16.2127 20 16.6417 19.6142 16.6958 19.1057L17.888 7.8919ZM10 10C10.5523 10 11 10.4477 11 11V16C11 16.5523 10.5523 17 10 17C9.44772 17 9 16.5523 9 16V11C9 10.4477 9.44772 10 10 10ZM14 10C14.5523 10 15 10.4477 15 11V16C15 16.5523 14.5523 17 14 17C13.4477 17 13 16.5523 13 16V11C13 10.4477 13.4477 10 14 10Z" /></svg>' }
+            ];
+            const hasExport = permissions.includes("export");
+
+            if(hasExport){
+                const newItem = { text: '导出', action: 'export' , icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path fill="currentColor" d="M4.82918 4.10557C5.16796 3.428 5.86049 3 6.61803 3H17.382C18.1395 3 18.832 3.428 19.1708 4.10557L20.7889 7.34164C20.9277 7.61935 21 7.92558 21 8.23607V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V8.23607C3 7.92558 3.07229 7.61935 3.21115 7.34164L4.82918 4.10557ZM17.382 5H6.61803L5.61803 7H18.382L17.382 5ZM19 9H5V18C5 18.5523 5.44772 19 6 19H18C18.5523 19 19 18.5523 19 18V9ZM9 12C9 11.4477 9.44772 11 10 11H14C14.5523 11 15 11.4477 15 12C15 12.5523 14.5523 13 14 13H10C9.44772 13 9 12.5523 9 12Z" /></svg>' }
+                menuItems.splice(1, 0, newItem);
+            }
+
+            // 生成菜单项并添加点击事件
+            menuItems.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.classList.add('menu-item');
+                menuItem.innerHTML = `${item.icon}<span class="text">${item.text}</span>`;
+                
+                // 为每个菜单项添加点击事件监听器
+                menuItem.addEventListener('click', () => {
+                    switch (item.action) {
+                        case 'rename':
+                            reset_session_name(session_id);
+                            break;
+                        case 'export':
+                            export_session_history(session_id);
+                            break;
+                        case 'delete':
+                            delete_session_history(session_id);
+                            break;
+                        default:
+                            console.log('未定义的操作');
+                    }
+                });
+                
+                menu.appendChild(menuItem);
+            });
+
+            menu.style.left = `${right + 10}px`;
+            menu.style.top = `${bottom + 10}px`;
+
+            // 将菜单添加到页面
+            document.body.appendChild(menu);
+        }
+
+
+        function remove_menu(){
+            now_menu_li.classList.remove('selected-menu')
+            // 移除菜单
+            menu.remove();
+            menu = null; // 移除后设置为 null
+        }
+
+        function compareDate(time) {
+            const targetDate = new Date(time);
+
+            // 比较目标日期
+            if (targetDate >= today) {
+                return "{{resources['today']}}";  // 今天
+            } else if (targetDate >= yesterday) {
+                return "{{resources['yesteday']}}";  // 昨天
+            } else if (targetDate >= sevenDaysAgo) {
+                return "{{resources['psday']}}";  // 前七天
+            } else {
+                return "{{resources['moreday']}}";  // 更早的日期
+            }
+        }
+
+        function render_conversations(conversations){
+            // 获取会话列表的ul元素
+            const conversationList = document.getElementById('conversationList');
+
+            // 动态生成会话列表项并细化
+            const timeCategories = {
+                "{{resources['today']}}": [],
+                "{{resources['yesteday']}}": [],
+                "{{resources['psday']}}": [],
+                "{{resources['moreday']}}": []
+            };
+
+            // 动态生成会话列表项
+            conversations.forEach(conversation => {
+                const listItem = document.createElement('li');
+                listItem.className = "session_info"
+                listItem.setAttribute('data-id', conversation.id);
+
+                const session_title = document.createElement('div');
+                session_title.textContent = conversation.title.slice(0,20);
+                if (conversation.title.slice(0,20) === "") {
+                    return;
+                }
+
+                // 根据时间分类
+                const timeCategory = compareDate(conversation.time);
+                timeCategories[timeCategory].push(listItem);  // 将会话项加入对应的时间分类
+
+                session_title.className = "session_context"
+                listItem.appendChild(session_title);
+
+                // 添加一个选择的按钮
+                // 创建一个按钮元素
+                const select_btn = document.createElement('button');
+
+                // 设置按钮的一些属性
+                select_btn.className = 'select-btn'; // 给按钮添加一个类名，用于样式调整
+
+                // 创建一个 SVG 元素
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); // 使用 SVG 命名空间创建 SVG 元素
+                svg.setAttribute('t', '1736393186507');
+                svg.setAttribute('class', 'select-svg');
+                svg.setAttribute('viewBox', '0 0 1024 1024');
+                svg.setAttribute('version', '1.1');
+                svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                svg.setAttribute('p-id', '1511');
+                svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+                svg.setAttribute('width', '200');
+                svg.setAttribute('height', '200');
+
+                // 创建路径元素
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M512 597.333333a85.333333 85.333333 0 1 0 0-170.666666 85.333333 85.333333 0 0 0 0 170.666666zM256 597.333333a85.333333 85.333333 0 1 0 0-170.666666 85.333333 85.333333 0 0 0 0 170.666666zM768 597.333333a85.333333 85.333333 0 1 0 0-170.666666 85.333333 85.333333 0 0 0 0 170.666666z');
+
+                // 将路径添加到 SVG 中
+                svg.appendChild(path);
+
+                // 将 SVG 添加到按钮中
+                select_btn.appendChild(svg);
+
+                // 显示菜单
+                svg.addEventListener('click', function(event) {
+                    let left = 0
+                    let top = 0
+
+                    // 如果已有菜单，移除它
+                    if (menu) {
+                        const menuRect = menu.getBoundingClientRect();
+                        left = menuRect.left;   // 获取菜单的左边距
+                        top = menuRect.top;     // 获取菜单的上边距
+                        remove_menu()
+                    }
+
+                    // 判断是不是在这个svg旁点的menu
+                    const rect = svg.getBoundingClientRect();
+                    
+                    if (Math.abs(rect.right - left) <= 10 && Math.abs(rect.bottom - top) <= 10) {
+                    }else{
+                        listItem.classList.add('selected-menu');
+                        // 判断 rect.bottom 加上 202px 后是否超出当前页面的高度
+                        const offset = 160;  // 需要添加的偏移量
+                        const pageHeight = window.innerHeight;  // 当前页面的可视区域高度
+
+                        // 计算 rect.bottom + 202px 是否超过页面高度
+                        if (rect.bottom + offset > pageHeight) {
+                            create_session_menu(conversation.id, rect.right, rect.bottom - offset)
+                            // 如果超出，可以进行相应处理（如调整位置等）
+                        } else {
+                            create_session_menu(conversation.id, rect.right, rect.bottom)
+                        }
+
+                        now_menu_li = listItem
+                    }
+                    // 阻止事件冒泡，避免点击按钮时触发 document 的 click 事件
+                    event.stopPropagation();
                 });
 
-                listItem.addEventListener('click', () => {
-                    // 发送请求获取 kdb_id
+                // 将按钮添加到 listItem 中
+                listItem.appendChild(select_btn);
+
+                session_title.addEventListener('click', () => {
                     fetch(`${window.location.protocol}//${window.location.host}/kdb/get_current_kdbid`, {
                         method: 'POST', // 假设这个 API 使用 POST 方法
                         credentials: 'include', // 发送 cookie
@@ -520,27 +925,95 @@
                         // 根据是否存在 kdb_id 跳转到相应的 URL
                         const targetUrl = kdb_id
                             ? `${baseUrl}/chatbox/${conversation.id}?mode=faq&kdb_id=${kdb_id}`
-                            : `${baseUrl}/chatbox/${conversation.id}?mode=faq`;
+                            : `${baseUrl}/chatbox/${conversation.id}?mode=chat`;
                         // 执行跳转
                         window.location.href = targetUrl;
                     })
                     .catch(error => {
-                        console.error("获取 kdb_id 时发生错误:", error);
-
                         // 如果发生错误，默认跳转到不带 kdb_id 的 URL
                         window.location.href = `http://localhost:8000/chatbox/${conversation.id}`;
                     });
                 });
+            });
 
-                // 将删除按钮添加到列表项
-                listItem.appendChild(deleteButton);
-                conversationList.appendChild(listItem);
+            // 动态生成容器，并添加每个分类的会话
+            let firstNonEmptyFound = false; // 标记是否已经找到第一个非空的分类
+
+            Object.keys(timeCategories).forEach((category) => {
+                const categoryItems = timeCategories[category];
+
+                if (categoryItems.length > 0) {
+                    // 创建时间段容器
+                    const categoryContainer = document.createElement('div');
+                    categoryContainer.id = `${category}List`;
+                    categoryContainer.classList.add('category-container');
+
+                    // 添加标题
+                    const title = document.createElement('h1');
+                    title.className = "day-h1";
+                    title.textContent = category;
+
+                    // 如果已经找到第一个非空分类，则为标题添加 margin-top
+                    if (firstNonEmptyFound) {
+                        title.style.marginTop = '40px'; // 设置适当的 margin-top
+                    } else {
+                        firstNonEmptyFound = true; // 标记第一个非空分类已找到
+                    }
+
+                    categoryContainer.appendChild(title);
+
+                    // 添加分类下的所有会话项
+                    categoryItems.forEach(item => {
+                        categoryContainer.appendChild(item);
+                    });
+
+                    // 将容器添加到父容器中（假设父容器是 conversationList）
+                    document.getElementById('conversationList').appendChild(categoryContainer);
+                }
             });
         }
 
-        const menus = [{title:"{{resources['kdb']}}", href:`${window.location.protocol}//${window.location.host}/kdb/showkdb`},
-                        {title:"{{resources['prompt']}}", href:`${window.location.protocol}//${window.location.host}/prompt/showPrompt`}]
+        // 点击菜单外部移除菜单
+        document.addEventListener('click', function(event) {
+            // 如果 menu 为 null，直接返回，不做后续处理
+            if (!menu) {
+                return;
+            }
+            // 确保点击的不是 select_btn 或菜单本身
+            if (!menu.contains(event.target)) {
+                remove_menu()
+            }
+        });
+
+        // 监听拉动条
+        document.getElementById('sidebar').addEventListener('scroll', () => {
+            // 获取悬浮窗元素
+            const session_select_menu = document.getElementById('session_select_menu');
+            if (session_select_menu) {
+                remove_menu()
+            }
+        });
+
+        let menus = [];
+        const hasKdb = permissions.includes("kdb");
+        const hasPrompt = permissions.includes("prompt");
+
+        // 添加菜单项
+        if (hasKdb) {
+            menus.push({ title: "{{resources['kdb']}}", href: `${window.location.protocol}//${window.location.host}/kdb/showkdb` });
+        }
+        if (hasPrompt) {
+            menus.push({ title: "{{resources['prompt']}}", href: `${window.location.protocol}//${window.location.host}/prompt/showPrompt` });
+        }
+
+        // 隐藏 promptIcon（如果没有 prompt 权限）
+        if (!hasPrompt) {
+            document.getElementById("promptIcon").style.display = "none";
+        }
+
         function render_menus(menus){
+            if (!menus.length) return;
+
             // 获取会话列表的ul元素
             const list = document.getElementById('menuList');
 
@@ -548,6 +1021,7 @@
             menus.forEach(menu => {
                 const listItem = document.createElement('li');
                 listItem.textContent = menu.title;
+                listItem.style.padding = "10px"
                 //listItem.setAttribute('data-id', conversation.id);
                 listItem.addEventListener('click', () => {
                     window.location.href = menu.href
@@ -560,19 +1034,124 @@
 
 <script>
     {% block chatbox_scripts %}{% endblock %}
-/*
     const icon = document.getElementById("toggleIcon");
+    function close_sidebar(){
+        const sidebar = document.getElementById("sidebar");
+        sidebar.style.display = "none"
+    }
+
+    function open_sidebar(){
+        const sidebar = document.getElementById("sidebar");
+        sidebar.style.display = "block"
+    }
+
     document.getElementById("toggleIcon").addEventListener("click", () => {
-        if (sidebar.classList.contains("collapsed")) {
-            sidebar.classList.remove("collapsed");
-        } else {
-            sidebar.classList.add("collapsed");
-        }
+        const sidebar = document.getElementById("sidebar");
+        const width = sidebar.offsetWidth;
+
+        close_sidebar()
+        const right_bar = document.getElementById("right_bar")
+        // 获取 right_bar 当前的宽度（注意 getComputedStyle 返回的是字符串，带有 "px"）
+        const currentWidth = right_bar.offsetWidth;
+        // 在原来的宽度上加上 sidebar 的宽度
+        right_bar.style.width = (currentWidth + width) + "px";
+
+        let menu_container = document.getElementById("menu_container")
+
+        // 创建一个div
+        const sidebar_close_div = document.createElement('div');
+        sidebar_close_div.id = 'sidebar_close_div';
+        sidebar_close_div.className = "sidebar_close_div"
+
+        // 创建按钮元素
+        const open_sidebar_btn= document.createElement('button');
+        open_sidebar_btn.id = 'toggleIcon';
+        open_sidebar_btn.className = 'toggleIcon-btn';
+        open_sidebar_btn.style.background = "white"
+
+
+        // 创建 SVG 元素
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('t', '1736904076651');
+        svg.setAttribute('class', 'Icon-svg');
+        svg.setAttribute('viewBox', '0 0 1024 1024');
+        svg.setAttribute('version', '1.1');
+        svg.setAttribute('xmlns', svgNS);
+        svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        svg.setAttribute('width', '30');
+        svg.setAttribute('height', '30');
+
+        // 创建 path 元素
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', 'M853.333333 128c46.933333 0 85.333333 38.4 85.333334 85.333333v597.333334c0 46.933333-38.4 85.333333-85.333334 85.333333H170.666667c-46.933333 0-85.333333-38.4-85.333334-85.333333V213.333333c0-46.933333 38.4-85.333333 85.333334-85.333333h682.666666zM341.333333 213.333333H170.666667v597.333334h170.666666V213.333333z m512 0H426.666667v597.333334h426.666666V213.333333z');
+        path.setAttribute('p-id', '15742');
+
+        // 将 path 添加到 SVG 中
+        svg.appendChild(path);
+
+        // 将 SVG 添加到按钮中
+        open_sidebar_btn.appendChild(svg);
+
+        // 创建 <img> 元素
+        const imgElement = document.createElement('img');
+
+        // 创建 button 元素
+        const new_chat_button = document.createElement('button');
+        new_chat_button.classList.add('toggleIcon-btn');
+        new_chat_button.style.background = "white"
+
+        // 创建 svg 元素
+        const new_chat_svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        new_chat_svg.setAttribute('t', '1736905297852');
+        new_chat_svg.classList.add('Icon-svg');
+        new_chat_svg.setAttribute('viewBox', '0 0 1024 1024');
+        new_chat_svg.setAttribute('version', '1.1');
+        new_chat_svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        new_chat_svg.setAttribute('p-id', '37588');
+        new_chat_svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        new_chat_svg.setAttribute('width', '25');
+        new_chat_svg.setAttribute('height', '25');
+
+        // 创建 path 元素并设置其属性
+        const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path1.setAttribute('d', 'M715.167724 829.001841 209.044572 829.001841c-16.346293 0-29.573549-13.227256-29.573549-29.573549 0-16.346293 13.227256-29.572526 29.573549-29.572526l506.123153 0c16.346293 0 29.572526 13.227256 29.572526 29.572526C744.74025 815.775608 731.514017 829.001841 715.167724 829.001841z');
+        new_chat_svg.appendChild(path1);
+
+        const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path2.setAttribute('d', 'M770.125407 982.065935 154.027537 982.065935c-48.923246 0-88.719624-39.797401-88.719624-88.719624L65.307913 130.652665c0-48.923246 39.797401-88.719624 88.719624-88.719624l417.143609 0c16.346293 0 29.572526 13.227256 29.572526 29.572526 0 16.346293-13.227256 29.573549-29.572526 29.573549L154.027537 101.079116c-16.317641 0-29.573549 13.255908-29.573549 29.573549l0 762.693646c0 16.317641 13.255908 29.572526 29.573549 29.572526l616.09787 0c16.317641 0 29.572526-13.254885 29.572526-29.572526L799.697933 657.916301c0-16.346293 13.229303-29.572526 29.573549-29.572526 16.347317 0 29.572526 13.227256 29.572526 29.572526l0 235.43001C858.845031 942.269557 819.049676 982.065935 770.125407 982.065935z');
+        new_chat_svg.appendChild(path2);
+
+        const path3 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path3.setAttribute('d', 'M393.933489 681.482019c-7.826246 0-15.595186-3.146667-21.140483-8.691963-10.04989-10.04989-10.04989-10.04989-4.043083-82.685187l6.439666-76.878948c3.234671-39.073924 27.522844-91.462085 55.276954-119.216195l282.9677-282.995329c33.355689-33.327036 92.0116-33.415041 125.455293-0.029676l95.708805 95.766111c34.597983 34.597983 34.597983 90.856287 0 125.455293L651.60199 615.145172c-27.753087 27.753087-80.141248 52.04126-119.216195 55.304583l-76.878948 6.383384C418.452929 679.922501 397.745305 681.482019 393.933489 681.482019zM776.16189 144.254451c-7.941879 0-15.364943 3.060709-20.909216 8.578376l-282.9677 282.995329c-18.194384 18.225083-36.042891 56.662511-38.150902 82.308611L427.694407 595.014692c-0.722454 8.894577-1.415232 17.358343-2.022053 24.923646 7.567349-0.606821 16.029068-1.300622 24.923646-2.050706l76.878948-6.381337c25.6461-2.137687 64.084551-19.98517 82.308611-38.180578l282.996352-282.939047c11.524474-11.522428 11.524474-30.29498 0-41.818431l-95.767134-95.794763C791.526833 147.31516 784.10377 144.254451 776.16189 144.254451z');
+        new_chat_svg.appendChild(path3);
+
+        // 将 svg 添加到 button 中
+        new_chat_button.appendChild(new_chat_svg);
+
+        svg.addEventListener('click', function() {
+            open_sidebar()
+            sidebar_close_div.remove()
+        });
+
+        // 可选：为 img 元素添加点击事件
+        new_chat_svg.addEventListener('click', function() {
+            window.location.href='/';
+        });
+
+        sidebar_close_div.append(open_sidebar_btn)
+        sidebar_close_div.append(new_chat_button)
+
+
+        // 获取容器中当前的第一个子元素
+        const firstChild = menu_container.firstChild;
+
+        // 将新的图片元素插入到容器的首位
+        menu_container.insertBefore(sidebar_close_div, firstChild);
     });
-*/
+    
     const sidebar = document.getElementById("sidebar");
     document.getElementById("editIcon").addEventListener("click", () => {
-        console.log("goto /")
         window.location.href='/';
     });
 

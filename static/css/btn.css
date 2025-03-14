@@ -87,8 +87,8 @@
 }
 
 
-/* 禁用状态下图标颜色 */
 .rounded-button.disabled .button-icon {
-  fill: #a0a0a0;
+  fill: #a0a0a0 !important;
 }
+
 

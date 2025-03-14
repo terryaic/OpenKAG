@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>云中数字人</title>
+    <style>
+        /* ====== 顶部条样式 ====== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 根据需要可改为 space-between 等 */
+            padding: 10px;
+            background-color: #fff; /* 头部背景色，可自行调整 */
+            border-bottom: 1px solid #ccc; /* 可以加下边框做分隔 */
+            box-sizing: border-box;
+        }
+        .topbar .logo {
+            height: 40px;     /* LOGO 高度 */
+            margin-right: 10px;
+        }
+        .topbar h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #333;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+
+        /* 轮播容器样式 */
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            position: relative; /* 用于让“刷新”按钮绝对定位到容器内部 */
+        }
+
+        .carousel-button {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            margin: 0 10px;
+            user-select: none;
+        }
+        .carousel-button:focus {
+            outline: none;
+        }
+        /* 用于显示数字人形象的图片 */
+        .carousel-image {
+            width: 100%;
+            max-width: 512px;
+            height: auto;
+            transition: filter 0.3s ease; /* 让滤镜过渡更柔和一点 */
+        }
+
+        #recordButton {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3c453c;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        #recordButton.active {
+            background-color: #b85f12;
+        }
+
+        #instructionText {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .dropdown {
+            width: 80%;
+            max-width: 300px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .dropdown select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            appearance: none;
+            background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="%23000"><path d="M7 10l5 5 5-5z"></path></svg>') no-repeat right 10px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .dropdown select:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
+        /* “刷新”按钮样式，出现时绝对定位在 .carousel-container 中心 */
+        .refresh-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff7f50;
+            color: #fff;
+            cursor: pointer;
+            z-index: 999;
+            display: none; /* 默认隐藏 */
+        }
+
+        .refresh-button:focus {
+            outline: none;
+        }
+
+        @media (max-width: 768px) {
+            #recordButton {
+                width: 80px;
+                height: 80px;
+            }
+
+            #instructionText {
+                font-size: 14px;
+            }
+
+            .dropdown select {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .refresh-button {
+                font-size: 16px;
+            }
+        }
+    /* 页面内容区域示例 */
+    .content {
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* 底部固定的收藏栏（保守样式） */
+    .footer-collect {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #fff;       /* 底色：白色 */
+      border-top: 1px solid #ccc;   /* 上边框：灰色 */
+      text-align: center;
+      padding: 10px 0;
+      box-sizing: border-box;
+    }
+
+    /* 收藏按钮的保守样式 */
+    .collect-btn {
+      display: inline-block;
+      background-color: #fff;        /* 按钮底色：白色 */
+      color: #333;                   /* 按钮文字：深灰 */
+      font-size: 14px;               /* 字体大小可略小 */
+      padding: 8px 16px;             /* 按钮内边距适当 */
+      border: 1px solid #ccc;        /* 按钮边框：灰色 */
+      text-decoration: none;         /* 去除默认链接样式 */
+      border-radius: 2px;            /* 可小幅圆角，也可置0 */
+    }
+
+    /* 按钮点击或悬停等状态，可以使用伪类调整颜色以示交互 */
+    .collect-btn:hover {
+      background-color: #f3f3f3;
+    }
+    </style>
+</head>
+<body>
+    <!-- ====== 顶部：LOGO + 标题“云中数字人” ====== -->
+    <header class="topbar">
+        <!-- 请在此处替换为你的 LOGO 图片路径或网络地址 -->
+        <img src="/static/logo.png" class="logo" alt="云中数字人 LOGO">
+        <h1>云中数字人</h1>
+    </header>
+
+    <!-- 轮播容器：左右按钮 + 展示数字人形象的 img -->
+    <div class="carousel-container">
+        <!--<button id="prevBtn" class="carousel-button">←</button>-->
+        <img id="liveStream" class="carousel-image" />
+        <!--<button id="nextBtn" class="carousel-button">→</button>-->
+        <!-- 这里放一个刷新按钮 -->
+        <button id="refreshButton" class="refresh-button">刷新</button>
+    </div>
+
+    <button id="recordButton">
+        <span id="recordStatus">开始对话</span>
+    </button>
+    <div id="instructionText">点击按钮进行对话</div>
+
+    <!-- 其余脚本，保持与你原始代码一致 -->
+    <script src="/static/js/vad-main/dict/ort.js"></script>
+    <script src="/static/js/vad-main/dict1/bundle.min.js"></script>
+    <script src="/static/js/vadaudiorecorder.js"></script>
+    <script src="/static/js/streaming_audio.js"></script>
+    <script>
+        function displayMsg(msg){
+            console.log(msg);
+        }
+    </script>
+
+    <div class="dropdown">
+        <select id="modeDropdown">
+            <option value="chat">闲聊</option>
+            <option value="faq">问答</option>
+        </select>
+    </div>
+
+    <div id="knowledgeBaseContainer" style="display: none;" class="dropdown">
+        <select id="knowledgeBaseDropdown">
+            <option value="">Loading...</option>
+        </select>
+        <p id="selectedId"></p>
+    </div>
+
+    <script type="module">
+        /*import { AvatarClient } from '/static/js/avatarclient.js';
+    
+        const client = new AvatarClient(`${window.location.protocol}//${window.location.host}`);
+        const avatar_id = "{{avatar_id}}";
+        client.getAvatar(avatar_id)
+          .then(avatar => {
+            console.log("Avatar:", avatar);
+            avatar.assets.images.forEach(function(item){
+                var url = client.getImageURL(avatar_id, item);
+                console.log(url);
+                update_image_list(url)
+            })
+        })
+          .catch(err => console.error(err));
+        set_client(client);*/
+    </script>
+
+    <script>
+        let imageList = [];
+
+        var avatar_client;
+        var my_avatar_id = "{{avatar_id}}";
+        function set_client(client){
+            avatar_client = client;
+        }
+
+        function update_image_list(image){
+            imageList.push(image);
+            showImage(currentIndex);
+        }
+
+        let currentIndex = 0;
+        const liveStreamImage = document.getElementById("liveStream");
+        
+        function showImage(index) {
+            liveStreamImage.src = imageList[index];
+        }
+
+        // （示例）这个 3 秒定时器和轮播交互逻辑是原本就有的
+        let inactivityTimer = null;
+        function startInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                callCloudFunction(currentIndex);
+            }, 3000);
+        }
+        function callCloudFunction(index) {
+            console.log(`3 秒未操作，开始调用云端功能。当前索引：${index}`);
+            avatar_client.setActiveImage(my_avatar_id, getFileName(imageList[index]))
+            startStreaming();
+        }
+        function getFileName(url) {
+            try {
+                const urlObj = new URL(url);
+                const pathname = urlObj.pathname;
+                const segments = pathname.split('/');
+                const filteredSegments = segments.filter(segment => segment.length > 0);
+                return filteredSegments.pop() || '';
+            } catch (error) {
+                console.error('无效的URL:', error);
+                return '';
+            }
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % imageList.length;
+            showImage(currentIndex);
+            startInactivityTimer();
+        }
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+            showImage(currentIndex);
+            startInactivityTimer();
+        }
+        showImage(currentIndex);
+
+        var streaming = true;
+        function stopStreaming(){
+            streaming = false;
+        }
+        function startStreaming(){
+            streaming = true;
+        }
+
+        var ws = null;
+        function setup_ws(ws_url){
+            ws = new WebSocket(ws_url);
+            ws.onopen = () => console.log("Connected to server.");
+            ws.onmessage = (event) => {
+                if (streaming)
+                    liveStreamImage.src = "data:image/jpeg;base64," + event.data;
+            };
+            ws.onclose = () => {
+                console.log("WebSocket connection closed.");
+            };
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+        }
+        function close_ws(){
+            ws.close();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setup_ws("{{ws_url}}");
+
+            const recordButton = document.getElementById('recordButton');
+            const recordStatus = document.getElementById('recordStatus');
+            let isRecording = false;
+
+            recordButton.addEventListener('click', () => {
+                isRecording = !isRecording;
+                recordButton.classList.toggle('active', isRecording);
+                recordStatus.textContent = isRecording ? '停止对话' : '开始对话';
+                if (isRecording) {
+                    startRecording();
+                } else {
+                    //req_audio();
+                    stopRecording();
+                }
+            });
+
+            // 模式选择逻辑
+            const modeDropdown = document.getElementById('modeDropdown');
+            const knowledgeBaseContainer = document.getElementById('knowledgeBaseContainer');
+            modeDropdown.addEventListener('change', (e) => {
+                const selectedMode = e.target.value;
+                console.log(`Selected Mode: ${selectedMode}`);
+                
+                if (selectedMode === 'faq') {
+                    knowledgeBaseContainer.style.display = 'block';
+                    set_mode('faq');
+                } else {
+                    knowledgeBaseContainer.style.display = 'none';
+                    set_mode('chat');
+                }
+            });
+
+            // 知识库选择逻辑
+            const dropdown = document.getElementById("knowledgeBaseDropdown");
+            let selectedKnowledgeBaseId = null;
+            const apiEndpoint = `${window.location.protocol}//${window.location.host}/kdb/get_share_kdb`;
+
+            function fetchKnowledgeBase() {
+                fetch(apiEndpoint, {method: "POST"})
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        let info = data.share_info;
+                        populateDropdown(info);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        dropdown.innerHTML = '<option value="">Failed to load data</option>';
+                    });
+            }
+
+            function populateDropdown(items) {
+                dropdown.innerHTML = '';
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '选择知识库';
+                dropdown.appendChild(defaultOption);
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.kdb_id;
+                    option.textContent = item.title;
+                    dropdown.appendChild(option);
+                });
+            }
+
+            dropdown.addEventListener('change', function() {
+                const selectedId = this.value;
+                selectedKnowledgeBaseId = selectedId;
+                set_kdb_id(selectedId);
+            });
+
+            fetchKnowledgeBase();
+        });
+    </script>
+
+    <script>
+        set_session_id("{{session_id}}");
+        set_asr_url(`${window.location.protocol}//${window.location.host}/audiostreamchat`);
+    </script>
+
+    <script>
+        async function req_audio() {
+            interruptPlayback();
+            resetInactivityTimer();
+            const url = `${window.location.protocol}//${window.location.host}/streaming_chat/{{session_id}}`;
+            const response = await fetch(url, { method: "POST" });
+            await playStreamedPCM(response);
+        }
+        // Function to interrupt playback
+        async function interruptPlayback() {
+            const interruptEndpoint = `${window.location.protocol}//${window.location.host}/stop_audio/{{session_id}}`; // Replace with your actual API endpoint
+            await fetch(interruptEndpoint, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                //body: JSON.stringify({ session_id: "{{session_id}}" }) // Adjust payload as needed
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Playback interrupted:', data);
+            })
+            .catch(error => {
+                console.error('Error interrupting playback:', error);
+            });
+        }
+    </script>
+    <script>
+        const carouselContainer = document.querySelector('.carousel-container');
+        let startX = 0;
+
+        carouselContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            stopStreaming();
+        });
+
+        carouselContainer.addEventListener('touchend', (e) => {
+            let endX = e.changedTouches[0].clientX;
+            let diff = endX - startX;
+            if (diff > 50) {
+                prevImage();
+            } else if (diff < -50) {
+                nextImage();
+            }
+        });
+    </script>
+
+    <!-- 
+      ============= 新增：2 分钟不互动后，图片区域变灰并显示刷新按钮 =============
+      将下面脚本放在页尾，或与现有脚本合并 
+    -->
+    <script>
+      // 获取要变灰的图片 & 刷新按钮
+      const imageElement = document.getElementById('liveStream');
+      const refreshButton = document.getElementById('refreshButton');
+
+      // 设置全局不活跃时间（毫秒）
+      const INACTIVITY_LIMIT = 1 * {{timeout}} * 1000; // 1 分钟
+
+      let inactivityTimeout = null;
+
+      // 重置不活跃计时器
+      function resetInactivityTimer() {
+          // 如果已经有定时器在跑，先清除
+          if (inactivityTimeout) {
+              clearTimeout(inactivityTimeout);
+          }
+          // 重新开启定时器
+          inactivityTimeout = setTimeout(() => {
+              // 超过 1 分钟无操作 -> 执行变灰并显示刷新按钮
+              imageElement.style.filter = 'grayscale(100%)';
+              refreshButton.style.display = 'inline-block'; 
+              close_ws();
+          }, INACTIVITY_LIMIT);
+      }
+
+      // 页面重新加载
+      refreshButton.addEventListener('click', () => {
+          location.reload();
+      });
+
+      // 任意操作（点击、移动、键盘、触摸等）都重置计时器
+      const events = ['click', 'mousemove', 'keydown', 'touchstart', 'scroll'];
+      events.forEach(evt =>
+          window.addEventListener(evt, resetInactivityTimer, { passive: true })
+      );
+
+      // 页面初始化时先调用一次
+      resetInactivityTimer();
+    </script>
+    <script>
+    permission_req();
+    set_audio_callback(displayMsg);
+    set_audio_callback_start(req_audio);
+    //set_interrupt_callback(interruptPlayback);
+    set_speaker_id("{{speaker_id}}")
+    </script>
+<!-- 底部收藏栏 -->
+  <div class="footer-collect">
+    <!--<button id="collectBtn" class="collect-btn">收藏当前页面</button>-->
+    请收藏当前页面以便后续对话。
+  </div>
+  
+  <script>
+    // 点击收藏按钮时执行
+    document.getElementById('collectBtn').addEventListener('click', function() {
+      // 获取当前页面 URL
+      const currentURL = window.location.href;
+  
+      // 读取本地收藏列表
+      let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  
+      // 检查当前页面是否已被收藏
+      if (!favorites.includes(currentURL)) {
+        favorites.push(currentURL);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        alert('收藏成功！');
+      } else {
+        alert('您已收藏过本页面。');
+      }
+    });
+  </script>
+</body>
+</html>

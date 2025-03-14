@@ -29,6 +29,14 @@ spider_instance = None
 
 # Scrapy Spider
 # Scrapy Spider
+
+async def copyfile(urls,upload_file, res_file,filename,kdb_id):
+    shutil.copy(upload_file, res_file)
+    current_time = datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    await spider_db.insert_spider_data(urls, formatted_time, filename,upload_file)
+    await file_db.insert_file_info(kdb_id, True, formatted_time, upload_file)
+from multiprocessing import Process,Queue
 class MainContentSpider(scrapy.Spider):
     name = "main_content"
     start_urls = []  # 默认空列表，可以在外部传入
@@ -81,7 +89,7 @@ class MainContentSpider(scrapy.Spider):
             # 获取链接的域名
             full_url_domain = urlparse(full_url).netloc
             base_url_domains = [urlparse(base_url).netloc for base_url in self.base_urls]
-            print(f"Checking if '链接{full_url}的域名{full_url_domain}' is in {base_url_domains}: {full_url_domain in base_url_domains}")
+            #print(f"Checking if '链接{full_url}的域名{full_url_domain}' is in {base_url_domains}: {full_url_domain in base_url_domains}")
             # 检查该域名是否在 self.base_urls 中
             if full_url_domain in base_url_domains and full_url not in self.links:
                 yield response.follow(full_url, self.parse, headers=response.request.headers,
@@ -95,7 +103,7 @@ def create_scrapy_spider(url, output_file,depth_limit):
 
     settings.set('ROBOTSTXT_OBEY', False)
     runner = CrawlerRunner(settings)
-    deferred = runner.crawl(MainContentSpider, urls=[url], output_file=output_file)
+    deferred = runner.crawl(MainContentSpider, urls=url, output_file=output_file)
     #deferred.addBoth(lambda _: reactor.stop())
     # 将 defer 对象返回给 Twisted 用来等待爬虫结束
     deferred.addCallback(lambda _: reactor.callFromThread(reactor.stop))  # 使用 callFromThread 来停止 reactor
@@ -113,30 +121,22 @@ def get_T_url_local(kdb_id,user_id,urls,output_file,depth_limit,queue):
         deferred = deferToThread(create_scrapy_spider, url, output_file,depth_limit)
         reactor.run()
         return deferred
-
     # 启动并等待多个任务
-    d_list = [wrapper(url) for url in urls]
-    d_all = defer.DeferredList(d_list)
-    queue.put(d_all)
-
-    return  d_all
+    d_list = wrapper(urls)
+    queue.put(d_list)
+    return  queue
 def start_process(kdb_id, user_id, urls, output_file, depth_limit,queue):
     process = Process(target=get_T_url_local, args=(kdb_id, user_id, urls, output_file,depth_limit, queue))
     process.start()
     process.join()
+
 #运行爬虫
 async def run_spider(kdb_id, user_id, urls, output_file, depth_limit,queue):
     await asyncio.to_thread(start_process, kdb_id, user_id, urls, output_file,depth_limit, queue)
     # 获取进程返回的结果
     return queue.get()
 
-async def copyfile(urls,upload_file, res_file,filename,kdb_id):
-    shutil.copy(upload_file, res_file)
-    current_time = datetime.now()
-    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-    await spider_db.insert_spider_data(urls, formatted_time, filename,upload_file)
-    await file_db.insert_file_info(kdb_id, True, formatted_time, upload_file)
-from multiprocessing import Process,Queue
+
 @router.post("/spider")
 # 启动 Twisted 事件循环
 async def start_spider(request:Request):
@@ -145,32 +145,61 @@ async def start_spider(request:Request):
         body =  await request.json()  # 获取请求体
         kdb_id = body.get('kdb_id')  # 提取 kdb_date
         user_id = request.cookies.get("current_user")
-        resource = get_resource(request, "create_kdb")
         depth_limit = body.get("depth_limit", 1)
         urls = body.get("urls")
-        if not urls or (isinstance(urls, list) and len(urls) != 1) or (isinstance(urls, str) and not urls.strip()):
-            return {"is_successful": False, "message":resource.get("spider_d_mes")}
+        print("urls---- ;",urls)
+        # 处理 URLs
+        if urls:
+            # 对每个 URL 进行处理，去除空格并替换中文逗号为英文逗号
+            # 然后将每个 URL 按逗号分割成单独的 URL
+            urls_list = []
+            for url in urls:
+                # 替换中文逗号为英文逗号，去除两端空格
+                url = url.strip().replace("，", ",").replace(" ", "")
+                # 拆分 URL 字符串，以英文逗号为分隔符
+                urls_list.extend(url.split(','))
+        else:
+            urls_list = []
+
+
+        #https://baike.baidu.com/tashuo/browse/content?id=2792313e060689fb6910e868&fromModule=tashuo-article_tashuo-tab-item，https://baike.baidu.com/tashuo/browse/content?id=2cbe27ef415ff435757d4d6f&fromModule=tashuo-article_tashuo-tab-item
         file_name = body.get("file_name")
         file_name += ".txt"
+
         #这里已经路径+文件名的拼接
         output_file = os.path.join(get_user_path(), user_id, kdb_id, "uploaded_files", file_name)
+
+        # 判断是否已经存在该文件
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            change_source_flag = False
+        else:
+            change_source_flag = True
+        
         output_res_file = os.path.join(get_user_path(), user_id, kdb_id, "res_files")
         queue = Queue()
         # 异步执行爬虫任务
-        result = await run_spider(kdb_id, user_id, urls, output_file,depth_limit, queue)
+        result = await run_spider(kdb_id, user_id, urls_list, output_file,depth_limit, queue)
 
-        await copyfile(urls,output_file,output_res_file,file_name,kdb_id)
-        change_source(user_id, kdb_id, 1, 1)
+        await copyfile(urls_list,output_file,output_res_file,file_name,kdb_id)
+        if change_source_flag:
+            change_source(user_id, kdb_id, 1, 1)
         print("重建知识库 来自爬虫")
-        kdb = kdbm.create_or_get_rag(kdb_id=kdb_id)
+        kdb = await kdbm.create_or_get_rag(kdb_id=kdb_id)
         res_file_path = os.path.join(output_res_file, file_name)
         print("重建知识库 来自爬虫 文件的路径是：", res_file_path)
         await kdb.add_document(file_path=res_file_path)
 
-        return {"is_successful": True,"message":resource.get("spider_suf")}
-
+        return {"is_successful": True}
     except Exception as e:
-        return {"is_successful": False, "message":resource.get("spider_fail")}
+        print(e)
+        return {"is_successful": False}
 
-    
+
+
+
+
+
+
+
 

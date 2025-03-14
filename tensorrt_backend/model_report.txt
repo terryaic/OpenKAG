@@ -1,0 +1,24 @@
+hardware: ada6000
+model: mixtral 8x7b int4-32k
+
+--------streaming result---------
+
+input length:[28481]
+loading time:0.0961904525756836, runk:0
+first token latency:15.713932991027832
+
+input length:[14261]
+loading time:0.1181795597076416, runk:0
+first token latency:7.20625376701355
+
+input length:[7864]
+loading time:0.1998133659362793, runk:0
+first token latency:4.054940223693848
+
+input length:[3907]
+loading time:0.11127233505249023, runk:0
+first token latency:2.267479658126831
+
+---------none sreaming-------------------
+input length:[7864]
+loading time:16.83444595336914, runk:0

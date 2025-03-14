@@ -98,15 +98,20 @@ USING_LANGCHAIN = False
 RAG_USING_RERANK = False
 RAG_RERANK_MODEL = "./models/bge-reranker-base"
 RAG_EMBEDDING_MODEL = './models/bge-large-zh-v1.5'
+RAG_RERANK_TOP_K = 8
+TIMEOUT_RELEASE_INDEX = 600
 
 
 """
 用户角色和权限
 """
+IF_ANALYZE_ADDRESS = True
 USER_PERMISSIONS = {
-    "user":["rag"],
-    "vip":["rag","multimodal","graphrag"],
-    "admin":["rag","multimodal","graphrag","share"]
+    "anonymous_user":[],
+    "user":["rag","kdb","prompt","index","export"],
+    "vip":["rag","multimodal","graphrag","uploadfile","kdb","prompt","index","export"],
+    "admin":["rag", "multimodal", "graphrag", "share", "uploadfile", "kdb", "prompt", "index","export"] + \
+            (["address"] if IF_ANALYZE_ADDRESS else [])
 }
 
 """
@@ -116,16 +121,17 @@ USER_PERMISSIONS = {
 MULTIMODAL_API_KEY = "EMPTY"
 MULTIMODAL_BASE_URL = "http://localhost:8013/v1"
 MULTIMODAL_MODEL_NAME = None
+PDF_MODEL_PATH = "./models/YOLO/doclayout_yolo_ft.pt"
 
 #允许的文件后缀
-ALLOWEDEXTENSIONS = ['txt','md','xlsx','pptx','docx','doc','pdf',"mp3", "wav", "m4a", "flac", "aac", "ogg", "opus", "wma","mp4","mkv"]
-MUlTIMODAL_ALLOWEDEXTENSIONS = ['jpg', 'jpeg', 'raw', 'png']
+ALLOWEDEXTENSIONS = ['txt','md','xlsx','pptx','docx','doc','pdf',"mp3", "wav", "m4a", "flac", "aac", "ogg", "opus", "wma","ppt"]
+MUlTIMODAL_ALLOWEDEXTENSIONS = ['jpg', 'jpeg', 'raw', 'png', "webp"]
 
 # 多模态的清洗参数
 PNG_SCALE = 2
 PNG_DPI = 600
 PNG_BACKGROUND_COLOR = "white"
-IMAGE_MIN_SIZE = 100*100
+IMAGE_MIN_SIZE = 100*50
 IMAGE_MIN_WIDTH = 40
 IMAGE_MIN_HEIGHT = 40
 
@@ -149,8 +155,6 @@ DB_DEFAULT = "mongo"
 DBNAME = "haifengllm" #mongo的数据库名字
 MONGODB_HOST = "localhost"
 MONGODB_PORT = 27017
-
-
 
 
 """

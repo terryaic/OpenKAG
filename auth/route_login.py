@@ -1,7 +1,4 @@
 # -*- coding: UTF-8 -*-
-#from apis.version1.route_login import login_for_access_token
-#from db.session import get_db
-
 import time
 import random
 from fastapi import APIRouter
@@ -18,7 +15,7 @@ from sqlalchemy.future import select
 from fastapi.responses import RedirectResponse
 #from rag.apis.version1.route_login import pwd_context
 from fastapi.responses import JSONResponse
-from .models import User, UserCreate,EmailSchema,ResetPasswordSchema,DeleteUserRequest,UpdateUserRoleRequest,SearchUserRequest# 确保导入 User 模型
+from .models import User, UserCreate,EmailSchema,ResetPasswordSchema,DeleteUserRequest,disabledUserRequest,UpdateUserRoleRequest,SearchUserRequest# 确保导入 User 模型
 from .session import get_async_db, init_db  # 确保导入异步数据库会话
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -29,6 +26,7 @@ from apis.version1.route_login import get_resource
 from fastapi import HTTPException, status
 from db import session_mgr, modb_api
 from auth.check_login import check_login
+from fastapi.security import OAuth2PasswordRequestForm
 
 #from fastapi_login.exceptions import InvalidCredentialsException
 #from fastapi_login import LoginManager
@@ -74,49 +72,44 @@ def login(request: Request):
 
 
 @router.post("/login")
-async def login(request: Request ,session: AsyncSession = Depends(get_async_db)):
-    form = LoginForm(request)
-    await form.load_data()
+async def login(request: Request, response: Response, session: AsyncSession = Depends(get_async_db)):
+    body = await request.json()
+    email = body.get("email")
+    password = body.get("password")
 
-    # 如果表单无效，返回带有错误信息的模板
-    if not await form.is_valid():
-        return templates.TemplateResponse(
-            "auth/login.html",
-            {
-                "request": request,
-                "form": form,
-                "error_message": "Incorrect email or password.",  # 错误信息
-                "resources": get_resource(request, "login")
-            }
-        )
+    # 验证用户身份
+    user = await authenticate_user(session, email, password)
+    if user:
+        print("验证成功")
+        # 用户验证成功，设置 Cookie
+        response = await login_for_access_token(response, user.email)
+        return {"success": True}
+    else:
+        return {"success": False}
+    
+@router.get("/minichatbox/{kdb_id}/{extra_info}", include_in_schema=False)
+async def create_kdb(request: Request, kdb_id: str, extra_info: str):
+    return templates.TemplateResponse("simulate_login.html", {"request": request,
+                                                              "kdb_id": kdb_id,
+                                                              "extra_info": extra_info,
+                                                              "resources": get_resource(request, "simulate_login")})
+    
+@router.post("/mini_chatbox_init", include_in_schema=False)
+async def show_kdb(request: Request, response: Response):
+    from db.user_kdb_info import get_user_id
+    body = await request.json()  # 获取请求体
+    extra_info = body.get('extra_info')  # 提取 kdb_date
+    kdb_id = body.get('kdb_id')
 
-    # 如果表单有效，尝试认证用户
-    try:
-        email = form.username
-        password = form.password
-        user = await authenticate_user(session, email, password)
-        if user:
-            # 登录成功后返回到首页或其他页面
-            response = templates.TemplateResponse(
-                "/index.html",
-                {"request": request, "form": form, "current_user": email, "mode": "chat",
-                 "resources": get_resource(request, "index")}
-            )
-            await login_for_access_token(request=request, response=response, form_data=form, db=session)
-            return response
-
-    except HTTPException as e:
-        # 如果认证失败，返回错误信息
-        form.errors.append(str(e.detail))  # 将认证失败的错误信息加入错误列表
-        return templates.TemplateResponse(
-            "auth/login.html",
-            {
-                "request": request,
-                "form": form,
-                "error_message": "Incorrect email or password.",  # 错误信息
-                "resources": get_resource(request, "login")
-            }
-        )
+    import uuid
+    response = await login_for_access_token(response, "anonymous_user")
+    session_id = uuid.uuid4().hex
+    # 通过kdb_id获得user_id
+    user_id = get_user_id(kdb_id)
+    session_mgr.create_session(user_id, session_id, "", "", kdb_id, extra_info)
+    print("session_id是",session_id)
+    return {"session_id":session_id}
+   
 
 #async def login(request: Request, db: Session = Depends(get_db)):
 # async def login(request: Request):
@@ -166,7 +159,7 @@ async def register(
     existing_user = result.scalars().first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    result = await session.execute(select(User))
+    result = await session.execute(select(User).where(User.role == "admin"))
     existing_users = result.scalars().all()
     if not existing_users:
         user_role = 'admin'
@@ -305,9 +298,33 @@ async def checkAdmin(request: Request,db: AsyncSession = Depends(get_async_db)):
         raise HTTPException(status_code=403, detail="没有权限访问管理员界面")
     # 如果用户是管理员，返回成功
     return RedirectResponse(url="/admin",status_code=303)
+
+@router.post("/enterExport")
+async def enterExport(request: Request,db: AsyncSession = Depends(get_async_db)):
+    user_id = request.cookies.get("current_user")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="用户未登录")
+        # 查询数据库中的用户
+    async with db.begin():
+        result = await db.execute(select(User).filter_by(email=user_id))  # 假设 user_id 是 email 字段
+        user = result.scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="用户未找到")
+        # 获取用户的角色
+    role = user.role
+    # 根据角色决定是否有权限访问管理员界面
+    from settings import USER_PERMISSIONS
+    permission = USER_PERMISSIONS.get(role)
+    print("进入export history的权限是",permission)
+    if "export" not in permission:
+        raise HTTPException(status_code=403, detail="没有权限访问管理员界面")
+    # 如果用户是管理员，返回成功
+    return RedirectResponse(url="/admin",status_code=303)
+
 @router.get("/admin")
 async def admin_dashboard(request: Request):
-    return  check_login(request) or \
+    return  await check_login(request) or \
     templates.TemplateResponse("auth/admin.html", {"request": request, "resources": get_resource(request, "admin")})
 
 @router.post("/admin2user")
@@ -318,12 +335,45 @@ async def admin2user(request: Request, db: AsyncSession = Depends(get_async_db))
         raise HTTPException(status_code=400, detail="用户未登录")
     # 查询所有用户的 email 和 role，排除当前用户
     async with db.begin():
-        result = await db.execute(select(User.email, User.role).filter(User.email != current_user_email))
+        result = await db.execute(select(User.email, User.role, User.disabled).filter(User.email != current_user_email))
         users = result.fetchall()  # 获取查询结果
     # 将查询结果转化为列表格式
-    user_list = [{"email": user.email, "role": user.role} for user in users]
+    user_list = [{"email": user.email, "role": user.role, "disabled": user.disabled} for user in users]
     return user_list
 
+@router.post("/disableUser")
+async def disableUser(request: Request, data: disabledUserRequest, db: AsyncSession = Depends(get_async_db)):
+    # 从请求体中获取 email
+    email = data.email
+    disabled = data.disabled
+    print("是否禁用用户=======>",disabled)
+    # 获取当前登录用户的 email
+    current_user_email = request.cookies.get("current_user")
+    if not current_user_email:
+        raise HTTPException(status_code=400, detail="用户未登录")
+
+    # 查询当前用户是否为管理员
+    async with db.begin():
+        result = await db.execute(select(User).filter_by(email=current_user_email))
+        current_user = result.scalars().first()
+
+    if not current_user:
+        raise HTTPException(status_code=404, detail="用户未找到")
+
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="没有权限删除用户")
+
+    # 查询用户
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户未找到")
+
+    # 哈希新密码并更新
+    user.disabled = disabled
+    await db.commit()  # 提交更改
+    #await session.refresh(user)  # 刷新用户数据
+    return JSONResponse(content={"message": f"用户 {email} 禁用成功"}, status_code=200)
 
 @router.post("/deleteUser")
 async def delete_user(request: Request, data: DeleteUserRequest, db: AsyncSession = Depends(get_async_db)):

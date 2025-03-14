@@ -1,0 +1,22 @@
+{
+    "title":"OpenKAG",
+    "return": "返回",
+    "export_history":"导出聊天记录",
+    "session_title":"聊天标题",
+    "session_title_mes":"请输入聊天标题",
+    "start_date":"开始日期",
+    "start_date_mes":"请选择开始日期",
+    "end_date":"结束日期",
+    "end_date_mes":"请选择结束日期",
+    "export_all":"导出全部",
+    "filter_record":"筛选记录",
+    "reset_filter":"重置筛选",
+    "clean_select":"清除选择",
+    "select_all":"选择全部",
+    "export_select":"导出已选",
+    "history":"历史记录",
+    "history_show":"聊天记录会显示在这里",
+    "date_input":"Y年m月d日",
+    "date_language":"zh",
+    "extra_info":"额外信息"
+}

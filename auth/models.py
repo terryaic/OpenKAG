@@ -34,6 +34,9 @@ class ResetPasswordSchema(BaseModel):
     verification_code: str
 class DeleteUserRequest(BaseModel):
     email: str
+class disabledUserRequest(BaseModel):
+    email: str
+    disabled: bool
 class UpdateUserRoleRequest(BaseModel):
     email: str
     new_role: str

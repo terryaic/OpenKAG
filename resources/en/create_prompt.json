@@ -1,7 +1,7 @@
 {
     "return":"back",
-    "prompt_name":"name of the prompt",
-    "share_prompt":"Do you want to share this prompt",
+    "prompt_name":"Name of prompt",
+    "share_prompt":"Share this prompt",
     "yes":" Yes",
     "no":"No",
     "prompt_content":"Content of the prompt",
@@ -13,5 +13,6 @@
     "save_prompt_use_mes":"Please enter a valid prompt",
     "change_prompt_save_mes":"Please modify the prompt",
     "save_prompt_suf":"Successfully saved prompt content",
-    "title":"Prompt"
+    "title":"Prompt",
+    "new_prompt":"New Prompt"
 }

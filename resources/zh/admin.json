@@ -3,5 +3,7 @@
     "user": "用户:",
     "search": "在这里搜索用户",
     "confirmed": "将用户角色更改为",
-    "dataTypeError": "数据类型错误"
+    "dataTypeError": "数据类型错误",
+    "disabled_mes":"你确定要禁用这个用户吗？",
+    "unlocked_mes":"你确定解除这个用户的禁用吗？"
 }

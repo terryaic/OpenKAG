@@ -134,7 +134,7 @@ uploadForm.addEventListener('submit', function(event) {
 
     rebuildBtn.classList.add("disabled")
     rebuildBtn.disabled = true;
-    showAlert(resources["upload_mes"]+"!",false,false);
+    showAlert(resources["upload_mes"]+"!",false,false,"uploading_mes");
     // 调用上传文件的函数
     uploadFiles(formData);
 });
@@ -145,6 +145,23 @@ rebuildBtn.addEventListener('click', async function() {
 });
 
 fileInput.addEventListener('change', handleFiles, false);
+
+function getUniqueFileName(fileName, existingFiles) {
+    // 分离文件名和扩展名
+    const namePattern = /(.*?)(\((\d+)\))?(\.[^.]+)?$/;
+    const match = fileName.match(namePattern);
+
+    let baseName = match[1]; // 文件名的主体部分
+    let number = match[3] ? parseInt(match[3], 10) : 0; // 括号中的数字
+    let extension = match[4] || ""; // 文件扩展名
+
+    let newFileName = fileName;
+    while (existingFiles.includes(newFileName)) {
+        number += 1;
+        newFileName = `${baseName}(${number})${extension}`;
+    }
+    return newFileName;
+}
 
 // 处理上传的文件
 function handleFiles() {
@@ -172,12 +189,28 @@ function handleFiles() {
             continue; // 跳过大小为 0 的文件
         }
 
+        // 检查是否云端已经有该文件
+        if (exitst_file_upload.includes(fileName)) {
+            showAlert(resources["ex_file"],true)
+            let uniqueFileName = getUniqueFileName(fileName, exitst_file_upload);
+            console.log("重复后新的文件名：",uniqueFileName)
+
+            const renamedFile = new File([file], uniqueFileName, {
+                type: file.type,
+                lastModified: file.lastModified,
+            });
+    
+            validFiles.push(renamedFile); // 添加到有效文件数组
+            exitst_file_upload.push(uniqueFileName); // 更新文件名记录
+            continue;
+        }
 
         if (allowedExtensions.includes(fileExtension)) {
             validFiles.push(file);  // 符合条件的文件添加到 validFiles 数组
         } else {
             showAlert(resources["file"] +":"+ fileName +" "+ resources["type_to_allow"] +":" + allowedExtensions.join(', '),true)
         }
+
     }
 
     // 将新的有效文件添加到已上传的文件列表中
@@ -221,6 +254,11 @@ function displayUploadingFiles() {
 
 // 从上传文件列表中删除文件
 function removeFile(index) {
+    const fileName = uploadedFiles[index].name; // 获取文件名
+    const index_ex = exitst_file_upload.indexOf(fileName); // 查找文件名的索引
+    if (index_ex !== -1) {
+        exitst_file_upload.splice(index_ex, 1); // 移除该文件名
+    }
     // 删除指定索引的文件
     uploadedFiles.splice(index, 1);
 
@@ -228,19 +266,19 @@ function removeFile(index) {
     let dataTransfer = new DataTransfer();
     uploadedFiles.forEach(file => {
         dataTransfer.items.add(file); // 将剩余文件加入新的 FileList
+        
     });
     fileInput.files = dataTransfer.files; // 更新 fileInput.files
-
     // 更新文件展示
     displayUploadingFiles();
 }
 
 
-async function startAnalyzeFiles(kdb_id, prompt_name, clean_data, file_names) {
+async function startAnalyzeFiles(kdb_id, prompt_name, if_use_muilt, file_names) {
     setTimeout(() => uploadProgress(kdb_id), 1000);  // 延迟一秒
 
     const requestBody = {
-        kdb_id: kdb_id , prompt_name: prompt_name, clean_data: clean_data, file_names: file_names
+        kdb_id: kdb_id , prompt_name: prompt_name, if_use_muilt: if_use_muilt, file_names: file_names
     }
 
     const response = await fetch(srv_url+'/kdb/analyze_files', {
@@ -250,7 +288,6 @@ async function startAnalyzeFiles(kdb_id, prompt_name, clean_data, file_names) {
         },
         body: JSON.stringify(requestBody)
     });
-
 }
 
 function uploadFiles(formData) {
@@ -261,7 +298,7 @@ function uploadFiles(formData) {
     })
     .then(response => response.json())
     .then(data => {
-        display_showAlert()
+        display_showAlert("uploading_mes")
         if(data.file_names){
             analyzing_files = data.file_names
         }
@@ -273,7 +310,7 @@ function uploadFiles(formData) {
             const buttonText = submitBtn.querySelector(".button-text");
             buttonText.textContent = resources["analyzing"]
             // 开始分析文件
-            startAnalyzeFiles(kdb_id, prompt_name, clean_data, data.file_names)      
+            startAnalyzeFiles(kdb_id, prompt_name, if_use_muilt, data.file_names)      
         }
     })
     .catch(error => {
@@ -304,6 +341,7 @@ function refreshFileList() {
     .then(response => response.json())
     .then(files => {
         existingFilesList.innerHTML = '';
+        exitst_file_upload = files
         files.forEach(file => {
             let li = document.createElement('li');
             li.id = file
@@ -317,7 +355,7 @@ function refreshFileList() {
             // 为文件名添加点击事件
             fileName.addEventListener('click', function(event) {
                 event.stopPropagation();  // 阻止事件冒泡，防止触发 li 的点击事件
-                downloadFile(kdb_id, file);  // 调用下载函数
+                downloadFile(kdb_id, file, true);  // 调用下载函数
             });
         
             li.appendChild(fileName);  // 将文件名添加到 <li> 中
@@ -363,12 +401,102 @@ function refreshFileList() {
 
 
 
+function refreshResFileList() {
+    const requestBody = { kdb_id: kdb_id, path_dir: now_dir}; // 创建一个包含 kdb_id 的对象
 
-function downloadFile(kdb_id, fileName) {
+    fetch(`${srv_url}/kdb/res_files`, {
+        method: 'POST',
+        credentials: 'include', // 发送 cookie
+        headers: {
+            'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+        },
+        body: JSON.stringify(requestBody) // 将对象转为 JSON 字符串
+    })
+    .then(response => response.json())
+    .then(files => {
+        const keys = Object.keys(files);
+        const filteredKeys = keys.filter(key => key === "" || !key.includes('/'));
+        analyzed_files.innerHTML = '';
+        for (const key of filteredKeys) {
+            if(key === ""){
+                if (now_dir.length) {
+                    // 添加返回按钮
+                    let backBtn = document.createElement('button');
+                    backBtn.className = 'delete-btn'
+                    backBtn.innerText = resources["return"];
+                    backBtn.onclick = function(event) { 
+                        event.stopPropagation();  // 阻止事件冒泡
+                        now_dir.pop();
+                        refreshResFileList()
+                        
+                    };                    
+                    analyzed_files.appendChild(backBtn);
+                }
+                files[key].forEach(file => {
+                    let li = document.createElement('li');
+                    li.id = file
+                    li.className = "file-li"
+                    // 创建一个显示文件名的 <span> 元素
+                    let fileName = document.createElement('span');
+                    fileName.innerText = file;
+                    // 只为文件名添加悬停手势
+                    fileName.style.cursor = 'pointer';  // 设置鼠标悬停时为指针形状
+            
+                    // 为文件名添加点击事件
+                    fileName.addEventListener('click', function(event) {
+                        event.stopPropagation();  // 阻止事件冒泡，防止触发 li 的点击事件
+                        downloadFile(kdb_id, file, false);  // 调用下载函数
+                    });
+                
+                    li.appendChild(fileName);  // 将文件名添加到 <li> 中
+
+                    let showBtn = document.createElement('button');
+                    showBtn.className = 'delete-btn'
+                    showBtn.innerText = resources["show"];
+                    showBtn.onclick = function(event) { 
+                        event.stopPropagation();  // 阻止事件冒泡
+                        showResFile(kdb_id, file);
+                        
+                    };                    
+                    li.appendChild(showBtn);
+                    analyzed_files.appendChild(li);
+                });
+            }else{
+                let li = document.createElement('li');
+                li.id = key
+                li.className = "file-li"
+                // 创建一个显示文件名的 <span> 元素
+                let fileName = document.createElement('span');
+                fileName.innerText = key;
+                // 只为文件名添加悬停手势        
+                li.appendChild(fileName);  // 将文件名添加到 <li> 中
+
+                let showBtn = document.createElement('button');
+                showBtn.className = 'delete-btn'
+                showBtn.innerText = resources["enter"];
+                showBtn.onclick = function(event) { 
+                    event.stopPropagation();  // 阻止事件冒泡
+                    now_dir.push(key)
+                    refreshResFileList()
+                };                    
+                li.appendChild(showBtn);
+                analyzed_files.appendChild(li);
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+
+
+function downloadFile(kdb_id, fileName, if_from_upload) {
     // 创建请求体数据
     const requestData = {
         kdb_id: kdb_id,
-        filename: fileName
+        path_dir: now_dir,
+        filename: fileName,
+        if_from_upload: if_from_upload
     };
 
     fetch(srv_url+"/kdb/download", {
@@ -413,6 +541,7 @@ function deleteFile(kdbId,fileName) {
     .then(response => response.json())
     .then(data => {
         refreshFileList();
+        refreshResFileList();
         showAlert(data.message)
         // 判断是否禁用rag按钮
         if(!data.rag_search){
@@ -432,6 +561,38 @@ function deleteFile(kdbId,fileName) {
         console.error(resources["error"], data.message)
     });
 }
+
+function showResFile(kdbId,fileName){
+    const requestData = {
+        kdb_id: kdbId,
+        path_dir: now_dir,
+        filename: fileName
+    };
+    fetch(`${srv_url}/kdb/showResFile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(file_content => {
+        // 显示文件内容到模态窗口
+        fileContentElement.textContent = file_content;
+
+        // 显示模态窗口
+        modalOverlay.style.display = 'flex';
+    })
+    .catch(error => {
+        showAlert(data.message,true)
+        console.error(resources["error"], data.message)
+    });
+}
+
+// 点击关闭按钮时，隐藏模态窗口
+closeButton.addEventListener('click', () => {
+    modalOverlay.style.display = 'none';
+  });
 
 async function rebuildKnowledgeBase() {
     // 显示加载圈和禁用按钮
@@ -465,18 +626,18 @@ async function rebuildKnowledgeBase() {
 }
 
 
-function display_showAlert() {
-    const alertDiv_old = document.getElementById('alert_show_area');
+function display_showAlert(id) {
+    const alertDiv_old = document.getElementById(id);
     if(alertDiv_old){
         alertDiv_old.remove();
     }
 }
 
-function showAlert(message, isError = false, timeout=true) {
+function showAlert(message, isError = false, timeout=true, show_id="alert_show_area") {
     const main_content = document.getElementById("main_content");
     let alertDiv = document.createElement('div');
     alertDiv.className = 'alert';
-    alertDiv.id = "alert_show_area"
+    alertDiv.id = show_id
     if (isError) {
         alertDiv.style.backgroundColor = '#f8df01'; // Red for errors
     }
@@ -492,7 +653,11 @@ function showAlert(message, isError = false, timeout=true) {
 }
 
 // 当页面加载完成时，刷新文件列表
-window.onload = refreshFileList;
+window.onload = function () {
+    refreshFileList();
+    refreshResFileList();
+};
+
 
 function check_start(){
     const requestBody = { kdb_id: kdb_id }; // 创建一个包含 kdb_id 的对象

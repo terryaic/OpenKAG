@@ -9,7 +9,7 @@
     "faq_": "Ask AI to retrieve information from docs",
     "graph": "Advanced Knowledge Retrieval",
     "graph_": "Retrive information on knowledge graph",
-    "haifeng": "HaiFeng",
+    "haifeng": "OpenKAG",
     "session": "Chat List",
     "kdb": "Knowledge Base",
     "prompt": "Prompt",
@@ -22,7 +22,7 @@
     "PublicKnowledge": "Share Knowledge",
     "MyPromptT": "My prompt:",
     "SharePromptT": "Shared prompt:",
-    "Noprompt": "No prompt,PLZ create first",
+    "Noprompt": "No prompt,please create first",
     "graphrag_anwser_text": "Generating answer...",
     "graphrag_el_text": "Generating clickable events to view entities and relationships... ",
     "entity_info":"Entity information",
@@ -46,7 +46,21 @@
     "save":"save",
     "re_mes":"The recording time is too short. Please press and hold the recording button to record.",
     "restore":"Restore graph",
-    "save_image":" Download Graph"
+    "save_image":" Download Graph",
+    "node_title":"Used file information",
+    "export_session":"Export chat history",
+    "file":"file",
+    "fail":"failed",
+    "delete_file_mes":"An error occurred while deleting the file, please try again later.",
+    "file_size_zero":"The file size is 0!",
+    "file_type_mes":"The file type is not supported!",
+    "file_duplicate":"is a duplicate file and has been removed!",
+    "send_error":"Message sending failed!Message sending failed!",
+    "analyzing_file":"Analyzing file, please wait!",
+    "today":"Today",
+    "yesteday":"Yesterday",
+    "psday":"Previous 7 Days",
+    "moreday":"Longer"
 }
 
 

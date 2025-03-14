@@ -30,29 +30,65 @@
 
 
     <div class="row my-5">
-      <form method="POST" class="layui-form layui-form-pane">
-        <div class="mb-3">
+      <div class="layui-form layui-form-pane">
+        <div class="mb-3">      
           <label>{{resources['email']}}</label>
-          <input type="text" required placeholder="{{resources['email_']}}" name="email" value="{{email}}" class="form-control">
+          <input id="email" type="text" required placeholder="{{resources['email_']}}" name="email" value="{{email}}" class="form-control">
         </div>
+
         <div class="mb-3">
           <label>{{resources['password']}}</label>
-          <input type="password" required placeholder="{{resources['password_']}}" value="{{password}}" name="password" class="form-control">
+          <input id="password" type="password" required placeholder="{{resources['password_']}}" value="{{password}}" name="password" class="form-control">
         </div>
-        <button type="submit" class="btn btn-primary">{{resources['login']}}</button>
+
+        <button type="submit" class="btn btn-primary" onclick="checkLogin()">{{resources['login']}} </button>
 
         <button id="register-button" onclick="clearInputAndRedirect()"  class="btn btn-secondary">{{resources['register']}}</button>
         <a href="/reset_password" class="text-primary small">{{resources['reset_password']}}？</a>
-      </form>
+      </div>
     </div>
   </div>
 <script>
+  function checkLogin() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if(!(email && password)){
+        alert("{{resources['ep_none']}}")
+        return
+      }
+
+      // 使用 fetch API 提交数据到服务器
+      fetch(`${window.location.protocol}//${window.location.host}/login`, {
+          method: 'POST',
+          credentials: 'include', // 发送 cookie
+          headers: {
+              'Content-Type': 'application/json' // 设置请求体的内容类型为 JSON
+          },
+          body: JSON.stringify({email: email, password: password})
+      })
+      .then(response => response.json())
+      .then(data => {
+          // 登录成功后，手动重定向到目标页面
+          if (data.success) {
+              window.location.href = "/"; // 重定向到主页或其他页面
+          }else{
+            alert("{{resources['login_fail']}}");
+          }
+      })
+      .catch(error => {
+          // 登录失败，提示错误
+          alert("{{resources['login_fail']}}");
+          console.error('Error:', error);
+      });
+    }
 
     function clearInputAndRedirect() {
       document.querySelector('input[name="email"]').value = '';
       document.querySelector('input[name="password"]').value = '';
       window.location.href = '/register';
     }
+    
   {% if error_message %}
       setTimeout(function() {
         var errorMessage = document.getElementById("error-message");

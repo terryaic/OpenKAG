@@ -50,4 +50,20 @@ echo "开始下载模型 $MODEL_NAME 到 $MODEL_DIR ..."
 huggingface-cli download --resume-download "$MODEL_NAME" --local-dir "$MODEL_DIR"
 echo "$MODEL_NAME 下载完成！"
 done
+
+# 保存目录
+YOLO_SAVE_DIR="./models/YOLO"
+
+# 使用 wget 直接下载
+YOLO_URL="https://hf-mirror.com/opendatalab/PDF-Extract-Kit-1.0/resolve/main/models/Layout/YOLO/doclayout_yolo_ft.pt"
+
+if [ ! -f "$YOLO_SAVE_DIR/doclayout_yolo_ft.pt" ]; then
+  echo "开始下载 YOLO 模型到 $YOLO_SAVE_DIR ..."
+  mkdir -p "$YOLO_SAVE_DIR"
+  wget -c "$YOLO_URL" -O "$YOLO_SAVE_DIR/doclayout_yolo_ft.pt"
+  echo "YOLO 模型下载完成！"
+else
+  echo "YOLO 模型已存在，跳过下载！"
+fi
+
 echo "所有模型下载完成！"

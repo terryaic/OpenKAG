@@ -11,8 +11,7 @@ async_client = AsyncOpenAI(
 
 conversation_history = []
 
-def chat_with_openai(user_message):
-
+def chat_with_openai(user_message, callback=None):
     # 用户消息加入对话历史
     conversation_history.append({"role": "user", "content": user_message})
     
@@ -28,17 +27,19 @@ def chat_with_openai(user_message):
     
     # 遍历流式响应
     for chunk in response:
-        if chunk.choices!=None:
+        if chunk.choices:
             delta =chunk.choices[0].delta
-            if delta.content!=None:
+            if delta.content:
                 # 实时打印并累积助手的内容
                 text = delta.content
-                print(text, end="", flush=True)
+                if callback:
+                    callback(text)
+                else:
+                    print(text, end="", flush=True)
                 assistant_reply += text  # 累积完整回复
     
     # 将助手回复加入对话历史
     conversation_history.append({"role": "assistant", "content": assistant_reply})
-    print("")
     # 返回完整的助手回复
     return assistant_reply
 
@@ -72,7 +73,7 @@ async def async_chat_with_openai(user_message):
     # 返回完整的助手回复
     return assistant_reply
 
-async def async_chat(messages, send_text):
+async def async_chat(messages, callback, session=None):
     stop_chat = False
     # 存储助手回复
     assistant_reply = ""
@@ -83,15 +84,36 @@ async def async_chat(messages, send_text):
             messages=messages,
             stream=True  # 启用流式输出
         ):
-
-        if chunk.choices!=None:
+        if session is not None and session.stop_chat:
+            stop_chat = True
+            break
+        if chunk.choices:
             delta =chunk.choices[0].delta
-            if delta.content!=None:
-                # 实时打印并累积助手的内容
+            if delta.content:
                 text = delta.content
                 #print(text, end="", flush=True)
                 assistant_reply += text  # 累积完整回复
-                await send_text(text)
+                await callback(text)
+    return stop_chat
+
+def chat(messages, callback):
+    stop_chat = False
+    # 存储助手回复
+    assistant_reply = ""
+
+    # 调用OpenAI API，开启流式输出
+    for chunk in client.chat.completions.create(
+            model=get_llm_model(),  # 模型名称（GPT-4等）
+            messages=messages,
+            stream=True  # 启用流式输出
+        ):
+        if chunk.choices:
+            delta =chunk.choices[0].delta
+            if delta.content:
+                text = delta.content
+                #print(text, end="", flush=True)
+                assistant_reply += text  # 累积完整回复
+                callback(text)
     return stop_chat
 
 if __name__ == "__main__":

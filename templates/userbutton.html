@@ -11,7 +11,7 @@
     display: inline-flex;
     align-items: center;
     position: fixed;
-    top: 20px;
+    top: 23px;
     right: 20px;
     z-index: 1000;
     white-space: nowrap;
@@ -25,11 +25,11 @@
 .dropdown-menu-user {
     display: none; /* 默认隐藏 */
     position: absolute;
-    top: 70px; /* 位于按钮下方 */
+    top: 75px; /* 位于按钮下方 */
     right: 20px; /* 与按钮右对齐 */
     background-color: #ffffff;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 10px;
     z-index: 1001;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
@@ -41,6 +41,7 @@
     font-size: 16px;
     display: block;
     padding: 5px 10px;
+    border-radius: 8px;
 }
 
 .dropdown-menu-user a:hover {
@@ -53,12 +54,12 @@
     position: absolute;
     bottom: 0;  /* 使菜单显示在changeLanguage按钮的底部 */
     right: 100%;  /* 让菜单显示在changeLanguage的左边 */
-    margin-right: 10px;  /* 稍微给菜单添加间距 */
+    margin-right: 5px;  /* 稍微给菜单添加间距 */
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: none;  /* 默认隐藏菜单 */
-    min-width: 120px;  /* 设置一个最小宽度，确保菜单不会太小 */
+    min-width: 80px;  /* 设置一个最小宽度，确保菜单不会太小 */
     white-space: nowrap;  /* 防止文本换行 */
 }
 
@@ -83,6 +84,7 @@
     <a href="#" id="logoutButton">{{resources['logout']}}</a>
     <a href="#" id="enterAdmin">{{resources['admin']}} </a>
     <a href="#" id="changeLanguage">{{resources['language']}} </a>
+    <a href="#" id="export_session">{{resources['export_session']}} </a>
 
      <!-- 语言选择菜单 -->
      <div id="languageMenu" class="language-menu" style="display: none;">
@@ -130,6 +132,7 @@ fetchUserInfo();
 userButton.addEventListener("click", (event) => {
     event.stopPropagation(); // 阻止点击事件冒泡
     dropdownMenuUser.style.display = dropdownMenuUser.style.display === "none" ? "block" : "none";
+    document.getElementById('languageMenu').style.display = 'none';
 });
 
 // 点击退出链接触发登出请求
@@ -146,11 +149,11 @@ logoutButton.addEventListener("click", async (event) => {
         if (response.ok) {
             window.location.href = "/login"; // 重定向到登录页面
         } else {
-            alert("{{resources['LogoutFail']}}");
+            showPopup("{{resources['LogoutFail']}}")
         }
     } catch (error) {
         console.error("{{resources['LogoutFail']}}:", error);
-        alert("{{resources['error']}}");
+        showPopup("{{resources['error']}}")
     }
 });
 enterAdmin.addEventListener("click", async (event) => {
@@ -166,11 +169,11 @@ enterAdmin.addEventListener("click", async (event) => {
         if (response.ok) {
             window.location.href = "/admin"; // 重定向到登录页面
         } else {
-            alert("{{resources['NoPermission']}}");
+            showPopup("{{resources['NoPermission']}}")
         }
     } catch (error) {
         console.error(error);
-        alert("{{resources['error']}}");
+        showPopup("{{resources['error']}}")
     }
 });
 
@@ -178,6 +181,7 @@ enterAdmin.addEventListener("click", async (event) => {
 document.addEventListener("click", (event) => {
     if (!userButton.contains(event.target) && !dropdownMenuUser.contains(event.target)) {
         dropdownMenuUser.style.display = "none";
+        document.getElementById('languageMenu').style.display = 'none';
     }
 });
 </script>
@@ -233,5 +237,25 @@ document.getElementById('languageEnglish').addEventListener('click', function(ev
     changeLanguage("en-US");
 });
 
+document.getElementById("export_session").addEventListener("click", async (event) => {
+    event.preventDefault(); // 阻止默认链接跳转
+    try {
+        const response = await fetch("/enterExport", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (response.ok) {
+            window.location.href = `${window.location.protocol}//${window.location.host}/export_history`
+        } else {
+            showPopup("{{resources['NoPermission']}}")
+        }
+    } catch (error) {
+        console.error(error);
+        showPopup("{{resources['error']}}")
+    }
+});
 
 </script>

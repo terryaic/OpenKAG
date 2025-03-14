@@ -4,7 +4,7 @@ import pandas as pd
 import tiktoken
 import sys
 import json
-
+import re
 from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
 from graphrag.query.indexer_adapters import (
     read_indexer_covariates,
@@ -267,6 +267,9 @@ async def local_search(
                     continue
                 if callback:
                     stream_chunk = stream_chunk.strip('"')  # 先去掉两端的空格，再去掉引号
+                    stream_chunk = re.sub(r'##', r'\n##', stream_chunk)
+                    # stream_chunk = re.sub(r'(?<=\S)(#\s*)', r'\n\1', stream_chunk)   # 在 '#' 前加换行
+
                     await callback(stream_chunk)
 
                 if get_context_data:

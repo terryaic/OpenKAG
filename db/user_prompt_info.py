@@ -13,17 +13,9 @@ if DB_DEFAULT == "mongo":
     db = client[DBNAME]
 
 elif DB_DEFAULT == "sqlite":
-    db_dir = os.path.dirname(db_path)
-    if db_dir and not os.path.exists(db_dir):
-        os.makedirs(db_dir)
-
     # 连接数据库并创建表
-    try:
-        db = sqlite3.connect(db_path, check_same_thread= False)
-        # 设置 row_factory 为 sqlite3.Row 以便返回字典格式的查询结果
-        db.row_factory = sqlite3.Row
-        cursor = db.cursor()
-        cursor.execute("""
+    from .init_db import execute_sql
+    sql_query ="""
             CREATE TABLE IF NOT EXISTS user_prompt_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT NOT NULL,
@@ -32,10 +24,9 @@ elif DB_DEFAULT == "sqlite":
                 date TEXT NOT NULL,
                 content TEXT NOT NULL
             );
-        """)
-        db.commit()
-    except sqlite3.OperationalError as e:
-        print(f"Error initializing SQLite database: {e}")
+        """
+    # 调用 execute_sql 函数执行 SQL 语句
+    execute_sql(sql_query, None)
 
 
 def get_user_prompt(user_id):
@@ -49,18 +40,11 @@ def get_user_prompt(user_id):
         return results_list
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        
-        # 使用参数化查询来传入 user_id
-        cursor.execute("""
-            SELECT * FROM user_prompt_info WHERE user_id = ?;
-        """, (user_id,))
-
-        db.commit()
-
-        # 获取查询结果
-        results = cursor.fetchall()
+        sql_query ="""
+                 SELECT * FROM user_prompt_info WHERE user_id = ?;
+            """
+        params = (user_id,)
+        results = execute_sql(sql_query, params)
 
         if not results:
             return None
@@ -68,8 +52,7 @@ def get_user_prompt(user_id):
         # 转换每一行结果为字典
         dict_results = []
         for row in results:
-            row_dict = dict(row)  # 将每个 Row 对象转换为字典
-            
+            row_dict = dict(row)  # 将 sqlite3.Row 转换为字典
             # 判断并转换 'share' 字段的值
             if 'share' in row_dict:
                 row_dict['share'] = True if row_dict['share'] == "1" else False
@@ -90,18 +73,10 @@ def get_share_prompt():
         return results_list
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-
-        # 使用参数化查询来传入 user_id
-        cursor.execute("""
-            SELECT * FROM user_prompt_info WHERE share = 1;
-        """)
-
-        db.commit()
-
-        # 获取查询结果
-        results = cursor.fetchall()
+        sql_query ="""
+                SELECT * FROM user_prompt_info WHERE share = 1;
+            """
+        results = execute_sql(sql_query, None)
 
         if not results:
             return None
@@ -109,8 +84,7 @@ def get_share_prompt():
         # 转换每一行结果为字典
         dict_results = []
         for row in results:
-            row_dict = dict(row)  # 将每个 Row 对象转换为字典
-            
+            row_dict = dict(row)  # 将 sqlite3.Row 转换为字典
             # 判断并转换 'share' 字段的值
             if 'share' in row_dict:
                 row_dict['share'] = True if row_dict['share'] == "1" else False
@@ -140,20 +114,15 @@ def add_user_prompt(user_id, title, share, date, content):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 插入数据
-        cursor = db.cursor()
-
-        print("插入数据", record)
-
-        cursor.execute("""
+        sql_query = """
             INSERT INTO user_prompt_info (user_id, title, share, date, content)
             VALUES (?, ?, ?, ?, ?)
-        """, (record['user_id'], record['title'], record['share'], 
-              record['date'], record['content']))
-        
-        # 提交事务
-        db.commit()
-        return cursor.lastrowid
+        """
+        params = (record['user_id'], record['title'], record['share'], 
+              record['date'], record['content'])
+        rows = execute_sql(sql_query, params)
+
+        return rows
     
 
 def if_title_exists(title):
@@ -169,19 +138,11 @@ def if_title_exists(title):
             return None
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        # 使用 JSON 查询提取指定 kdb_id 的 share 字段
-
-        # 使用参数化查询来传入 title
-        cursor.execute("""
+        sql_query = """
             SELECT * FROM user_prompt_info WHERE title = ?;
-        """, (title,))
-
-        db.commit()
-
-        # 获取所有查询结果
-        results = cursor.fetchall()
+        """
+        params = (title,)
+        results = execute_sql(sql_query, params)
 
         # 判断是否有匹配的结果
         if results:
@@ -204,18 +165,12 @@ def get_share_type(title):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        # 使用 JSON 查询提取指定 kdb_id 的 share 字段
-
-        cursor.execute("""
-            SELECT *  FROM user_prompt_info
-            WHERE title = ? 
-        """, (title,))
-
-        db.commit()
-
-        row = cursor.fetchone()
+        sql_query = """
+            SELECT * FROM user_prompt_info WHERE title = ? 
+        """
+        params = (title,)
+        row = execute_sql(sql_query, params, True)
+        
         if row:
             share_value = bool(row[0])
             return share_value
@@ -236,16 +191,12 @@ def get_all_prompt_title(user_id):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT *   FROM user_prompt_info
-            WHERE user_id = ?;
-        """, (user_id,))
+        sql_query = """
+            SELECT * FROM user_prompt_info WHERE user_id = ?;
+        """
+        params = (user_id,)
+        row = execute_sql(sql_query, params)
 
-        db.commit()
-
-        row = cursor.fetchall()
         if row:
             return row  # 返回匹配的 title
         else:
@@ -264,16 +215,12 @@ def get_prompt_content(title):
             return False
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 查询数据
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT content  FROM user_prompt_info 
-            WHERE title = ?;
-        """, (title,))
-
-        db.commit()
-
-        row = cursor.fetchone()
+        sql_query = """
+            SELECT content  FROM user_prompt_info WHERE title = ?;
+        """
+        params = (title,)
+        row = execute_sql(sql_query, params, True)
+        
         if row:
             return row[0]  # 返回匹配的 title
         else:
@@ -288,12 +235,34 @@ def delete_prompt(title):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("DELETE FROM user_prompt_info WHERE title = ?", 
-                       (title,))
-        db.commit()
-        return cursor.lastrowid
+        sql_query = """
+            DELETE FROM user_prompt_info WHERE title = ?
+        """
+        params = (title,)
+        result = execute_sql(sql_query, params)
+
+        return result
+    
+
+def delete_muilt_prompt(prompt_title_list):
+    if DB_DEFAULT == "mongo":
+        # MongoDB 删除数据
+        result = db.prompt.delete_many({"title": {"$in": prompt_title_list}})
+        return result
+
+    elif DB_DEFAULT == "sqlite":
+        # 动态生成占位符
+        placeholders = ', '.join(['?'] * len(prompt_title_list))
+
+        sql_query = f"""
+            DELETE FROM user_prompt_info WHERE title IN ({placeholders});
+        """
+        
+        params = tuple(prompt_title_list)
+        result = execute_sql(sql_query, params)
+
+        return result
+
 
 
 
@@ -308,15 +277,13 @@ def change_prompt_title(old_title, new_title):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("""
-            UPDATE user_prompt_info
-            SET title = ?
-            WHERE title = ?
-        """, (new_title, old_title))
-        db.commit()
-        return cursor.lastrowid
+        sql_query = """
+            UPDATE user_prompt_info SET title = ? WHERE title = ?
+        """
+        params = (new_title, old_title)
+        result = execute_sql(sql_query, params)
+
+        return result
     
 
 def change_prompt_share_type(title, share_type):
@@ -330,15 +297,13 @@ def change_prompt_share_type(title, share_type):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("""
-            UPDATE user_prompt_info
-            SET share = ?
-            WHERE title = ?
-        """, (share_type, title))
-        db.commit()
-        return cursor.lastrowid
+        sql_query = """
+            UPDATE user_prompt_info SET share = ? WHERE title = ?
+        """
+        params = (share_type, title)
+        result = execute_sql(sql_query, params)
+
+        return result
     
 
 def change_prompt_content(title, content):
@@ -352,12 +317,10 @@ def change_prompt_content(title, content):
         return result
 
     elif DB_DEFAULT == "sqlite":
-        # SQLite 删除数据
-        cursor = db.cursor()
-        cursor.execute("""
-            UPDATE user_prompt_info
-            SET content = ?
-            WHERE title = ?
-        """, (content, title))
-        db.commit()
-        return cursor.lastrowid
+        sql_query = """
+            UPDATE user_prompt_info SET content = ? WHERE title = ?
+        """
+        params = (content, title)
+        result = execute_sql(sql_query, params)
+
+        return result

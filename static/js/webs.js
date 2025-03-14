@@ -9,10 +9,39 @@ let web_icon = {
     '<span class="material-symbols-outlined">info</span>', 
 }; 
 
+// 创建一个新的renderer
+const renderer = new marked.Renderer();
+
+// 自定义 `<img>` 标签的渲染方法
+renderer.image = function(href, title, text) {
+    // 确保 href.raw 是一个字符串，且进行适当处理
+    if (typeof href.raw !== 'string') {
+        console.error('Invalid href:', href);
+        return ''; // 如果 href 无效，返回空字符串
+    }
+    // 使用 URLSearchParams 获取 `image_name` 参数
+    const urlParams = new URLSearchParams(href.raw.split('?')[1]); // 获取查询部分
+    // 获取 `image_name` 参数
+    const imageNameWithParam = urlParams.get('image_name'); // 获取 image_name 参数
+
+    // 从 `image_name` 提取文件名部分
+    const imageName = imageNameWithParam.split('/').pop(); // 获取文件名部分
+    const doc_id = imageName.split('_')[1]
+    if(isNaN(doc_id)){
+        return ""
+    }
+    // 基于原始文件名生成新链接
+    const apiUrl = `${window.location.origin}/kdb/get_image?image_name=${imageName}&doc_id=${doc_id}&kdb_id=${new URLSearchParams(window.location.search).get('kdb_id')}&session_id=${session_id}&resize=False`;
+
+    // 为 `<img>` 标签添加 `onclick` 事件
+    return `<img src="${apiUrl}" alt="" class="chat-image" onclick="showModal('${apiUrl}')">`;
+};
+
 var grapg_suffix = 0
 let messageContainer = null;
 let currentMessageWrapper = null;
 let currentParagraph = null;
+let FileContainer = null;
 let currentText = "";
 let lastRole='user'
 const showToast = ( 
@@ -64,6 +93,16 @@ function set_mode(value){
     console.log("set mode to:" + value);
     //showToast("mode set to"+value,"info",5000); 
     mode = value;
+    const uploadFileBtn = document.getElementById("uploadfile")
+    if(uploadFileBtn){
+        if(mode === "faq" || mode === "graphrag"){
+            uploadFileBtn.classList.add('disabled');
+            uploadFileBtn.disabled = true;
+        }else{
+            uploadFileBtn.classList.remove('disabled');
+            uploadFileBtn.disabled = false;
+        }
+    }
 }
 function setup_tts(value){
     TTS_ENABLED = value;
@@ -73,17 +112,18 @@ var current_codes = "";
 var mtype='ws';
 var socket;
 var socket_status='init';
-function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-    return v.toString(16);
-  });
-}
-var session_id=guid();
+
 var kdb_id = '';
 function set_kdb_id(kid){
     kdb_id = kid;
 }
+
+var codeBlockCB=null;
+
+function setCodeBlockCB(cb){
+    codeBlockCB = cb;
+}
+
 var prompt_name = '';
 function set_prompt_name(pname){
     prompt_name = pname;
@@ -233,27 +273,218 @@ function init_conn(){
         init_event();
     }
 }
+function send_reference(fileDetails) {
+    if (mtype == 'ws') {
+        var obj = {message:'', mode:mode, current_language:currentLanguage, tts_enabled:TTS_ENABLED, kdb_id: kdb_id, prompt_name: prompt_name,reference: fileDetails};
+        var text = JSON.stringify(obj);
+        console.log("发送refer在chatbox",text)
+        socket.send(text);
+    }
+}
+
 
 function send_text(message){
+    console.log("发送消息到py===============")
     if (mtype=='event'){
         var obj = {message:message, token:token};
         sendMessage(obj);
     }
     else if (mtype=='ws'){
-        var obj = {message:message, mode:mode, current_language:currentLanguage, tts_enabled:TTS_ENABLED, kdb_id: kdb_id, prompt_name: prompt_name};
+        var obj = {message:message, mode:mode, current_language:currentLanguage, tts_enabled:TTS_ENABLED, kdb_id: kdb_id, prompt_name: prompt_name, rag_node: rag_node};
         text = JSON.stringify(obj)
         socket.send(text);
     }
 }
 
+
+// 点击关闭按钮时，隐藏模态窗口
+document.getElementById("node-close-btn").addEventListener('click', () => {
+    document.getElementById("node-modal-overlay").style.display = 'none';
+});
+
+
+function shownodecontext(kdbId, node_id){
+    const requestData = {
+        kdb_id: kdbId,
+        node_id: node_id
+    };
+    fetch(`${window.location.protocol}//${domain}/kdb/get_node_context`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(ndoe_content => {
+        let nodeContentElement = document.getElementById('node-content');
+
+        // 显示文件内容到模态窗口
+        nodeContentElement.textContent = ndoe_content;
+ 
+        // 使用 requestAnimationFrame 重置滚动条
+        requestAnimationFrame(() => {
+            nodeContentElement.scrollTop = 0;
+        });
+
+        // let modalOverlay = document.getElementById('modal-overlay');
+        // // 显示模态窗口
+        document.getElementById("node-modal-overlay").style.display = 'flex';
+    })
+    .catch(error => {
+        console.error("error")
+    });
+}
+
+
+function add_rag_node(nodes_info){
+    console.log("nodes_info",nodes_info)
+
+    // 检查 nodes_info 是否为空对象或 null/undefined
+    if (!nodes_info || Object.keys(nodes_info).length === 0) {
+        return;  // 如果为空，直接返回
+    }
+
+    const chatBox = document.getElementById('chat-box');
+
+    const messageWrappers = chatBox.querySelectorAll('.message-wrapper');  // 选择所有 message-wrapper 元素
+    // 获取最后一个 message-wrapper 元素
+    const lastMessageWrapper = messageWrappers[messageWrappers.length - 1];
+    const messageContainer = lastMessageWrapper.querySelector('.message-container')
+
+    const node_show_area = document.createElement('div');
+
+    // 创建 <p> 元素
+    const paragraph = document.createElement('h3');
+    paragraph.textContent = '查询使用到的文件中的信息:'; // 设置段落的文本内容
+
+    // 将 <p> 插入到 node_area 中
+    node_show_area.appendChild(paragraph);
+
+    const node_area = document.createElement('div');
+    node_area.className = 'node-area'
+
+    Object.entries(nodes_info).forEach(([key, value]) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'file-display';
+        fileDiv.style.width = '17%';
+
+        const fileIcon = document.createElement('img');
+        fileIcon.src = '/static/images/file.png'; // 替换为你的文件图标路径
+        fileIcon.alt = 'file icon';
+        fileIcon.className = 'file-icon';
+        fileIcon.style.width="35px";
+        fileIcon.style.height="35px";
+
+        // 创建内容区域 div
+        const fileContent = document.createElement('div');
+        fileContent.className = 'file-content';
+
+        // 创建文件名和文件类型 div
+        const fileNameDiv = document.createElement('div');
+        fileNameDiv.className = 'file-name';
+        fileNameDiv.id = value.name
+        fileNameDiv.textContent = getTruncatedFileName(value.name)
+
+        const fileTypeDiv = document.createElement('div');
+        fileTypeDiv.className = 'file-type';
+        fileTypeDiv.id = value.type;
+        fileTypeDiv.textContent = `${mimeTypeMap[value.type]}, ${formatSize(value.size)}` || '未知类型'; 
+        fileTypeDiv.style.display = 'block';
+
+        fileDiv.addEventListener("click", () => {
+            console.log("点击了node",value.id)
+            shownodecontext(kdb_id, value.id);
+        });
+
+        fileContent.appendChild(fileNameDiv);
+        fileContent.appendChild(fileTypeDiv);
+        
+        fileDiv.appendChild(fileIcon);
+        fileDiv.appendChild(fileContent);
+        node_area.appendChild(fileDiv)
+    });
+    node_show_area.appendChild(node_area);
+
+    messageContainer.appendChild(node_show_area)
+
+    // 滚动到底部
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function send_to_stop_svg(){
+    const send_btn = document.getElementById("sendButton")
+    send_btn.setAttribute('data-btn-type', 'stop'); // 修改自定义属性值
+
+    // 获取现有的SVG元素
+    const existingSVG = send_btn.querySelector('svg');
+
+    // 定义新的SVG内容
+    const newSVG = `
+        <svg t="1736223005043" class="stop-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1453" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">
+            <path d="M722.9375 933.875H301.0625a210.9375 210.9375 0 0 1-210.9375-210.9375V301.0625a210.9375 210.9375 0 0 1 210.9375-210.9375h421.875a210.9375 210.9375 0 0 1 210.9375 210.9375v421.875a210.9375 210.9375 0 0 1-210.9375 210.9375z" p-id="1454"></path>
+        </svg>
+    `;
+
+    // 用新的SVG替换现有的SVG
+    existingSVG.outerHTML = newSVG;  // 替换整个SVG
+}
+
+function stop_to_send_svg(){
+    const send_btn = document.getElementById("sendButton")
+    const btnType = send_btn.getAttribute('data-btn-type');
+    if(btnType !== "stop"){
+        // 发送停止请求
+        return;
+    }
+
+    send_btn.setAttribute('data-btn-type', 'send'); // 修改自定义属性值
+
+    // 获取现有的SVG元素
+    const existingSVG = send_btn.querySelector('svg');
+
+    // 定义新的SVG内容
+    const newSVG = `
+    <svg t="1733282301774" class="send-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+        <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z"></path>
+        <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z"></path>
+    </svg>
+    `;
+
+    // 用新的SVG替换现有的SVG
+    existingSVG.outerHTML = newSVG;  // 替换整个SVG
+}
+
 function on_message(event) {
     console.log('Message from server ', event.data);
     let jsonObject = JSON.parse(event.data);
+
+    // 删除rag的加载圈
+    let rag_spinner_gen = document.getElementById("rag_spinner_gen"); // 获取 id 为 myElement 的元素
+    if (rag_spinner_gen) { // 确保元素存在，避免报错
+        rag_spinner_gen.remove(); // 删除该元素
+    }
+
+    // 修改按钮svg为停止按钮
+    if(jsonObject.text_type !== 'rag_node'){
+        send_to_stop_svg()
+    }
+
+    if(jsonObject.text_type === 'stat'){
+        return;
+    }
+
     if (typeof jsonObject.text === 'string') {
         // 替换连续的4个空格为2个空格
-        jsonObject.text = jsonObject.text.replace(/    /g, '  ');
+        // jsonObject.text = jsonObject.text.replace(/    /g, '  ');
+        // jsonObject.text = jsonObject.text.replace(/\n|\\n/g, '<br>')
     }
-    jsonObject.text=extractImageInfoAndShow(jsonObject.text);
+    if (jsonObject.text_type === 'redirect') {
+        // 如果收到重定向指令，则跳转到登录页面
+        window.location.href = '/login';  // 跳转到登录页
+        return;  // 不继续处理其他消息
+    }
+    // jsonObject.text=processInMarkdowm(jsonObject.text);
 
     if (jsonObject.text_type == 'code'){
         console.log("lastrole",lastRole);
@@ -264,12 +495,18 @@ function on_message(event) {
         console.log("messagecon   :",messageContainer);
         addCodeBlock(jsonObject.text); // 调用 addCodeBlock 函数处理普通代码块
         current_codes += "\n" + jsonObject.text;
-        if (jsonObject.text.trim().startsWith('maid')) {
+        if (jsonObject.text.trim().startsWith('maid') || jsonObject.text.trim().startsWith('ermaid')) {
             console.log("messagecon   :",messageContainer);
             addMaid(jsonObject.text); // 调用 addMaid 函数处理 Mermaid 流程图
         }
         currentParagraph === null
- } else if (jsonObject.text_type == 'link') {
+    } else if (jsonObject.text_type == 'file'){
+        if (!FileContainer) {
+            createFileContainer();  // 创建新的文件容器
+        }
+        addFilesToChatBox(jsonObject.text);
+
+    }else if (jsonObject.text_type == 'link') {
         let url = findURL(jsonObject.text);
         if (url) {
             if (url.toLowerCase().endsWith(".jpg") || url.toLowerCase().endsWith(".jpeg") || url.toLowerCase().endsWith(".png"))
@@ -317,7 +554,11 @@ function on_message(event) {
         let tomarkdowmContent = jsonObject.text
         // 将 <br> 标签替换成 Markdown 中的换行符
         tomarkdowmContent = marked.parse(tomarkdowmContent);
+        // tomarkdowmContent = tomarkdowmContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
+
+        // tomarkdowmContent = show_data_el_rg(tomarkdowmContent)
         addGraphBlock(tomarkdowmContent, grapg_suffix.toString());
+        // add_el_listener('.clickable-number')
 
         const targetDiv = document.getElementById(`chat-message-${grapg_suffix.toString()}`);
         if (targetDiv) {
@@ -340,14 +581,15 @@ function on_message(event) {
                 }
             }
         }
-
         // 滚动到底部
         const chatBox = document.getElementById('chat-box');
         chatBox.scrollTop = chatBox.scrollHeight;
-        
         show_data_el(targetDiv.textContent,grapg_suffix.toString())
 
         grapg_suffix++; // 更新 grapg_suffix
+    }
+    else if (jsonObject.text_type == 'rag_node'){
+        add_rag_node(jsonObject.text)
     }
     else if (jsonObject.text_type == 'status'){ // 添加新的 text_type
         // 根据 status 的值调用不同的函数
@@ -359,15 +601,16 @@ function on_message(event) {
                 break; // 处理“searching sites”
 
             case 'chat_end':
-                RemoveAndShow();
+                stop_to_send_svg()
+                // RemoveAndShow();
                 break;
 
             default:
                 console.log('未知的 status:', textObject.text);
         }
-}else{
+    }else{
         if (jsonObject.role === 'assistant') {
-            console.log("1===")
+            FileContainer=null;
             if (lastRole !== 'assistant') { 
                 addMessageWrapperToChatBox();
                 addAvatarToChatBox("/static/images/haifeng.jpeg");
@@ -385,40 +628,68 @@ function on_message(event) {
         } else {
             if(messageContainer === null)
             {
-                console.log("messagecontainer ",messageContainer);
                 createMessageContainer();
-                console.log("messagecontainer sssssssssss",messageContainer);
                 createParagraph();
             }
             if(currentParagraph === null)
             {
             createParagraph();
             }
-            console.log("add chat box ======",jsonObject.text)
+            // console.log("add chat box ======",jsonObject.text)
+            FileContainer=null;
             let tomarkdowmContent = jsonObject.text;
             // 将 <br> 标签替换成 Markdown 中的换行符
             // tomarkdowmContent = tomarkdowmContent.replace(/<br\s*\/?>/g, '  \n');  // 注意这里的两个空格和换行符
             // 传递处理过的文本给后端
             currentText += tomarkdowmContent;
-            console.log("currentTextcurrentText :",currentText);
-            const htmlContent = marked.parse(currentText);
+            console.log("原始的文本是 :",currentText);
+            let htmlContent = currentText
+            htmlContent = processInMarkdowm(htmlContent)
+            htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
+            // htmlContent = htmlContent.replace(/^(\d+\.)\s?(<strong>.*?<\/strong>)/, '<strong>$1 $2</strong>');
             renewChatBox(htmlContent);
+            // add_el_listener('.clickable-number')
             lastRole = 'assistant';
         }
     }
+    
+    // 渲染数学公式的函数
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "\\(", right: "\\)", display: false},  // 行内公式
+            {left: "\\[", right: "\\]", display: true}    // 块级公式
+        ]
+    });
 
     updateHideButtonFunctionality();
     push_tts(jsonObject);
+
+    // 滚动到底部
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 
 function read_send(){
-    const input = document.getElementById('message-input');
-    const message = input.value;
+    const input = document.getElementById('userInput');  // 获取 contenteditable 的 p 元素
+    const message = input.textContent.trim();
+
+    const fileDivs = document.querySelectorAll('#userInputContainer .file-display');
+    const fileDetails = Array.from(fileDivs).map(fileDiv => {
+        const fileId = fileDiv.getAttribute('data-file-id'); // 获取 data-file-id
+        const fileName = fileDiv.querySelector('.file-name').id;
+        const fileType = fileDiv.querySelector('.file-type').id;
+        const fileSize = fileDiv.querySelector('.file-type').dataset.size;
+        return { file_id: fileId, filename: fileName, filetype: fileType, filesize: fileSize};
+    });
+    if (fileDetails.length > 0) {
+        send_reference(fileDetails);
+    }
+
     if (message) {
         addToChatBoxUser(message, "userMessage");
         lastRole='user'
-        input.value = ''; // 清空输入框
+        input.textContent = '';// 清空输入框
         currentParagraph = null;
         addMessageWrapperToChatBox();
         addAvatarToChatBox("/static/images/haifeng.jpeg");
@@ -426,6 +697,9 @@ function read_send(){
             //加载圈
             showGraphLoadingSpinner()
             createMessageContainer(if_graphrag=true);
+        }else if(mode == "faq"){
+            //加载圈
+            createMessageContainer(if_graphrag=false,if_faq=true);
         }else{
             createMessageContainer();
         }
@@ -435,7 +709,11 @@ function read_send(){
             agent_exec(message);
         }else{
             send_text(message);
-
+            if(fileDetails.length > 0){
+                addFilesToChatBox(fileDetails);
+                fileDivs.forEach(fileDiv => fileDiv.remove());
+                setHeightDifTcb()
+            }
         }
     }
 }
@@ -472,8 +750,6 @@ function showGraphLoadingSpinner(text= resources["graphrag_anwser_text"], have_k
         loadingContainer.appendChild(loadingText);
         loadingMaessageContainer.appendChild(loadingContainer);
     }
-
-
     // 将加载圈容器添加到聊天框中
     currentMessageWrapper.appendChild(loadingMaessageContainer);
 }
@@ -487,11 +763,55 @@ function removeLoadingSpinner() {
 }
 
 
-document.getElementById('send-button').addEventListener('click', function() {
+function stop_session_gen(current_session_id){
+    // 发送获取请求
+    fetch(`/stop_gen/${current_session_id}`, {
+        method: 'POST', // 使用 POST 请求
+        headers: {
+            'Content-Type': 'application/json', // 通常是 JSON 请求体类型
+        },
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log("停止:",result);
+    })
+    .catch((error) => console.error('Error:', error));
+}
+
+
+document.getElementById('sendButton').addEventListener('click', function() {
+    const userInputElement = document.getElementById('userInput');
+    const userInput = userInputElement.textContent.trim(); // 获取 <p> 的文本内容并去掉前后空格
+
+    // 判断是否有输入
+    if (!userInput) {
+        console.log("没有输入");
+        return;
+    }
+
+    // 判断是否有文件正在分析中
+    // 获取所有具有 'file-overlay' 类的元素
+    const elements = document.querySelectorAll('.file-overlay');
+
+    // 过滤出 style.display 为 'none' 的元素
+    const countNotNone = Array.from(elements).filter(element => element.style.display !== 'none').length;
+
+    if (countNotNone !== 0) {
+        showPopup(resources.analyzing_file)
+        return;
+    }
+    
     if (socket_status==='connected'){
-        // 删除之前的图谱
-        removeGraph()
-        read_send();
+        // 判断是否正在生成
+        const btnType = sendButton.getAttribute('data-btn-type');
+        if(btnType === "stop"){
+            // 发送停止请求
+            stop_session_gen(session_id)
+        }else{
+            // 删除之前的图谱
+            removeGraph()
+            read_send();
+        }
     }else{
         init_conn();
         setTimeout(read_send, 1000);
@@ -525,11 +845,17 @@ document.getElementById('stopButton').addEventListener('click', function() {
 function addToChatBox(text) {
     // 追加文本到当前的 <p> 元素
     const chatBox = document.getElementById('chat-box');
+    // 移除所有 alt="undefined" 的 img 标签
+    document.querySelectorAll('img[alt="undefined"]').forEach(img => {
+        img.remove();  // 删除该 img 标签
+    });
+
     // console.log("当前的p是：",currentParagraph.textContent);
     // 滚动到底部
     currentParagraph.innerHTML += text;
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
 function renewChatBox(text) {
     // 追加文本到当前的 <p> 元素
     const chatBox = document.getElementById('chat-box');
@@ -539,12 +865,6 @@ function renewChatBox(text) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-
-let codeBlockCB=null;
-
-function setCodeBlockCB(cb){
-    codeBlockCB = cb;
-}
 function detectFormat(text) {
     // Simple checks for CSV
     const csvPattern = /(?:[^,]*,){2,}/; // At least 2 commas in a line
@@ -1098,7 +1418,9 @@ function addMarkdownBlock(text) {
     let toadd = '<div class="chat-message">'; // 创建聊天消息的容器
 
     // 使用 marked 库将 Markdown 内容转换为 HTML
-    const htmlContent = marked.parse(text);
+    let htmlContent = text
+    htmlContent = marked.parse(htmlContent);
+    htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
 
     // 将转换后的 HTML 添加到聊天消息中
     toadd += htmlContent; // 将解析后的 HTML 内容添加到容器中
@@ -1175,6 +1497,7 @@ function addGraphBlock(text, suffix="0") {
     // 创建按钮容器
     const dataDisplay = document.createElement('div');
     dataDisplay.id = `data-display${uniqueId}`
+    dataDisplay.style.fontSize = "16px"
     chatMessageDiv.appendChild(dataDisplay); // 在聊天消息中追加 data-display
 
 
@@ -1487,6 +1810,33 @@ function show_data_el(text,suffix){
     processGraphELRequest(text)
         .then((result) => {
             removeLoadingSpinner()
+            const targetDiv = document.getElementById(`chat-message-${suffix.toString()}`);
+
+            // 获取所有子元素
+            const children = Array.from(targetDiv.children);
+
+            // 找到 id="data-display-0" 元素
+            const dataDisplayDiv = targetDiv.querySelector(`#data-display-${suffix.toString()}`);
+
+            // 对其他元素进行修改（除了 id="data-display-0"）
+            children.forEach(child => {
+                // 如果子元素不是 id="data-display-0"
+                if (child !== dataDisplayDiv) {
+                    child.innerHTML = clean_data_graphrag(child.innerHTML)
+                }
+            });
+
+            // 保持原始的 id="data-display-0" 元素不变
+            targetDiv.innerHTML = '';
+            // 将修改后的子元素和 id="data-display-0" 保持原样插入
+            children.forEach(child => {
+                if (child !== dataDisplayDiv) {
+                    targetDiv.appendChild(child);
+                }
+            });
+            targetDiv.appendChild(dataDisplayDiv);  // 保证 id="data-display-0" 保持在最后
+
+
             // 展示超链接
             const dataDisplay = document.getElementById(`data-display-${suffix.toString()}`);
             if (dataDisplay) {
@@ -1500,6 +1850,122 @@ function show_data_el(text,suffix){
         });
 }
 
+function clean_data_graphrag(text){
+    // 只删除 [Data: ...] 部分的内容，不记录
+    text = text.replace(/\[Data: [^\]]*\]/g, match => {
+        return ''; // 删除匹配内容
+    });
+
+    // 只删除单独部分的数字（[Sources: ...], [Reports: ...], 等）并删除内容
+    text = text.replace(/\[(Sources|Reports|Entities|Relationships|Claims): \(([^\)]+)\)\]/g, (_, key, numbers) => {
+        return ''; // 删除匹配内容
+    });
+
+    return text
+}
+
+function show_data_el_rg(text){
+    // 进行删除和修改
+    text = text.replace(/\[Data: [^\]]*\]/g, match => {
+        // console.log(match)
+        // console.log("-----")
+        // 处理每个匹配到的 [Data: ...] 部分
+        return match.replace(/(Sources|Reports|Entities|Relationships|Claims) \(([^\)]+)\)/g, (_, key, numbers) => {
+            // console.log(key)
+            // console.log(numbers)
+            // 提取数字并转换为 HTML 可点击元素
+            const cleanNumbers = numbers.replace(', +more', '').split(',').map(num => num.trim());
+            // console.log("提取出来的数字是", cleanNumbers);
+
+            // 为每个数字创建可点击的 HTML 元素
+            const clickableNumbers = cleanNumbers.map(num => {
+                return `<span class="clickable-number" data-id="${num}" data-type="${key.trim().toLowerCase()}">${num}</span>`;
+            }).join(', ');
+            // console.log("第一步修改后的数字是",clickableNumbers)
+            // 返回修改后的字符串，替换原来的数字
+            return `${key} (${clickableNumbers})`;
+        });
+    });
+
+    // 替换所有格式 [Data: ...], [Sources: ...], [Reports: ...], [Entities: ...], [Relationships: ...], [Claims: ...]
+    text = text.replace(
+        /(\[(Data|Sources|Reports|Entities|Relationships|Claims):\s*\()([^\)]+)\)/g,
+        (_, fullMatch, key, numbers) => {
+            console.log(fullMatch)
+            console.log(key)
+            console.log(numbers)
+            // 处理 +more
+            const cleanNumbers = numbers.replace(', +more', '').split(',').map(num => num.trim());
+            console.log("第二部提取出来的数字是",cleanNumbers)
+            // 为每个数字创建可点击的元素
+            const clickableNumbers = cleanNumbers.map(num => {
+                return `<span class="clickable-number" data-id="${num}" data-type="${key.trim().toLowerCase()}">${num}</span>`;
+            }).join(', ');
+
+            return `[${key}: (${clickableNumbers})]`;
+        }
+    );
+
+    return text
+}
+
+
+function add_el_listener(className){
+    // 为可点击数字添加事件
+    document.querySelectorAll(className).forEach(element => {
+        // 先移除之前可能存在的监听器
+        element.removeEventListener('click', element._clickHandler);
+        
+        // 定义点击事件处理函数
+        const clickHandler = () => {
+            const id = element.dataset.id
+            const type = element.dataset.type
+            console.log(`ID: ${element.dataset.id}\nType: ${element.dataset.type}`);
+            addGraphDataShowBlock()
+            // 发送请求获得节点的信息
+             // 判断节点类型
+             if (type === 'entity' || type === 'entities') {
+                // 在这里执行与 entity 相关的操作
+                const url = `${window.location.protocol}//${domain}/graphrag/local_entity`;
+                const data = { kdb_id: kdb_id,id : id };
+
+                sendRequest(url, data)
+                    .then(responseText => {
+                        // 处理 responseText
+                        if(responseText){
+                            showInfo(resources['entity_info'], JSON.parse(responseText), "data_show_");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+
+            } else if (type === 'relationship' || type === 'relationships') {
+                // 在这里执行与 relationship 相关的操作
+                const url = `${window.location.protocol}//${domain}/graphrag/local_relationship`;
+                const data = { kdb_id: kdb_id, id : id };
+
+                sendRequest(url, data)
+                    .then(responseText => {
+                        // 处理 responseText
+                        if(responseText){
+                            showInfo(resources['relationship_info'], JSON.parse(responseText), "data_show_");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+
+            }
+        };
+        
+        // 将处理函数保存在元素的一个私有属性中，以便以后移除
+        element._clickHandler = clickHandler;
+        
+        // 添加事件监听器
+        element.addEventListener('click', clickHandler);
+    });
+}
 
 function show_graph(text,suffix) {
     const spinner = document.getElementById(`spinner-${suffix}`);
@@ -1759,10 +2225,10 @@ function displayMessageFromHistory(jsonObject) {
     console.log("HISTORY ======",jsonObject);
      if (typeof jsonObject.text === 'string') {
         // 替换连续的4个空格为2个空格
-        jsonObject.text = jsonObject.text.replace(/    /g, '  ');
+        // jsonObject.text = jsonObject.text.replace(/    /g, '  ');
+        // jsonObject.text = jsonObject.text.replace(/\n|\\n/g, '<br>')
     }
-    jsonObject.text=extractImageInfoAndShow(jsonObject.text);
-    // jsonObject.text = jsonObject.text.replace(/\n|\\n/g, '<br>')
+    // jsonObject.text=processInMarkdowm(jsonObject.text);
     if (jsonObject.text_type == 'code'){
         console.log("lastrole",lastRole);
         if (lastRole === 'user') { // 只有在角色从 You 切换到 AI 时调用
@@ -1773,10 +2239,15 @@ function displayMessageFromHistory(jsonObject) {
             }
         addCodeBlock(jsonObject.text); // 调用 addCodeBlock 函数处理普通代码块
         current_codes += "\n" + jsonObject.text;
-        if (jsonObject.text.trim().startsWith('maid')) {
+        if (jsonObject.text.trim().startsWith('maid') || jsonObject.text.trim().startsWith('ermaid')) {
             console.log("messagecon   :",messageContainer);
             addMaid(jsonObject.text); // 调用 addMaid 函数处理 Mermaid 流程图
+    }
+    }else if (jsonObject.text_type == 'file'){
+         if (!FileContainer) {
+            createFileContainer();  // 创建新的文件容器
         }
+        addFilesToChatBox(jsonObject.text);
     }else if (jsonObject.text_type === 'link') {
         let url = findURL(jsonObject.text);
         if (url) {
@@ -1826,13 +2297,23 @@ function displayMessageFromHistory(jsonObject) {
             showGraphLoadingSpinner(resources['graphrag_el_text'],have_kdb=false);
         }
         createMessageContainer(if_graphrag=true);
-        const htmlContent = marked.parse(jsonObject.text);
+        let htmlContent = jsonObject.text
+        htmlContent = marked.parse(htmlContent);
+        htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
+
+        // htmlContent = show_data_el_rg(htmlContent)
+        // htmlContent = clean_data_graphrag(htmlContent)
+
         addGraphBlock(htmlContent, grapg_suffix.toString());
+        // add_el_listener('.clickable-number')
+
         //kdb_id不为空才进行el的检索
         if(kdb_id){
             show_data_el(jsonObject.text, grapg_suffix.toString());
         }
         grapg_suffix++;
+    } else if (jsonObject.text_type == 'rag_node'){
+        add_rag_node(jsonObject.text)
     } else if (jsonObject.text_type === 'status') {
         let textObject
         if (typeof jsonObject.text === 'string') {
@@ -1850,7 +2331,7 @@ function displayMessageFromHistory(jsonObject) {
                     addhideBu(textObject.text);
                     break;
                 case 'chat_end':
-                    //extractImageInfoAndShow();
+                    //processInMarkdowm();
                     break;
                 default:
                     console.log('未知的 status:', textObject.status);
@@ -1859,17 +2340,23 @@ function displayMessageFromHistory(jsonObject) {
     } else {
         if (jsonObject.role === 'assistant') {
             if (lastRole !== 'assistant') { // 仅在角色切换时调用
-                console.log("ssssssssssss",lastRole);
                 addMessageWrapperToChatBox();
                 addAvatarToChatBox("/static/images/haifeng.jpeg");
                 createMessageContainer() ;
                 createParagraph();
+                FileContainer=null;
             }
             if(currentParagraph === null)
             {
                 createParagraph();
             }
-            let htmlContent = marked.parse(jsonObject.text);
+            let htmlContent = jsonObject.text
+
+            console.log("进入markdowm前的文本是:",htmlContent)
+            htmlContent = processInMarkdowm(htmlContent)
+            // htmlContent = marked.parse(htmlContent);
+            console.log("markdowm后的文本是:",htmlContent)
+            htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
             htmlContent= `<p>${htmlContent}</p>`;
             addToChatBox(htmlContent);
             lastRole = 'assistant'; // 更新上次的 role
@@ -1878,13 +2365,24 @@ function displayMessageFromHistory(jsonObject) {
             currentText = "";
             lastRole = 'user'; // 更新上次的 role
         } else {
-            const htmlContent = marked.parse(jsonObject.text);
-            console.log("add chat box ======",htmlContent);
+            let htmlContent = jsonObject.text
+            htmlContent = processInMarkdowm(htmlContent)
+
+            // htmlContent = marked.parse(htmlContent);
+            htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
+            // console.log("add chat box ======",htmlContent);
             htmlContent= `<p>${htmlContent}</p>`;
             addToChatBox(htmlContent);
         }
     }
-
+    
+    // 渲染数学公式的函数
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "\\(", right: "\\)", display: false},  // 行内公式
+            {left: "\\[", right: "\\]", display: true}    // 块级公式
+        ]
+    });
     updateHideButtonFunctionality();
     push_tts(jsonObject);
 }
@@ -1895,8 +2393,6 @@ function displayMessageFromHistory(jsonObject) {
 function displayHistory(historyList) {
     // 倒序遍历 history_list
     //historyList = JSON.parse(str1)
-
-
     for (let i = historyList.length - 1; i >= 0; i--) {
         let jsonObject = historyList[i];
         displayMessageFromHistory(jsonObject); // 调用显示函数
@@ -1906,11 +2402,26 @@ function displayHistory(historyList) {
 
 function addToChatBoxUser(message, type) {
     const chatBox = document.getElementById('chat-box');
+    // 设置消息内容
+    createFileContainer();
     const messageDiv = document.createElement('div');
     messageDiv.className = type; // 根据类型应用样式
-    messageDiv.textContent = message; // 设置消息内容
+    messageDiv.textContent = message;
+
     chatBox.appendChild(messageDiv); // 将消息添加到聊天框
+
+    if(type === "userMessage"){
+        const elementsWithClass = chatBox.querySelectorAll('.userMessage'); // 获取所有具有指定类名的子元素
+        const previousElement = messageDiv.previousElementSibling;
+        // 如果上方有元素，则设置 margin-top
+        if (elementsWithClass.length !== 1 && previousElement && !previousElement.hasChildNodes()) {
+            console.log("userMessage的上元素是",previousElement)
+            messageDiv.style.marginTop = '50px'; // 可以根据需要调整这个值
+        }
+    }
+    
     chatBox.scrollTop = chatBox.scrollHeight; // 滚动到最新消息
+    
 }
 function addAvatarToChatBox(avatarSrc, if_graphrag=false) {
     if (!currentMessageWrapper) {
@@ -1928,7 +2439,7 @@ function addAvatarToChatBox(avatarSrc, if_graphrag=false) {
     currentMessageWrapper.appendChild(avatarImg); // 将头像添加到当前消息外部容器
     currentMessageWrapper.scrollTop = currentMessageWrapper.scrollHeight; // 滚动到最新消息
 }
-function createMessageContainer(if_graphrag=false) {
+function createMessageContainer(if_graphrag=false, if_faq=false) {
     const mescontainer = document.createElement('div');
     mescontainer.className = 'message-container';
     if (!currentMessageWrapper) {
@@ -1940,10 +2451,30 @@ function createMessageContainer(if_graphrag=false) {
         const loadingMessageContainer = currentMessageWrapper.querySelector('#graph-loading-message-container');
         loadingMessageContainer.appendChild(mescontainer); // 添加到当前消息外部容器
     }else{
+        if(if_faq){
+            // 创建旋转圈元素
+            const spinner = document.createElement('div');
+            spinner.id = 'rag_spinner_gen';
+            spinner.className = "spinner-answer";
+            spinner.style.display = "inline-block";
+            currentMessageWrapper.appendChild(spinner);
+        }
         currentMessageWrapper.appendChild(mescontainer); // 添加到当前消息外部容器
     }
     messageContainer=mescontainer;// 更新全局变量
+    const chatBox = document.getElementById('chat-box'); // 获取聊天框元素
+    // 滚动到最新消息   
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+
+function createFileContainer() {
+    // 创建新的 div 容器
+    FileContainer = document.createElement('div');
+    FileContainer.className = 'file-container';  // 可以根据需要添加样式类名
+    document.getElementById('chat-box').appendChild(FileContainer);  // 将容器添加到 chat-box 或其他目标容器中
+}
+
 function addMessageWrapperToChatBox() {
     const chatBox = document.getElementById('chat-box'); // 获取聊天框元素
 
@@ -1977,7 +2508,7 @@ async function fetchImage(image_name, doc_id) {
     }
 
     // 构建图片获取的 API 请求 URL
-    const apiUrl = `${baseURL}/kdb/get_image?image_name=${image_name}&doc_id=${doc_id}&kdb_id=${kdbId}`;
+    const apiUrl = `${baseURL}/kdb/get_image?image_name=${image_name}&doc_id=${doc_id}&kdb_id=${kdbId}&session_id=${session_id}`;
     try {
         // 获取显示图片的容器
         const imageContainer = document.getElementById('chat-box');
@@ -2000,12 +2531,107 @@ async function fetchImage(image_name, doc_id) {
     }
 }
 let previousText = "";
+
+function extractImageInfo(text) {
+    text = text.replace(/!\[\]\(([^)]+)\)/g, (match, capturedGroup, offset, fullText) => {
+        // 从匹配的链接中提取文件名
+        let imageName = capturedGroup.split('/').pop(); // 获取文件名部分
+        // 基于原始文件名生成新链接
+        const doc_id = imageName.split('_')[1];
+        
+        // 如果 doc_id 无效，返回空字符串
+        if (isNaN(doc_id)) {
+            return "";
+        }
+
+        const kdbId = new URLSearchParams(window.location.search).get('kdb_id') ?? '';
+        const apiUrl = `${window.location.origin}/kdb/get_image?image_name=${imageName}&doc_id=${doc_id}&kdb_id=${kdbId}&session_id=${session_id}&resize=True`;
+
+        // 使用 XMLHttpRequest 进行同步 GET 请求
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', apiUrl, false);  // false 表示同步请求
+        try {
+            xhr.send();
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // 如果响应成功，返回图片标签
+                return `<br>![](${apiUrl})<br>`;
+            } else {
+                // 如果响应失败，返回空字符串
+                console.log(`API URL无效: ${apiUrl}`);
+                return "";
+            }
+        } catch (error) {
+            // 请求错误时，返回空字符串
+            console.log(`请求出错: ${error}`);
+            return "";
+        }
+    });
+    return text;
+}
+
+
+function encodeMathInMarkdown(markdownContent) {
+    // 正则表达式，用于匹配块级公式（\[\]）和行内公式（\(\)）
+    const formulaRegex = /\\\[(.*?)\\\]|\\\((.*?)\\\)/gs;  // 这里添加了 `s` 修饰符，允许匹配多行内容
+
+    let formulaPlaceholders = [];
+    let index = 0;
+
+    // 1. 使用占位符替换公式部分
+    markdownContent = markdownContent.replace(formulaRegex, (match, blockFormula, inlineFormula) => {
+        let formula = blockFormula || inlineFormula;  // 获取公式内容
+        formulaPlaceholders.push(formula);
+
+        // 生成占位符，并递增 index
+        const placeholder = `$$FORMULA_${index++}$$`;  // 每次生成唯一的占位符
+        return placeholder;  // 返回占位符
+    });
+
+    // 2. 返回编码后的 Markdown 内容和公式占位符列表
+    return { encodedContent: markdownContent, formulaPlaceholders };
+}
+
+function decodeMathFromMarkdown(encodedContent, formulaPlaceholders) {
+    formulaPlaceholders.forEach((formula, i) => {
+        const placeholder = `$$FORMULA_${i}$$`;
+
+        // 判断公式是否为块级公式，块级公式通过换行符或其他特征来识别
+        const isBlockFormula = formula.includes('\\');  // 如果公式包含 `\\`，则认为是块级公式
+
+        // 根据是否为块级公式决定如何渲染
+        const mathHTML = isBlockFormula
+            ? `\\[ ${formula} \\]`  // 块级公式：恢复为 \[ 公式内容 \]
+            : `\\( ${formula} \\)`;  // 行内公式：恢复为 \( 公式内容 \)
+        
+        // 替换占位符为实际的公式
+        encodedContent = encodedContent.replace(placeholder, mathHTML);
+    });
+
+    // 3. 返回最终的 HTML 内容
+    return encodedContent;
+}
+
+function processInMarkdowm(text) {
+    text = extractImageInfo(text)
+    // 1. 调用编码函数，将公式替换为占位符
+    const { encodedContent, formulaPlaceholders } = encodeMathInMarkdown(text);
+    // 2. 使用 marked 解析编码后的 Markdown 内容
+    const htmlContent = marked.parse(encodedContent, { renderer: renderer });
+    // 3. 调用解码函数，将占位符还原为实际的数学公式
+    //console.log("markdowm后的为本是",htmlContent)
+    const finalContent = decodeMathFromMarkdown(htmlContent, formulaPlaceholders);
+
+    return finalContent
+}
+
 function extractImageInfoAndShow(text) {
     console.log("Extracting:", text);
 
-    if (typeof text === "object" && !Array.isArray(text)) {
-        console.log("Input is a dictionary. Returning without processing.");
-        return text; // 如果是字典，直接返回
+    // 检查是否为字符串
+    if (typeof text !== "string") {
+        console.log("Input is not a string. Returning without processing.");
+        return text; // 如果不是字符串，直接返回原始输入
     }
 
     // 使用正则表达式分块处理，保留完整的 <img> 标签
@@ -2023,50 +2649,128 @@ function extractImageInfoAndShow(text) {
 
             return part.replace(imagePattern, (match, imageName) => {
                 // 构建图片的 API URL，imageName 只包含文件名
-                const apiUrl = `${window.location.origin}/kdb/get_image?image_name=${imageName}&doc_id=${imageName.split('_')[1]}&kdb_id=${new URLSearchParams(window.location.search).get('kdb_id')}`;
+                const apiUrl = `${window.location.origin}/kdb/get_image?image_name=${imageName}&doc_id=${imageName.split('_')[1]}&kdb_id=${new URLSearchParams(window.location.search).get('kdb_id')}&session_id=${session_id}`;
 
                 // 创建 `<img>` 标签
                 const imgTag = `<img src="${apiUrl}" alt="${imageName}" class="chat-image" style="height: 300px; width: auto;" onclick="showModal('${apiUrl}')"/>`;
-
+                console.log("图片的转换",imgTag)
+                // if(){}
                 // 返回替换后的内容，确保前后都有 `<br>`
                 return `<br>${imgTag}<br>`;
             });
         })
         .join(""); // 将分割后的部分重新拼接为完整文本
+
     updatedText = updatedText.replace(/[\s,，]*&lt;br&gt;/g, '&lt;br&gt;');
     console.log("updatedText:", updatedText);
     return updatedText;
 }
 
 
+function extractImageInfoAndShow_new(text) {
+    console.log("Extracting:", text);
 
-//图片放大
-// 显示悬浮窗（放大后的图片）
-function showModal(imageSrc) {
-    const modal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    const caption = document.getElementById('caption');
+    // 检查是否为字符串
+    if (typeof text !== "string") {
+        console.log("Input is not a string. Returning without processing.");
+        return text; // 如果不是字符串，直接返回原始输入
+    }
 
-    // 更新放大的图片源和显示
-    modal.style.display = "flex";  // 使用 flex 来居中对齐
-    modalImage.src = imageSrc;
-    caption.innerHTML = ""; // 可在此处添加图片说明（如果有）
+    // 使用正则表达式分块处理，保留完整的 <img> 标签
+    const parts = text.split(/(<img\s+[^>]*>)/); // 分割文本，将 <img> 标签单独分开
+    console.log("分割后的 parts:", parts);
 
-    // 关闭悬浮窗的点击事件
-    document.getElementById('closeModal').addEventListener('click', () => {
-        modal.style.display = "none";
+    let updatedText = parts
+        .map(part => {
+            if (part.startsWith("<img")) {
+                // 保留原有的 <img> 标签
+                return part;
+            }
+
+            // 处理包含 "image_name:" 的部分
+            const part_s = part.split(/(image_name:[^\s]+)/g);
+            console.log("分割后的 part_s:", part_s);
+
+            // 处理每一部分，替换 image_name 为 <img> 标签
+            return part_s
+                .map(innerPart => {
+                    if (innerPart.startsWith("image_name:")) {
+                        // 提取 image_name 后的图片名称列表
+                        const imageNames = innerPart.replace(/^image_name:/, "").trim().split(',');
+
+                        // 生成多个 <img> 标签
+                        return imageNames
+                            .map(imageName => {
+                                const apiUrl = `${window.location.origin}/kdb/get_image?image_name=${imageName}&doc_id=${imageName.split('_')[1]}&kdb_id=${new URLSearchParams(window.location.search).get('kdb_id')}&session_id=${session_id}`;
+
+                                // 创建 `<img>` 标签
+                                const imgTag = `<img src="${apiUrl}" alt="${imageName}" class="chat-image" style="height: 300px; width: auto;" onclick="showModal('${apiUrl}')"/>`;
+                                console.log("图片的展示",imgTag)
+                                // 返回 `<img>` 标签并包裹在 `<br>` 中
+                                return `<br>${imgTag}<br>`;
+                            })
+                            .join(""); // 将所有的 <img> 标签合并为一个字符串
+                    }
+                    // 如果不是 image_name 部分，直接返回
+                    return innerPart;
+                })
+                .join(""); // 将分割后的部分重新拼接为完整文本
+        })
+        .join(""); // 将所有处理过的部分重新拼接为完整文本
+
+    // 清理多余的换行符，确保没有多余的空白字符
+    updatedText = updatedText.replace(/[\s,，]*<br>/g, '<br>');
+    console.log("updatedText:", updatedText);
+    return updatedText;
+}
+
+
+// 展示模态框的函数
+function showModal(imageUrl) {
+    console.log("图片被点击了，显示模态框：", imageUrl);
+
+    // 创建模态框元素
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%'; // 让模态框覆盖整个页面
+    modal.style.height = '100%'; // 让模态框覆盖整个页面
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // 设置背景色为半透明黑色
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center'; // 水平居中
+    modal.style.alignItems = 'center'; // 垂直居中
+    modal.style.zIndex = '1000'; // 确保模态框在最前面
+    modal.style.cursor = 'pointer'; // 设置鼠标样式为指针，表明可以点击关闭
+
+    // 创建图片元素
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.maxWidth = '90%'; // 限制图片的最大宽度为90%
+    img.style.maxHeight = '90%'; // 限制图片的最大高度为90%
+    img.style.objectFit = 'contain'; // 保持图片的比例
+
+    // 将图片添加到模态框
+    modal.appendChild(img);
+
+    // 将模态框添加到页面
+    document.body.appendChild(modal);
+
+    // 点击模态框外部关闭
+    modal.addEventListener('click', function () {
+        document.body.removeChild(modal);
     });
 
-    // 防止点击悬浮窗内部时关闭
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = "none";  // 点击背景时关闭悬浮窗
-        }
+    // 防止点击图片时关闭模态框
+    img.addEventListener('click', function (event) {
+        event.stopPropagation(); // 阻止点击事件冒泡，避免触发模态框关闭事件
     });
 }
 
+
 function addMaid(text) {
     // 创建一个新的 div 元素
+    text = text.replace(/^ermaid\s*/, '').trim();
     text = text.replace(/^maid\s*/, '').trim();
     const div = document.createElement('div');
     div.className = 'mermaid'; // Mermaid 的特殊类名，用于渲染流程图
@@ -2078,13 +2782,74 @@ function addMaid(text) {
     // 渲染所有 Mermaid 图表
     mermaid.contentLoaded();
 }
-function RemoveAndShow(){
 
-    new_text=extractImageInfoAndShow(currentText)
+function RemoveAndShow(){
+    new_text=currentText
     console.log('new_text.new_text :',new_text)
     // 更新聊天框
-    const htmlContent = marked.parse(new_text);
+    let htmlContent = marked.parse(new_text);
+    htmlContent = htmlContent.replace(/<strong>(.*?)<\/strong>：/g, '<strong>$1：</strong>'); // 把“：”放到 <strong> 内
     renewChatBox(htmlContent);
+    add_el_listener('.clickable-number')
+}
+
+function addFilesToChatBox(fileList) {
+    const chatBox = document.getElementById('chat-box');
+    const fileDivArea = document.createElement('div');
+    fileDivArea.className = "chat-fileshowdiv"; // 根据类型应用样式
+    // 遍历文件列表
+    fileList.forEach(file => {
+        // 创建外层 div
+        const fileDiv = document.createElement('div');
+        fileDiv.className = "file-display"; // 根据类型应用样式
+        fileDiv.style.display = 'flex';
+        fileDiv.style.marginBottom = '0px'; // 消息底部留间距
+        fileDiv.style.width = 'auto'; // 自适应宽度
+        fileDiv.style.padding = '13px 13px'; // 自适应宽度
+        fileDiv.style.flexShrink = '0';
+
+        // 创建文件图标
+        const fileIcon = document.createElement('img');
+        fileIcon.src = '/static/images/file.png'; // 替换为文件图标路径
+        fileIcon.alt = 'file icon';
+        fileIcon.className = 'file-icon';
+        fileIcon.style.display = 'block';
+
+        // 创建内容区域 div
+        const fileContent = document.createElement('div');
+        fileContent.className = 'file-content';
+        console.log("文件是",file)
+        // 创建文件名和文件类型 div
+        const fileNameDiv = document.createElement('div');
+        fileNameDiv.className = 'file-name';
+        fileNameDiv.textContent = getTruncatedFileName(file.filename)
+
+        const fileTypeDiv = document.createElement('div');
+        fileTypeDiv.className = 'file-type';
+        fileTypeDiv.id = file.type;
+        fileTypeDiv.textContent = `${mimeTypeMap[file.filetype]}, ${formatSize(file.filesize)}` || '未知类型';
+        fileTypeDiv.style.display = 'block';
+
+        // 将子元素组合到父元素
+        fileContent.appendChild(fileNameDiv);
+        fileContent.appendChild(fileTypeDiv);
+        fileDiv.appendChild(fileIcon);
+        fileDiv.appendChild(fileContent);
+
+        // 添加到容器中
+        fileDivArea.appendChild(fileDiv);
+    }); 
+
+    const previousElement = FileContainer.previousElementSibling;
+    
+    // 如果上方有元素，则设置 margin-top
+    if (previousElement) {
+        FileContainer.style.marginTop = '50px'; // 可以根据需要调整这个值
+    }
+
+    FileContainer.appendChild(fileDivArea);
+    // 滚动到最新消息
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 

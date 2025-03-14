@@ -1,70 +1,51 @@
 #chat-box {
-    flex-grow: 1;
     overflow-y: scroll;
     /* 允许垂直滚动 */
-    position: fixed;
+    display: flex; /* 如果需要内部内容按某种方向排列 */
+    flex-direction: column;
     border: none;
-    padding: 5px 20px;
-    margin: 10px auto; /* 居中对话框 */
-    width: calc(100% - 250px);
-    height: calc(100% - 200px);
-    bottom: 100px;
+}
+
+#chat-box > * {
+    margin-left: 8%;
+}
+
+/* 仅显示滑块，不显示轨道 */
+#chat-box::-webkit-scrollbar-track {
+    background: transparent; /* 轨道透明 */
+}
+
+#chat-box::-webkit-scrollbar {
+    width: 8px; /* 滚动条的宽度 */
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+    background: #d5d5d5;
+    border-radius: 10px; /* 滑块的圆角 */
+}
+
+#chat-box::-webkit-scrollbar-thumb:hover {
+    background: #a5a1a1; /* 悬停时的背景颜色 */
 }
 
 .form-container {
-    display: flex; /* 使用flex布局 */
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    background-color: white;
-    padding: 20px;
-    width: 100%;
+    display: flex;
+    flex-direction: column; /* 子元素垂直排列 */
+    align-items: center; /* 水平方向居中 */
 }
 
 .code-block {
     background-color: #333; /* 代码块的背景色 */
     color: #f8f8f2; /* 代码的文本颜色 */
     padding: 10px;
-    border-radius: 4px;
+    border-radius: 12px;
     white-space: pre-wrap; /* 保持空白符并支持自动换行 */
     word-wrap: break-word; /* 长单词或URL可以被断开换行 */
     font-family: 'Courier New', Courier, monospace; /* 代码字体 */
     margin: 10px 0; /* 上下的间距 */
 }
 
-/* 基础样式 */
-#recordButton {
-    background-color: rgb(160, 153, 153); /* 默认底色为灰色 */
-    width: 25px; /* 按钮宽度 */
-    height: 25px; /* 按钮高度 */
-    border-radius: 50%; /* 圆形按钮 */
-    border: none; /* 移除边框 */
-    display: flex; /* 使用 flexbox 对齐图标 */
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    padding: 0; /* 移除内边距 */
-    margin-left: 5px;
-  }
-
-  /* SVG 图标样式 */
-#recordButton svg {
-    width: 20px; /* 图标宽度 */
-    height: 20px; /* 图标高度 */
-    display: block; /* 保证 SVG 自身占据空间 */
-    margin-left: 0px; /* 移除任何默认外边距 */
-}
-  
-/* 录音时的样式 */
-#recordButton.recording {
-    background-color: #e11160; /* Red */
-    color: black;
-}
-
-
 #scriptButton {
-    padding: 10px 20px;
     font-size: 16px;
     border: none;
     border-radius: 4px;
@@ -190,8 +171,6 @@
 
 .chat-image {
     max-width: 300px;  /* 设置最大宽度 */
-    max-height: 200px; /* 设置最大高度 */
-    width: auto;       /* 自动调整宽度 */
     height: auto;
     padding-left:50px;
     padding-bottom:8px;/* 自动调整高度 */
@@ -218,6 +197,7 @@
     max-height: 80%;
     margin: auto;
     display: block;
+    margin-bottom: 50%;
 }
 
 .close {
@@ -232,4 +212,124 @@
 
 .text-center-custom {
   text-align: center;
+}
+
+.clickable-number {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
+table {
+    border-collapse: collapse; /* 合并边框 */
+    width: 100%; /* 可选，设置表格宽度 */
+}
+th, td {
+    border: 1px solid black; /* 设置单元格边框 */
+    padding: 8px; /* 可选，设置单元格内边距 */
+    text-align: left; /* 可选，设置单元格内容对齐方式 */
+}
+th {
+    background-color: #f2f2f2; /* 可选，设置表头背景颜色 */
+}
+
+.node-area {
+    display: flex;               /* 使用 Flexbox 布局 */
+    flex-direction: row;         /* 元素横向排列 */
+    align-items: center;         /* 元素垂直居中对齐 */
+    padding: 10px;               /* 容器的内边距 */
+    gap: 25px;                   /* 元素之间的间距 */
+    margin-top: 20px;            /* 上方间距 */
+    width: 100%;
+    flex-wrap: wrap;             /* 允许元素换行 */
+    box-sizing: border-box;      /* 包括内边距在内的宽度计算 */
+}
+
+/* node-btn 按钮样式 */
+.node-btn {
+  width: 100px; /* 按钮宽度 */
+  height: 40px; /* 按钮高度 */
+  background-color: #007BFF; /* 按钮的背景色 */
+  color: white; /* 按钮文字的颜色 */
+  border: none; /* 去掉默认边框 */
+  border-radius: 5px; /* 圆角按钮 */
+  margin-bottom: 10px; /* 按钮间的间隔 */
+  cursor: pointer; /* 鼠标悬停时显示手势 */
+  font-size: 14px; /* 按钮文字大小 */
+  transition: background-color 0.3s; /* 背景色渐变效果 */
+}
+
+/* 鼠标悬停按钮效果 */
+.node-btn:hover {
+  background-color: #0056b3; /* 悬停时背景色变化 */
+}
+
+/* 模态窗口背景（半透明遮罩层） */
+.node-modal-overlay {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 高于普通内容 */
+}
+
+/* 模态窗口样式 */
+.node-show {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* 关闭按钮样式 */
+.node-close-btn {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+/* 文件内容显示区 */
+.node-file-content {
+    text-align: left;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 400px;  /* 设置最大高度 */
+    overflow-y: auto;   /* 启用垂直滚动条 */
+    width: 100%;        /* 填满父容器宽度 */
+    max-width: 100%;    /* 设置最大宽度 */
+    white-space: pre-wrap; /* 换行显示 */
+    word-wrap: break-word; /* 自动换行 */
+}
+
+/* 仅显示滑块，不显示轨道 */
+.node-file-content::-webkit-scrollbar-track {
+    background: transparent; /* 轨道透明 */
+}
+
+.node-file-content::-webkit-scrollbar {
+    width: 8px; /* 滚动条的宽度 */
+}
+
+.node-file-content::-webkit-scrollbar-thumb {
+    background: #d5d5d5;
+    border-radius: 10px; /* 滑块的圆角 */
+}
+
+.node-file-content::-webkit-scrollbar-thumb:hover {
+    background: #a5a1a1; /* 悬停时的背景颜色 */
 }

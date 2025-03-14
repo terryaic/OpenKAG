@@ -45,8 +45,10 @@ def verify_password(plain_password, hashed_password):
 # 获取哈希密码;普通密码进去，对应的哈希密码出来。
 def get_password_hash(password):
     return pwd_context.hash(password)
+
 from sqlalchemy.future import select
 # 数据库读取用户信息
+
 async def get_user(db, email: str):
     print("emailemailemailemailemail", email)
     print("emailemailemailemailemail", email)
@@ -64,12 +66,11 @@ async def get_user(db, email: str):
 async def authenticate_user(db, email: str, password: str):
     print("校验中")
     user = await get_user(db, email)
+    if user.disabled:
+        return None
+    # 首先要验证用户是否被禁用
     if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
     return user
 
 # 创建访问令牌（token）
@@ -83,25 +84,15 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(request: Request, response: Response,form_data: OAuth2PasswordRequestForm = Depends(), db=None):  #added response as a function parameter
-    user =await authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-        )
+async def login_for_access_token(response: Response, email:str):  #added response as a function parameter
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": email}, expires_delta=access_token_expires
     )
     print("正在设置token")
     response.set_cookie(key="access_token",value=f"Bearer {access_token}", httponly=True)  #set HttpOnly cookie in response
-    print("access_token")
-    response.set_cookie(key="current_user", value=user.email, httponly=True)
-
-    print("current_user")
-    print("token设置完成")
-    return {"access_token": access_token, "token_type": "bearer"}
+    response.set_cookie(key="current_user", value=email, httponly=True)
+    return response
 
 #备选方案，fetch的方法获取历史记录，request的方法不可行时使用
 @router.post("/send_data")

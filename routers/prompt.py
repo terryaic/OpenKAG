@@ -35,27 +35,31 @@ router = APIRouter()
 
 @router.get("/showPrompt", include_in_schema=False)
 async def show_kdb(request: Request):
-    return check_login(request) or \
+    return await check_login(request) or \
     templates.TemplateResponse("prompt/showPrompt.html", {"request": request, "resources": get_resource(request, "showPrompt")})
 
 
 @router.get("/toCreateNewPrompt", include_in_schema=False)
 async def create_kdb(request: Request):
-    return check_login(request) or \
-    templates.TemplateResponse("prompt/create_prompt.html", {"request": request, "value": "新建的提示词", "share": False, 
+    response = await check_login(request)
+    if response:
+        return response
+    resource = get_resource(request, "create_prompt")
+    value = resource.get("new_prompt")
+    return templates.TemplateResponse("prompt/create_prompt.html", {"request": request, "value": value, "share": False, 
                                                                 "permissions": get_permissions(request), "resources": get_resource(request, "create_prompt")})
 
 
 @router.get("/toPrompt", include_in_schema=False)
 async def create_kdb(request: Request, title: str, share_type: bool, is_from_share: bool):
-    return check_login(request) or \
+    return await check_login(request) or \
     templates.TemplateResponse("prompt/create_prompt.html", {"request": request, "value": title, "share": share_type, "is_from_share": is_from_share, 
                                                                 "permissions": get_permissions(request), "resources": get_resource(request, "create_prompt")})
 
 
 @router.get("/backShowPrompt", include_in_schema=False)
 async def backShowKdb(request: Request):
-    return check_login(request) or \
+    return await check_login(request) or \
     templates.TemplateResponse("prompt/showPrompt.html", {"request": request, "resources": get_resource(request, "showPrompt")})
 
 
@@ -183,13 +187,22 @@ async def get_user_prompt_content(request: Request):
 async def delete_prompt(request: Request):
     body = await request.json()  # 解析请求体
     title = body.get('title')  # 获取 old_title
-
-    # 删除文件夹
-    import shutil
-    import os
-
     try:
         result = user_prompt_info.delete_prompt(title)
+        return {"is_delete": True}
+
+    except Exception as e:
+        return {"error": f"未知错误: {str(e)}"}
+    
+
+@router.post("/delete_muilt_prompt")
+async def delete_muilt_prompt(request: Request):
+    body = await request.json()  # 解析请求体
+    prompt_title_list = body.get('prompt_title_list')  # 获取 old_title
+    print("批量删除的prompt",prompt_title_list)
+    user_id = request.cookies.get("current_user")
+    try:
+        user_prompt_info.delete_muilt_prompt(prompt_title_list)
         return {"is_delete": True}
 
     except Exception as e:

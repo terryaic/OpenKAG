@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{resources['haifeng']}}</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .loading-circle {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ccc;
+      border-top: 5px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .message {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="loading-circle"></div>
+    <p class="message">{{resources['mes']}}</p>
+  </div>
+
+  <script>
+    function simulateLoginAndRedirect(extra_info, kdb_id) {
+      const data = {
+        extra_info: extra_info,
+        kdb_id: kdb_id
+      };
+      console.log("额外信息是",extra_info)
+      fetch('/mini_chatbox_init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data) // 将对象转为 JSON 字符串s
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('请求失败');
+        }
+        return response.json();
+      })
+      .then(result => {
+        window.location.href = `${window.location.protocol}//${window.location.host}/minichatbox/${result.session_id}?mode="faq"&kdb_id=${kdb_id}&prompt_name=""`;
+      })
+      .catch(error => {
+        document.querySelector('.message').textContent = '跳转失败，请重试：' + error.message;
+      });
+    }
+
+    // 模拟加载后调用 API
+    window.onload = function () {
+      simulateLoginAndRedirect("{{extra_info}}", "{{kdb_id}}");
+    };
+  </script>
+</body>
+</html>

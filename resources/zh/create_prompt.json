@@ -13,5 +13,6 @@
     "save_prompt_use_mes":"请输入有效的提示词",
     "change_prompt_save_mes":"请修改提示词",
     "save_prompt_suf":"成功保存提示词内容",
-    "title":"提示词"
+    "title":"提示词",
+    "new_prompt":"新建的提示词"
 }

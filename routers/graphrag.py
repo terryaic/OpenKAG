@@ -728,15 +728,8 @@ async def get_prompt(text_josn: dict):
     if not text:
         return {"question":{}}
     
-    # 读取文件并替换其中的 {text} 占位符
-    # 获取当前脚本的目录
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # 构建 prompt.txt 的绝对路径
-    file_path = os.path.join(script_dir, 'prompt.txt')
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = file.read()
-
+    from sysprompts import GRAPHRAG_GET_JSON_CN
+    data = GRAPHRAG_GET_JSON_CN
     # 使用 f-string 替换
     formatted_data = data.replace("{text}", text)
 

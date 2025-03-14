@@ -1,6 +1,7 @@
 #import aiofiles
 import base64
 import asyncio
+import io
 
 import requests
 from openai import OpenAI
@@ -19,7 +20,7 @@ import math
 from transformers import AutoTokenizer
 from transformers import AutoProcessor
 
-from db import user_prompt_info
+
 
 tpath = os.path.join(os.path.dirname(__file__), "tokenizer")
 print(tpath)
@@ -40,11 +41,19 @@ class VLMClient:
             self.model = MULTIMODAL_MODEL_NAME
         self.executor = ThreadPoolExecutor(max_workers=None)  # 可以根据需要调整最大线程数
 
+    def run_chart(self):
+        #find bb
+        #for every img ,run infer
+        #return result and image array
+        pass
+
     def run_single_image(self,image_url,state):
-        import io
 
         # Open an image
         img = Image.open(image_url)  # Replace with your image file path
+        return self.run_single_image_obj(img, state)
+
+    def run_single_image_obj(self, img, state):
         file_format = img.format.lower()
         img=self.is_proper_size(img,state)
         # Create a BytesIO object
@@ -77,7 +86,8 @@ class VLMClient:
                         ],
                     }],
                     model=self.model,
-
+                    temperature=0.01,
+                    top_p=0.01
         )
         result = chat_completion_from_base64.choices[0].message.content
 
@@ -138,5 +148,6 @@ def get_answer(file_location: str, prompt_name: str, current_language: str):
 
 if __name__ == "__main__":
     import sys
+    from db import user_prompt_info
     answer = get_answer(sys.argv[1])
     print(answer)

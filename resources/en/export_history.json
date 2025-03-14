@@ -1,0 +1,22 @@
+{    
+    "title":"OpenKAG",
+    "return": "Back",
+    "export_history":"Export chat records",
+    "session_title":"Chat Title",
+    "session_title_mes":"Please enter the chat title",
+    "start_date":"Start date",
+    "start_date_mes":"Please select a start date",
+    "end_date":"End Date",
+    "end_date_mes":"Please select an end date",
+    "export_all":"Export all",
+    "filter_record":"Filter records",
+    "reset_filter":"Reset filter",
+    "clean_select":"Clear Selection",
+    "select_all":"Select All",
+    "export_select":"Export Selected",
+    "history":"Historical records",
+    "history_show":"The chat history will be displayed here",
+    "date_input":"F j, Y",
+    "date_language":"en",
+    "extra_info":"extra information"
+}

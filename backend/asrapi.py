@@ -9,7 +9,7 @@ import numpy as np
 import soundfile
 import whisper
 import tempfile
-from settings import WHISPERMODEL_SIZE,ASR_PORT
+from settings import WHISPERMODEL_SIZE,ASR_PORT,WHISPERMODEL_SIZE_PATH
 app = FastAPI()
 # 设置 CORS
 app.add_middleware(
@@ -19,8 +19,8 @@ app.add_middleware(
     allow_methods=["*"],  # 允许所有方法
     allow_headers=["*"],  # 允许所有头
 )
-model = whisper.load_model(WHISPERMODEL_SIZE)
-
+model = whisper.load_model(WHISPERMODEL_SIZE_PATH)
+print("加载whisper模型成功")
 DATA_DIR=os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 
 @app.post("/api/generate")

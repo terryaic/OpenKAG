@@ -21,6 +21,7 @@ llama-index-embeddings-huggingface
 llama-index-embeddings-openai
 llama-index-llms-openai_like
 llama-index-vector-stores-milvus
+llama-index-retrievers-bm25
 requests_toolbelt
 pandas 
 openpyxl 
@@ -47,8 +48,11 @@ pymongo
 motor
 pymilvus
 trafilatura
+lxml_html_clean
 databases
 scrapy
 pytest
 cairosvg
-huggingface-hub
+doclayout_yolo 
+ultralytics 
+torchvision

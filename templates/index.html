@@ -1,112 +1,173 @@
 {% extends "sidebar.html" %}
 {% block content %}
-<div style="display:flex; flex-direction: column; width:100%">
+
+<div id="right_bar" style="display:flex; flex-direction: column; width:100%">
+<script src="/static/js/scripts.js"></script>
+
 {% include 'menubar.html' %}
 {% include 'userbutton.html' %}
+    <link rel="stylesheet" href="/static/css/input_box.css">
     <style>
 
         .main-container {
             display: flex;
-            /*flex-direction: column;*/
             justify-content: center;
-            align-items: center;
             height: 100vh;
             width:100%;
             margin: 0;
             font-family: Arial, sans-serif;
         }
 
-        .container {
-            text-align: center;
-        }
-
-        .container h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .input-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 20px;
-            background-color: white;
-            width: 500px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-box input {
-            border: none;
-            outline: none;
-            flex: 1;
-            font-size: 16px;
-        }
-
-        .input-box img {
-            margin-right: 10px;
-        }
-
-        .input-box button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: gray;
-        }
-
-        #sendButton {
-            background-color: rgb(160, 153, 153); /* 默认底色为灰色 */
-            cursor: not-allowed; /* 默认不可点击 */
-            width: 25px; /* 按钮宽度 */
-            height: 25px; /* 按钮高度 */
-            border-radius: 50%; /* 圆形按钮 */
-            border: none; /* 移除边框 */
-            display: flex; /* 使用 flexbox 对齐图标 */
-            justify-content: center; /* 水平居中 */
-            align-items: center; /* 垂直居中 */
-            padding: 0; /* 移除内边距 */
-        }
-
-        /* 激活状态 */
-        #sendButton:enabled {
-            background-color: black; /* 激活时底色为黑色 */
-            cursor: pointer; /* 改变鼠标样式 */
-        }
-
-        /* SVG 图标样式 */
-        #sendButton svg {
-            width: 20px; /* 图标宽度 */
-            height: 20px; /* 图标高度 */
-            display: block; /* 保证 SVG 自身占据空间 */
-            margin-left: 0px; /* 移除任何默认外边距 */
+        .input-container {
+            width: 700px;               /* 设置容器宽度 */
+            text-align: center;       /* 水平居中内联元素 */
+            padding-top: 270px; /* 设置为高度的 18% */
         }
 
 
+        .input-container h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+</style>
+<script>
+    function fill_text(text){
+        let input = document.getElementById('userInput');
+        input.textContent = text;
+        document.getElementById('sendButton').click()
+    }
 
-    </style>
-<div class="main-container">
-    <div class="container">
-        <h1>{{resources['greeting']}}</h1>
-        <div class="input-box">
-            <input type="text" id="userInput" placeholder="{{resources['send_to_ai']}}">
-            <button id="sendButton" type="submit" disabled>
-                <svg t="1733282301774" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
-                    <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z" fill="#FFFFFF"></path>
-                    <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z" fill="#FFFFFF"></path>
-                </svg>
-            </button>
+    const resources = {{ resources | tojson }};
+</script>
+
+<link rel="stylesheet" href="/static/css/input_box.css">
+    <div class="main-container">
+        <div class="input-container">
+            <h1>{{resources['greeting']}}</h1>
+            <div class="input-box">
+                <!-- 文件上传功能 -->
+                <div id="filediv" class="fileshowdiv"></div>
+                <p id="userInput" contenteditable="true" data-placeholder="{{resources['send_to_ai']}}" style="padding-top:5px; margin-bottom: 10px;"></p>
+                <div class="button-div" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 5px;">
+                    <!-- uploadfile 靠左 -->
+                    <button id="uploadfile" class="upload-file-btn" style="margin-left: 10px;">
+                        <svg class="upload-icon" t="1735871099935" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4280" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                            <path d="M1024 645.248v330.752a48 48 0 0 1-48 48H48a48 48 0 0 1-48-48v-330.752a48 48 0 0 1 96 0V928h832v-282.752a48 48 0 0 1 96 0zM246.912 381.76L464.768 163.84v593.472a48 48 0 0 0 96 0V163.904l217.856 217.92a48 48 0 1 0 67.904-67.904L546.752 14.08a47.936 47.936 0 0 0-67.904 0L179.072 313.856a48 48 0 0 0 67.84 67.904z"></path>
+                        </svg>
+                    </button>
+                    <input type="file" id="fileInput" style="display:none;" multiple />
+                    <!-- right-buttons 靠右 -->
+                    <div class="right-buttons" style="margin-right: 10px;">
+                        <!-- 发送按钮 -->
+                        <button id="sendButton" type="submit">
+                            <svg t="1733282301774" class="send-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                <path d="M535.06048 895.0784m-40.96 0l0 0q-40.96 0-40.96-40.96l0-573.44q0-40.96 40.96-40.96l0 0q40.96 0 40.96 40.96l0 573.44q0 40.96-40.96 40.96Z"></path>
+                                <path d="M493.03552 242.21696L289.792 445.44a40.96 40.96 0 1 1-57.93792-57.93792L463.58528 155.81184a40.96 40.96 0 0 1 58.44992-0.45056l231.69024 231.69024a40.96 40.96 0 1 1-57.91744 57.93792l-202.77248-202.77248z"></path>
+                            </svg>
+                        </button>
+                        <!-- 录音按钮 -->
+                        <button id="recordButton" onmousedown="this.classList.add('recording');startRecording()" onmouseup="this.classList.remove('recording');stopRecording(fill_text)">
+                            <svg t="1733475459563" class="record-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24">
+                                <path d="M486.4 972.8v-128.9728A332.8 332.8 0 0 1 179.2 512a25.6 25.6 0 0 1 51.2 0 281.6 281.6 0 0 0 563.2 0 25.6 25.6 0 1 1 51.2 0 332.8 332.8 0 0 1-307.2 331.8272V972.8h153.6a25.6 25.6 0 1 1 0 51.2h-358.4a25.6 25.6 0 1 1 0-51.2h153.6zM512 51.2a153.6 153.6 0 0 0-153.6 153.6v307.2a153.6 153.6 0 0 0 307.2 0V204.8a153.6 153.6 0 0 0-153.6-153.6z m0-51.2a204.8 204.8 0 0 1 204.8 204.8v307.2a204.8 204.8 0 1 1-409.6 0V204.8a204.8 204.8 0 0 1 204.8-204.8z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-    <script>
 
+    <!-- 弹窗容器 -->
+    <div id="popup" class="top-popup">
+        <span id="popup-message">这是一个错误信息！</span>
+        <button class="popup-close-btn" onclick="closePopup()">
+            <svg class="popup-close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // 获取当前 URL 的路径部分
+        let path = window.location.pathname;
+
+        // 提取 ID，检查路径是否符合预期
+        let session_id = path.split('/')[2] || null;  // 如果没有找到 ID，则返回 null
+
+        var permissions = {{ permissions | tojson }};
+    </script>
+    <script>
+        if (!permissions.includes("uploadfile")) {
+            const uploadFileBtn = document.getElementById("uploadfile")
+            uploadFileBtn.classList.add('disabled');
+            uploadFileBtn.disabled = true;
+        }
+
+        if (!permissions.includes("index")) {
+            console.log("没有index权限")
+            const sendButton = document.getElementById("sendButton")
+            sendButton.disabled = true;
+
+            const recordButton = document.getElementById("recordButton")
+            recordButton.disabled = true;
+
+            const menu_container = document.getElementById("menu_container")
+            menu_container.style.display = "none";
+        }
+
+        document.getElementById('uploadfile').addEventListener('click', function(event) {
+            event.preventDefault();  // 防止其他默认行为（如果有的话）
+            checkToken();
+            // 获取session_id,如果没有的情况下
+            if(!session_id){
+                // 获取session_id
+                const data = {
+                    create_session_id: true,
+                };
+
+                // 使用 fetch API 提交数据到服务器
+                fetch(`${window.location.protocol}//${window.location.host}/conversation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    session_id = data.session_id
+                })
+                .catch((error) => {
+                    console.error('错误:', error);
+                });
+            }
+
+            // 获取隐藏的文件输入框
+            const fileInput = document.getElementById('fileInput');
+            // 触发文件输入框的点击事件
+            fileInput.click();
+        });
+    </script>
+    <script src="/static/js/file_info.js"></script>
+    <script src="/static/js/upload_file.js"></script>
+    <script src="/static/js/input_text.js"></script>
+
+    <script>
         var mode="{{mode}}";
         var kdb_id = "{{kdb_id}}";
         var prompt_name = "{{prompt_name}}";
         function set_mode(modeIn){
             mode = modeIn;
+            console.log("设置了mode",mode)
+            const uploadFileBtn = document.getElementById("uploadfile")
+            if(mode === "faq" || mode === "graphrag"){
+                uploadFileBtn.classList.add('disabled');
+                uploadFileBtn.disabled = true;
+            }else{
+                uploadFileBtn.classList.remove('disabled');
+                uploadFileBtn.disabled = false;
+            }
         }
         function set_kdb_id(kdb_idIn){
             kdb_id = kdb_idIn;
@@ -115,42 +176,46 @@
             prompt_name = prompt_nameIn;
         }
 
-        // 获取输入框和按钮的引用
-        const userInput = document.getElementById('userInput');
-        const sendButton = document.getElementById('sendButton');
-
-        // 添加输入事件监听器
-        userInput.addEventListener('input', () => {
-            if (userInput.value.trim() !== '') {
-                sendButton.disabled = false; // 启用按钮
-            } else {
-                sendButton.disabled = true; // 禁用按钮
-            }
-        });
-
-        // 添加键盘事件监听器
-        userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter' && !sendButton.disabled) {
-                // 触发按钮点击的逻辑
-                sendButton.click();
-            }
-        });
-
-        document.getElementById('sendButton').addEventListener('click', function() {
-            const userInput = document.getElementById('userInput').value;
+        document.getElementById('sendButton').addEventListener('click', function () {
+            const userInputElement = document.getElementById('userInput');
+            const userInput = userInputElement.textContent.trim(); // 获取 <p> 的文本内容并去掉前后空格
 
             // 判断是否有输入
-            if (! userInput){
-                console.log("没有输入")
-                alert("请输入问题！")
-                return
+            if (!userInput) {
+                console.log("没有输入");
+                return;
             }
-            // 准备发送的JSON数据
+
+            // 判断是否有文件正在分析中
+            // 获取所有具有 'file-overlay' 类的元素
+            const elements = document.querySelectorAll('.file-overlay');
+
+            // 过滤出 style.display 为 'none' 的元素
+            const countNotNone = Array.from(elements).filter(element => element.style.display !== 'none').length;
+
+            if (countNotNone !== 0) {
+                showPopup(resources.analyzing_file)
+                return;
+            }
+
+            const fileDivs = document.querySelectorAll('.file-display');
+            const fileDetails = Array.from(fileDivs).map(fileDiv => {
+                const fileId = fileDiv.getAttribute('data-file-id'); // 获取 data-file-id
+                const fileName = fileDiv.querySelector('.file-name').id;
+                const fileType = fileDiv.querySelector('.file-type').id;
+                const fileSize = fileDiv.querySelector('.file-type').dataset.size;
+                return { file_id: fileId, filename: fileName, filetype: fileType, filesize: fileSize};
+            });
+            console.log("文件的信息",fileDetails)
+
+            // 准备发送的 JSON 数据
             const data = {
-                message: userInput
+                message: userInput,
+                session_id: session_id,
+                files: fileDetails
             };
 
-            // 使用fetch API提交数据到服务器
+            // 使用 fetch API 提交数据到服务器
             fetch(`${window.location.protocol}//${window.location.host}/conversation`, {
                 method: 'POST',
                 headers: {
@@ -158,13 +223,14 @@
                 },
                 body: JSON.stringify(data),
             })
-            .then(response => response.json())
-            .then(data => {
-                window.location.href = `${window.location.protocol}//${window.location.host}/chatbox/${data.session_id}?mode=${mode}&kdb_id=${kdb_id}&prompt_name=${prompt_name}`
+            .then((response) => response.json())
+            .then((data) => {
+                seenFiles = new Set();
+                window.location.href = `${window.location.protocol}//${window.location.host}/chatbox/${data.session_id}?mode=${mode}&kdb_id=${kdb_id}&prompt_name=${prompt_name}`;
             })
             .catch((error) => {
                 console.error('错误:', error);
-                alert('消息发送失败！');
+                showPopup(resources.send_error)
             });
         });
     </script>

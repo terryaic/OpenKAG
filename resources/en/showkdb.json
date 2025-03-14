@@ -10,5 +10,11 @@
     "delete_kdb":"Are you sure to delete this knowledge base?",
     "yes":"Delete",
     "no":"Cancel",
-    "title":"Knowledge Base Display"
+    "title":"Knowledge Base Display",
+    "choice_prompt":"Select Knowledge Base",
+    "choice_sub":"Confirm",
+    "choice_can":"Back",
+    "choice_rm":"Clear",
+    "de_er":"You have not selected any knowledge base yet!",
+    "choice_all":"Select All"
 }

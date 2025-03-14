@@ -17,6 +17,7 @@ if DB_DEFAULT == "mongo":
 # SQLite 设置
 elif DB_DEFAULT == "sqlite":
     db = Database(f"sqlite:///{db_path}?check_same_thread=False")
+
 # 确保数据库表存在（SQLite）
 CREATE_TABLE_SQLITE = """
 CREATE TABLE IF NOT EXISTS file_info (

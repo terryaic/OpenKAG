@@ -5,7 +5,7 @@
     "email_": "请输入您的邮箱",
     "password_": "请输入您的密码",
     "confirm_password_": "请确认您的密码",
-    "title": "注册海风助手",
+    "title": "注册OpenKAG",
     "registerButton": "注册",
     "error_unexpected": "发生了意外错误，请稍候重试。",
     "return":"已有帐号？返回登录"

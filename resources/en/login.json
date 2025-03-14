@@ -1,10 +1,12 @@
 {
-  "title": "Login to HaiFeng",
+  "title": "Login to OpenKAG",
   "email": "Email",
   "password": "Password",
   "email_": "Please enter your email",
   "password_": "Please enter your password",
   "login": "Login",
   "register": "Register",
-  "reset_password": "Forgot password?"
+  "reset_password": "Forgot password?",
+  "ep_none":"Missing email or password",
+  "login_fail":"Login failed"
 }

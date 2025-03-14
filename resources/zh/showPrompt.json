@@ -10,5 +10,10 @@
     "delete_prompt":"你确定要删除这个提示词吗",
     "yes":"是",
     "no":"否",
-    "title":"提示词展示"
+    "title":"提示词展示",
+    "choice_prompt":"选择提示词",
+    "choice_sub":"确认",
+    "choice_can":"返回",
+    "choice_rm":"清除",
+    "de_er":"您尚未选择任何提示词！"
 }

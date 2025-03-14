@@ -16,13 +16,13 @@
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 40px;
             max-width: 1200px;
             margin: 0 auto;
         }
         .card {
-            width:200px;
-            height:30px;
+            min-width:100px;
+            min-height:50px;
             position: relative;
             background-color: #ddd;
             border-radius: 10px;
@@ -33,6 +33,7 @@
             transition: transform 0.2s;
             align-items: center;       /* 水平居中 */
             justify-content: center;
+            font-size: 21px;
         }
 
         .card h2 {
@@ -40,7 +41,7 @@
             margin-bottom: 10px;
         }
         .card p {
-            font-size: 14px;
+            font-size: 20px;
             color: #666;
         }
         .new-notebook {
@@ -95,60 +96,62 @@
             height: 20px;
         }
 
-        .delete-btn {
+        .disabled-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 4px;
+            right: 1px;
             background-color: transparent;
             border: none;
             font-size: 20px;
             cursor: pointer;
         }
 
-
         .dropdown-toggle {
-                width: 20px; /* 设置图标宽度 */
-                height: 20px; /* 设置图标高度 */
-                cursor: pointer;
-                position: flex;
-                right: 10px;
-                bottom: 10px;
-                transition: transform 0.3s ease; /* 平滑旋转效果 */
-            }
+            width: 20px; /* 设置图标宽度 */
+            height: 20px; /* 设置图标高度 */
+            cursor: pointer;
+            position: flex;
+            right: 10px;
+            bottom: 10px;
+            transition: transform 0.3s ease; /* 平滑旋转效果 */
+        }
 
             /* 下拉菜单样式 */
         .dropdown-menu {
-                position: absolute;
-                top: 10px;
-                left: 280px;
-                width: 120px;
-                background-color: #fff;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                z-index: 100000;
-            }
+            position: absolute;
+            top: 1px;
+            left: 380px;
+            width: 120px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 100000;
+        }
 
         .dropdown-menu div {
-                padding: 10px;
-                cursor: pointer;
-                text-align: center;
-                border-bottom: 1px solid #eee;
-            }
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
 
         .dropdown-menu div:last-child {
-                border-bottom: none;
-            }
+            border-bottom: none;
+        }
 
         .dropdown-menu div:hover {
-                background-color: #f5f5f5;
-            }
+            background-color: #f5f5f5;
+        }
+
         .img-container {
             display: flex;            /* 使用 flexbox 布局 */
             align-items: center;
             justify-content: center;/* 垂直居中对齐 */
             gap: 10px;                /* 控制 p 和 img 之间的间距 */
+            margin-top: 20px;
         }
+        
         .img-container p {
             margin: 0;                /* 移除 p 标签的默认外边距 */
         }
@@ -264,15 +267,17 @@ function handleDataResponse(data) {
             if (notebooks.length > 0) { // 检查 notebooks 数组是否为空
                 notebooks.forEach(notebook => {
                     if (notebook.email && notebook.role) {
-                        createCard(notebook.email, notebook.role); // 这里用 notebook.source
+                        createCard(notebook.email, notebook.role, notebook.disabled); // 这里用 notebook.source
                     } else {
                         console.warn('{{resources['notebookTypeError']}}', notebook);
                     }
                 });
             }
         }
+    
 
-function createCard(email, role) {
+function createCard(email, role, disabled) {
+    console.log(`用户${email}的禁用信息是${disabled}`)
     const container = document.getElementById('card-container');
     const card = document.createElement('div');
     card.className = 'card';
@@ -280,19 +285,43 @@ function createCard(email, role) {
     // Create the delete button
     const deleteButton = document.createElement('button');
     deleteButton.innerHTML = '×'; // Cross symbol for the button
-    deleteButton.className = 'delete-btn';
-    deleteButton.style.position = 'absolute';
-    deleteButton.style.top = '10px';
-    deleteButton.style.right = '10px';
-    deleteButton.onclick = function(event) {
-        event.stopPropagation(); // Prevents the card click event from triggering
-        const userConfirmed = confirm("你确定要删除这个用户吗？");
+    deleteButton.className = 'disabled-btn';
+    let svgIcon = ""
+    if(disabled){
+        svgIcon = `
+        <svg t="1737011675814" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4725" width="23" height="23"><path d="M922.8 338.3c-22.5-53.2-54.7-101-95.7-142s-88.8-73.2-142-95.7C630 77.3 571.5 65.5 511.2 65.5c-60.3 0-118.8 11.8-173.9 35.1-53.2 22.5-101 54.7-142 95.7s-73.2 88.8-95.7 142c-23.3 55.1-35.1 113.6-35.1 173.9S76.3 631 99.6 686.1c22.5 53.2 54.7 101 95.7 142s88.8 73.2 142 95.7c55.1 23.3 113.6 35.1 173.9 35.1 60.3 0 118.8-11.8 173.9-35.1 53.2-22.5 101-54.7 142-95.7s73.2-88.8 95.7-142c23.3-55.1 35.1-113.6 35.1-173.9s-11.8-118.8-35.1-173.9z m-141 444.5c-72.3 72.3-168.4 112.1-270.6 112.1s-198.3-39.8-270.6-112.1c-72.3-72.3-112.1-168.4-112.1-270.6 0-102.2 39.8-198.3 112.1-270.6 72.3-72.3 168.4-112.1 270.6-112.1s198.3 39.8 270.6 112.1S893.9 410 893.9 512.2c0 102.2-39.8 198.4-112.1 270.6z" fill="#5B1B1B" p-id="4726"></path><path d="M766.9 385.5c-12.5-12.5-32.8-12.5-45.3 0L449 658.2 302.2 511.5c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l169.4 169.4c12.5 12.5 32.8 12.5 45.3 0L767 430.8c12.4-12.6 12.4-32.8-0.1-45.3z" fill="#5B1B1B" p-id="4727"></path></svg>
+        `;
 
-        if (userConfirmed) {
-            // 如果用户点击了“确定”，执行删除操作
-            deleteUser(email);  // 执行删除操作
-        }
-    };
+        deleteButton.onclick = function(event) {
+            event.stopPropagation(); // Prevents the card click event from triggering
+            const userConfirmed = confirm("{{resources['unlocked_mes']}}");
+
+            if (userConfirmed) {
+                // 如果用户点击了“确定”，执行删除操作
+                disabledUser(email, false);  // 执行删除操作
+            }
+        };
+    }else{
+        svgIcon = `
+            <svg t="1737010901738" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1485" width="20" height="20">
+                <path d="M874.045406 149.954594a511.208843 511.208843 0 1 0 109.544752 162.734815 511.208843 511.208843 0 0 0-109.544752-162.734815z m-100.416023 19.596339L169.550933 773.629383a430.876025 430.876025 0 0 1 604.07845-604.07845z m169.550933 342.388209a430.997742 430.997742 0 0 1-718.126708 321.08784l608.581956-608.581956a428.441697 428.441697 0 0 1 109.544752 287.494116z" fill="#4D4D4D" p-id="1486"></path>
+            </svg>
+        `;
+
+        deleteButton.onclick = function(event) {
+            event.stopPropagation(); // Prevents the card click event from triggering
+            const userConfirmed = confirm("{{resources['disabled_mes']}}");
+
+            if (userConfirmed) {
+                // 如果用户点击了“确定”，执行删除操作
+                disabledUser(email, true);  // 执行删除操作
+            }
+        };
+    }
+
+
+    // 将 SVG 添加到按钮内容
+    deleteButton.innerHTML = svgIcon;
 
     // Create the dropdown icon
     const icon = document.createElement('img');
@@ -327,101 +356,96 @@ function createCard(email, role) {
     setupMouseLeave(card, icon); // 为 card 设置 mouseleave 事件
 }
 
+function toggleDropdown(icon, card, email) {
+    const existingMenu = card.querySelector('.dropdown-menu');
+    if (existingMenu) {
+        // 如果菜单已经存在，则移除菜单并恢复图标
+        existingMenu.remove();
+        icon.style.transform = 'rotate(0deg)'; // 恢复为倒三角
+    } else {
+        // 如果菜单不存在，则创建菜单并旋转图标
+        icon.style.transform = 'rotate(180deg)'; // 旋转为上三角
 
-
-
-        function toggleDropdown(icon, card, email) {
-            const existingMenu = card.querySelector('.dropdown-menu');
-            if (existingMenu) {
-                // 如果菜单已经存在，则移除菜单并恢复图标
-                existingMenu.remove();
-                icon.style.transform = 'rotate(0deg)'; // 恢复为倒三角
-            } else {
-                // 如果菜单不存在，则创建菜单并旋转图标
-                icon.style.transform = 'rotate(180deg)'; // 旋转为上三角
-
-                const menu = document.createElement('div');
-                menu.className = 'dropdown-menu';
+        const menu = document.createElement('div');
+        menu.className = 'dropdown-menu';
         // 使用绝对定位来固定在图标的右边
-
-
-                const roles = ['user', 'admin', 'vip'];
-                roles.forEach(role => {
-                    const option = document.createElement('div');
-                    option.textContent = role;
-                    option.onclick = function(event) {
-                        event.stopPropagation(); // 防止触发其他点击事件
-                        const userConfirmed = confirm(`{{resources['confirmed']}}: ${role} `);
-                        if (userConfirmed) {
-                            updateUserRole(email, role); // 执行角色更新操作
-                            existingMenu?.remove(); // 移除菜单
-                            icon.style.transform = 'rotate(0deg)'; // 恢复图标
-                        }
-                    };
-                    menu.appendChild(option);
-                });
-
-                card.appendChild(menu);
-            }
-        }
-
-
-        function deleteUser(email) {
-             // 修改share的值
-            fetch(`${window.location.protocol}//${window.location.host}/deleteUser`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' // 指定请求体格式为 JSON
-                },
-                body: JSON.stringify({ email: email})
-            })
-            .then(response => {
-            console.log('Response status:', response.status); // 输出响应状态码
-            if (!response.ok) {
-                throw new Error(response.status);
-            }
-            return response.json(); // 解析 JSON 数据
-            })
-            .then(data => {
-                location.reload();
-            })
-            .catch(error => {
-                console.error('Error:', error); // 处理错误
-            });
-        }
-
-        function updateUserRole(email, newRole) {
-            fetch(`${window.location.protocol}//${window.location.host}/updateUserRole`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email: email, new_role: newRole })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error( response.status);
+        const roles = ['user', 'admin', 'vip'];
+        roles.forEach(role => {
+            const option = document.createElement('div');
+            option.textContent = role;
+            option.onclick = function(event) {
+                event.stopPropagation(); // 防止触发其他点击事件
+                const userConfirmed = confirm(`{{resources['confirmed']}}: ${role} `);
+                if (userConfirmed) {
+                    updateUserRole(email, role); // 执行角色更新操作
+                    existingMenu?.remove(); // 移除菜单
+                    icon.style.transform = 'rotate(0deg)'; // 恢复图标
                 }
-                return response.json();
-            })
-            .then(data => {
-                location.reload(); // 刷新页面
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
+            };
+            menu.appendChild(option);
+        });
+        card.appendChild(menu);
+    }
+}
 
-            function setupCardInteractions(card, email, icon) {
-            // 为 card 添加 mouseleave 事件，模拟关闭菜单并恢复图标
-            card.addEventListener('mouseleave', function() {
-                const existingMenu = card.querySelector('.dropdown-menu');
-                if (existingMenu) {
-                    existingMenu.remove(); // 移除菜单
-                    icon.style.transform = 'rotate(0deg)'; // 恢复图标为倒三角
-                }
-            });
+function disabledUser(email, disabled) {
+    console.log("是否禁用用户------",disabled)
+    // 修改share的值
+    fetch(`${window.location.protocol}//${window.location.host}/disableUser`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' // 指定请求体格式为 JSON
+        },
+        body: JSON.stringify({ email: email, disabled: disabled})
+    })
+    .then(response => {
+    console.log('Response status:', response.status); // 输出响应状态码
+    if (!response.ok) {
+        throw new Error(response.status);
+    }
+    return response.json(); // 解析 JSON 数据
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error); // 处理错误
+    });
+}
+
+function updateUserRole(email, newRole) {
+    fetch(`${window.location.protocol}//${window.location.host}/updateUserRole`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email, new_role: newRole })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error( response.status);
         }
+        return response.json();
+    })
+    .then(data => {
+        location.reload(); // 刷新页面
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function setupCardInteractions(card, email, icon) {
+    // 为 card 添加 mouseleave 事件，模拟关闭菜单并恢复图标
+    card.addEventListener('mouseleave', function() {
+        const existingMenu = card.querySelector('.dropdown-menu');
+        if (existingMenu) {
+            existingMenu.remove(); // 移除菜单
+            icon.style.transform = 'rotate(0deg)'; // 恢复图标为倒三角
+        }
+    });
+}
+
 let leaveTimeout;
 function setupMouseLeave(card, icon) {
     let leaveTimeout;  // 用于存储 setTimeout 的返回值
@@ -445,55 +469,56 @@ function setupMouseLeave(card, icon) {
     });
 }
 
-    document.getElementById('searchButtion').addEventListener('click', function() {
-            const userInput = document.getElementById('userInput').value;
-            const cardContainer = document.getElementById('card-container');
-            cardContainer.innerHTML = ''; // 清空当前的搜索结果
+document.getElementById('searchButtion').addEventListener('click', function() {
+    const userInput = document.getElementById('userInput').value;
+    const cardContainer = document.getElementById('card-container');
+    cardContainer.innerHTML = ''; // 清空当前的搜索结果
 
-            if(! userInput){
-                // 刷新页面
-                location.reload();
-                return;
-            }
+    if(! userInput){
+        // 刷新页面
+        location.reload();
+        return;
+    }
 
-            // 准备发送的JSON数据
-            const data = {
-                search_query: userInput
-            };
+    // 准备发送的JSON数据
+    const data = {
+        search_query: userInput
+    };
 
-            // 使用fetch API提交数据到服务器
-            fetch(`${window.location.protocol}//${window.location.host}/searchUserByEmail`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                handleDataResponse(data);
-            })
-            .catch((error) => {
-                console.error('错误:', error);
-                alert('消息发送失败！');
-            });
-        });
-        document.getElementById('userInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // 防止默认的回车行为（如换行）
-                document.getElementById('sendButton').click(); // 触发点击事件
-            }
-            });
+    // 使用fetch API提交数据到服务器
+    fetch(`${window.location.protocol}//${window.location.host}/searchUserByEmail`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        handleDataResponse(data);
+    })
+    .catch((error) => {
+        console.error('错误:', error);
+        alert('消息发送失败！');
+    });
+});
+
+document.getElementById('userInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // 防止默认的回车行为（如换行）
+        document.getElementById('sendButton').click(); // 触发点击事件
+    }
+});
 
 
-        document.getElementById('userInput').addEventListener('input', function() {
-            const userInput = document.getElementById('userInput').value;
+document.getElementById('userInput').addEventListener('input', function() {
+    const userInput = document.getElementById('userInput').value;
 
-            if (userInput === '') {
-                // 如果输入框内容为空，恢复初始状态
-                const cardContainer = document.getElementById('card-container');
-                cardContainer.innerHTML = '';  // 清空搜索结果
-                fetch(`${window.location.protocol}//${window.location.host}/admin2user`, {
+    if (userInput === '') {
+        // 如果输入框内容为空，恢复初始状态
+        const cardContainer = document.getElementById('card-container');
+        cardContainer.innerHTML = '';  // 清空搜索结果
+        fetch(`${window.location.protocol}//${window.location.host}/admin2user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json' // 指定请求体格式为 JSON
@@ -509,9 +534,9 @@ function setupMouseLeave(card, icon) {
             // 获取 notebooks 数据
             if (data) {
                 handleDataResponse(data);
-                }
-                });
             }
         });
+    }
+});
 </script>
 </html>

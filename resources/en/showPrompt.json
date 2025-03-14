@@ -10,5 +10,10 @@
     "delete_prompt":"Are you sure to delete this prompt?",
     "yes":"yes",
     "no":"no",
-    "title":"Prompt Display"
+    "title":"Prompt Display",
+    "choice_prompt":"Select Prompt",
+    "choice_sub":"Confirm",
+    "choice_can":"Back",
+    "choice_rm":"Clear",
+    "de_er":"You have not selected any Prompt yet!"
 }
