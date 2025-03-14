@@ -43,7 +43,8 @@ conda activate haifengai
 > 提醒：安装系统所需依赖包时，需要按步骤的循序执行，否值会有错误！
 ## 2.1 安装依赖包
 ```bash
-cd haifeng-llm
+git clone https://github.com/terryaic/OpenKAG.git
+cd OpenKAG
 pip install -r requirements.txt
 ```
 ## 2.2 安装Graphrag依赖包

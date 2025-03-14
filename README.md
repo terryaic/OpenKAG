@@ -64,7 +64,8 @@ conda activate haifengai
 #### 2.1 Install dependencies
 
 ```bash
-cd haifeng-llm
+git clone https://github.com/terryaic/OpenKAG.git
+cd OpenKAG
 pip install -r requirements.txt
 ```
 
