@@ -69,10 +69,11 @@ cd OpenKAG
 pip install -r requirements.txt
 ```
 
-#### 2.2 Install Graphrag dependencies
+#### 2.2 Install thirdparty dependencies
+git submodule update --recursive
 
 ```bash
-pip install git+https://github.com/Good1521/graphrag.git
+pip install third_parties/graphrag
 ```
 
 #### 2.3 Install Embedding Model dependencies (if needed)

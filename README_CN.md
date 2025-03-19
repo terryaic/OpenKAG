@@ -48,8 +48,10 @@ cd OpenKAG
 pip install -r requirements.txt
 ```
 ## 2.2 安装Graphrag依赖包
+git submodule update --recursive
+
 ```bash
-pip install git+https://github.com/Good1521/graphrag.git
+pip install third_parties/graphrag.git
 ```
 ## 2.3 安装启动EMBEDDING模型的依赖包（如需要）
 ```bash

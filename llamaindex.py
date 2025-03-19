@@ -25,8 +25,8 @@ if RAG_LOCAL_EMBEDDING:
         model_name=RAG_EMBEDDING_MODEL
     )
 else:
-    from aicembeddings import AICEmbedding
-    embed_model = AICEmbedding(
+    #from aicembeddings import AICEmbedding
+    embed_model = OpenAIEmbedding(
         model_name=GRAPHRAG_EMBEDDING_MODEL,
         api_key=GRAPHRAG_EMBEDDING_API_KEY,
         api_base=GRAPHRAG_EMBEDDING_API_BASE_URL

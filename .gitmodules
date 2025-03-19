@@ -1,0 +1,3 @@
+[submodule "third_parties/graphrag"]
+	path = third_parties/graphrag
+	url = https://github.com/terryaic/graphrag
