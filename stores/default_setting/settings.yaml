@@ -9,9 +9,9 @@ encoding_model: cl100k_base # this needs to be matched to your model!
 llm:
   api_key: ${GRAPHRAG_API_KEY} # set this in the generated .env file
   type: openai_chat # or azure_openai_chat
-  model: DeepSeek-V3
+  model: llm-model
   model_supports_json: false # recommended if this is available for your model.
-  api_base: http://localhost:8012/v1
+  api_base: http://llmsrv:8011/v1
   # audience: "https://cognitiveservices.azure.com/.default"
   # api_base: https://<instance>.openai.azure.com
   # api_version: 2024-02-15-preview
