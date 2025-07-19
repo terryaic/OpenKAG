@@ -34,7 +34,7 @@ docx2txt
 pymupdf
 python-pptx
 markdown
-pyautogen
+ag2
 #nvidia_ace-1.0.0-py3-none-any.whl
 numba
 # git+https://github.com/Good1521/graphrag.git@v0.5.0
